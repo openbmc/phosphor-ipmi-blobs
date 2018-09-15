@@ -26,6 +26,10 @@
 #include <host-ipmid/oemrouter.hpp>
 #include <memory>
 
+#if ENABLE_EXAMPLE
+#include "example/example.hpp"
+#endif
+
 /* TODO: Swap out once https://gerrit.openbmc-project.xyz/12743 is merged */
 namespace oem
 {
@@ -73,5 +77,9 @@ void setupBlobGlobalHandler()
                                handleBlobCommand);
 
     manager = std::make_unique<BlobManager>();
+
+#if ENABLE_EXAMPLE
+    manager->registerHandler(std::move(std::make_unique<ExampleBlobHandler>()));
+#endif
 }
 } // namespace blobs

@@ -53,6 +53,12 @@ AS_IF([test "x$enable_oe_sdk" == "xyes"],
     AC_SUBST([OESDK_TESTCASE_FLAGS], [$testcase_flags])
 )
 
+# Do you want to include the example blob handler?
+AC_ARG_ENABLE([example],
+    AS_HELP_STRING([--enable-example], [Enable example blob handler])
+)
+AM_CONDITIONAL(ENABLE_EXAMPLE, [test "x$enable_example" = "xyes"])
+
 # Create configured output
 AC_CONFIG_FILES([Makefile test/Makefile])
 AC_OUTPUT
