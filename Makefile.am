@@ -1,12 +1,19 @@
 AM_DEFAULT_SOURCE_EXT = .cpp
 
+HANDLERS =
+
+if ENABLE_EXAMPLE
+HANDLERS += example/example.cpp
+endif
+
 libblobcmdsdir = ${libdir}/ipmid-providers
 libblobcmds_LTLIBRARIES = libblobcmds.la
 libblobcmds_la_SOURCES = main.cpp \
 			 ipmi.cpp \
 			 manager.cpp \
 			 process.cpp \
-			 crc.cpp
+			 crc.cpp \
+			 $(HANDLERS)
 
 libblobcmds_la_LDFLAGS = $(SYSTEMD_LIBS) \
                          -version-info 0:0:0 -shared
