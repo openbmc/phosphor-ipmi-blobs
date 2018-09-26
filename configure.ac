@@ -57,6 +57,10 @@ AC_ARG_ENABLE([example],
     AS_HELP_STRING([--enable-example], [Enable example blob handler])
 )
 AM_CONDITIONAL(ENABLE_EXAMPLE, [test "x$enable_example" = "xyes"])
+AS_IF([test "x$enable_example" = "xyes"],
+    [AC_DEFINE(ENABLE_EXAMPLE, [1], [Build and install the example handler.])],
+    [AC_DEFINE(ENABLE_EXAMPLE, [0], [Do not build and install the example handler.])]
+)
 
 # Create configured output
 AC_CONFIG_FILES([Makefile test/Makefile])
