@@ -77,7 +77,7 @@ void setupBlobGlobalHandler()
 
 #if ENABLE_EXAMPLE
     BlobManager* manager = getBlobManager();
-    manager->registerHandler(std::move(std::make_unique<ExampleBlobHandler>()));
+    manager->registerHandler(BuildExampleHandler);
 #endif
 }
 } // namespace blobs
