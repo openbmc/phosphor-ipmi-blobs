@@ -33,7 +33,8 @@ check_PROGRAMS = \
 	manager_write_unittest \
 	manager_read_unittest \
 	process_unittest \
-	crc_unittest
+	crc_unittest \
+	utils_unittest
 TESTS = $(check_PROGRAMS)
 
 ipmi_unittest_SOURCES = ipmi_unittest.cpp
@@ -108,3 +109,8 @@ process_unittest_LDADD = $(top_builddir)/process.o $(top_builddir)/ipmi.o \
 
 crc_unittest_SOURCES = crc_unittest.cpp
 crc_unittest_LDADD = $(top_builddir)/crc.o
+
+utils_unittest_SOURCES = utils_unittest.cpp
+utils_unittest_LDADD = $(PHOSPHOR_LOGGING_LIBS) -lstdc++fs $(LIBADD_DLOPEN) \
+	$(top_builddir)/utils.o
+utils_unittest_CXXFLAGS = $(PHOSPHOR_LOGGING_CFLAGS)

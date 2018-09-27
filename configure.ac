@@ -16,12 +16,15 @@ AC_PROG_MAKE_SET
 AX_CXX_COMPILE_STDCXX_17([noext])
 AX_APPEND_COMPILE_FLAGS([-Wall -Werror], [CXXFLAGS])
 
-# Checks for libraries.
-AC_CHECK_HEADER([host-ipmid], [AC_MSG_ERROR(["phosphor-host-ipmid required and not found."])])
-AX_PTHREAD([], [AC_MSG_ERROR(["pthread required and not found"])])
-
 # Checks for library functions.
-LT_INIT # Required for systemd linking
+LT_INIT([dlopen]) # Required for systemd linking
+LT_LIB_DLLOAD
+
+# Checks for libraries.
+PKG_CHECK_MODULES([PHOSPHOR_LOGGING], [phosphor-logging],, [AC_MSG_ERROR([Could not find phosphor-logging...openbmc/phosphor-logging package required])])
+AC_CHECK_HEADER([host-ipmid], [AC_MSG_ERROR(["phosphor-host-ipmid required and not found."])])
+AC_CHECK_HEADER(experimental/filesystem, ,[AC_MSG_ERROR([Could not find experimental/filesystem...libstdc++fs developement package required])])
+AX_PTHREAD([], [AC_MSG_ERROR(["pthread required and not found"])])
 
 # Check/set gtest specific functions.
 PKG_CHECK_MODULES([GTEST], [gtest], [], [AC_MSG_NOTICE([gtest not found, tests will not build])])
