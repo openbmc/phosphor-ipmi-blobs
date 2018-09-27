@@ -2,6 +2,7 @@
 
 #include <blobs-ipmid/blobs.hpp>
 #include <ctime>
+#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -26,13 +27,15 @@ struct SessionInfo
     uint16_t flags;
 };
 
+/** A HandlerFactory is passed in during registration. */
+using HandlerFactory = std::function<GenericBlobInterface*()>;
+
 class ManagerInterface
 {
   public:
     virtual ~ManagerInterface() = default;
 
-    virtual bool
-        registerHandler(std::unique_ptr<GenericBlobInterface> handler) = 0;
+    virtual bool registerHandler(HandlerFactory factory) = 0;
 
     virtual uint32_t buildBlobList() = 0;
 
@@ -81,11 +84,10 @@ class BlobManager : public ManagerInterface
     /**
      * Register a handler.  We own the pointer.
      *
-     * @param[in] handler - a pointer to a blob handler.
+     * @param[in] factory - a pointer to the handler's factory.
      * @return bool - true if registered.
      */
-    bool
-        registerHandler(std::unique_ptr<GenericBlobInterface> handler) override;
+    bool registerHandler(HandlerFactory factory) override;
 
     /**
      * Builds the blobId list for enumeration.
@@ -243,7 +245,7 @@ class BlobManager : public ManagerInterface
     /* Temporary list of blobIds used for enumeration. */
     std::vector<std::string> ids;
     /* List of Blob handler. */
-    std::vector<std::unique_ptr<GenericBlobInterface>> handlers;
+    std::vector<GenericBlobInterface*> handlers;
     /* Mapping of session ids to blob handlers and the path used with open.
      */
     std::unordered_map<uint16_t, SessionInfo> sessions;
