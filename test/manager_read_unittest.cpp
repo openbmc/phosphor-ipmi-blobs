@@ -8,6 +8,18 @@
 namespace blobs
 {
 
+namespace
+{
+
+BlobMock* currentHandler;
+
+GenericBlobInterface* CreateBlobMock()
+{
+    return currentHandler;
+}
+
+} // namespace
+
 using ::testing::_;
 using ::testing::Return;
 
@@ -32,7 +44,8 @@ TEST(ManagerReadTest, ReadFromWriteOnlyFails)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     uint16_t sess = 1;
     uint32_t ofs = 0x54;
@@ -56,7 +69,8 @@ TEST(ManagerReadTest, ReadFromHandlerReturnsData)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     uint16_t sess = 1;
     uint32_t ofs = 0x54;
