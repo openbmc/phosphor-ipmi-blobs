@@ -15,6 +15,7 @@
  */
 
 #include <blobs-ipmid/manager.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -343,4 +344,17 @@ bool BlobManager::getSession(uint16_t* sess)
 
     return false;
 }
+
+static std::unique_ptr<BlobManager> manager;
+
+BlobManager* getBlobManager()
+{
+    if (manager == nullptr)
+    {
+        manager = std::make_unique<BlobManager>();
+    }
+
+    return manager.get();
+}
+
 } // namespace blobs
