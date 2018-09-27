@@ -1,4 +1,4 @@
-#include "manager.hpp"
+#include <blobs-ipmid/manager.hpp>
 
 #include <gtest/gtest.h>
 

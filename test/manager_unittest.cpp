@@ -1,7 +1,7 @@
 #include "blob_mock.hpp"
-#include "manager.hpp"
 
 #include <algorithm>
+#include <blobs-ipmid/manager.hpp>
 #include <string>
 #include <vector>
 
@@ -9,6 +9,18 @@
 
 namespace blobs
 {
+
+namespace
+{
+
+std::unique_ptr<GenericBlobInterface>* currentHandler;
+
+std::unique_ptr<GenericBlobInterface> CreateBlobMock()
+{
+    return *currentHandler;
+}
+
+} // namespace
 
 using ::testing::Return;
 
@@ -26,7 +38,8 @@ TEST(BlobsTest, RegisterNonNullPointerPasses)
 
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = &m1;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 }
 
 TEST(BlobsTest, GetCountNoBlobsRegistered)
@@ -43,10 +56,11 @@ TEST(BlobsTest, GetCountBlobRegisteredReturnsOne)
 
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
+    currentHandler = &m1;
     auto m1ptr = m1.get();
     std::vector<std::string> v = {"item"};
 
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     // We expect it to ask for the list.
     EXPECT_CALL(*m1ptr, getBlobIds()).WillOnce(Return(v));
@@ -68,8 +82,10 @@ TEST(BlobsTest, GetCountBlobsRegisteredEachReturnsOne)
     v1.push_back("asdf");
     v2.push_back("ghjk");
 
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
-    EXPECT_TRUE(mgr.registerHandler(std::move(m2)));
+    currentHandler = &m1;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
+    currentHandler = &m2;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     // We expect it to ask for the list.
     EXPECT_CALL(*m1ptr, getBlobIds()).WillOnce(Return(v1));
@@ -92,8 +108,10 @@ TEST(BlobsTest, EnumerateBlobZerothEntry)
     v1.push_back("asdf");
     v2.push_back("ghjk");
 
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
-    EXPECT_TRUE(mgr.registerHandler(std::move(m2)));
+    currentHandler = &m1;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
+    currentHandler = &m2;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     // We expect it to ask for the list.
     EXPECT_CALL(*m1ptr, getBlobIds()).WillOnce(Return(v1));
@@ -123,8 +141,10 @@ TEST(BlobsTest, EnumerateBlobFirstEntry)
 
     // Presently the list of blobs is read and appended in a specific order,
     // but I don't want to rely on that.
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
-    EXPECT_TRUE(mgr.registerHandler(std::move(m2)));
+    currentHandler = &m1;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
+    currentHandler = &m2;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     // We expect it to ask for the list.
     EXPECT_CALL(*m1ptr, getBlobIds()).WillOnce(Return(v1));
@@ -157,8 +177,10 @@ TEST(BlobTest, EnumerateBlobInvalidEntry)
     v1.push_back("asdf");
     v2.push_back("ghjk");
 
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
-    EXPECT_TRUE(mgr.registerHandler(std::move(m2)));
+    currentHandler = &m1;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
+    currentHandler = &m2;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     // We expect it to ask for the list.
     EXPECT_CALL(*m1ptr, getBlobIds()).WillOnce(Return(v1));

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "manager.hpp"
-
+#include <blobs-ipmid/manager.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -65,14 +65,20 @@ int BlobManager::getOpen(const std::string& path) const
     return 0;
 }
 
-bool BlobManager::registerHandler(std::unique_ptr<GenericBlobInterface> handler)
+bool BlobManager::registerHandler(HandlerFactory factory)
 {
+    if (!factory)
+    {
+        return false;
+    }
+
+    auto handler = factory();
     if (!handler)
     {
         return false;
     }
 
-    handlers.push_back(std::move(handler));
+    handlers.push_back(handler);
     return true;
 }
 
@@ -344,4 +350,17 @@ bool BlobManager::getSession(uint16_t* sess)
 
     return false;
 }
+
+static std::unique_ptr<BlobManager> manager;
+
+BlobManager* getBlobManager()
+{
+    if (manager == nullptr)
+    {
+        manager = std::make_unique<BlobManager>();
+    }
+
+    return manager.get();
+}
+
 } // namespace blobs
