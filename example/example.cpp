@@ -176,4 +176,15 @@ GenericBlobInterface* BuildExampleHandler()
     return &exampler;
 }
 
+void setupExampleHandler() __attribute__((constructor));
+
+void setupExampleHandler()
+{
+    BlobManager* manager = getBlobManager();
+    if (!manager->registerHandler(BuildExampleHandler))
+    {
+        log<level::ERR>("Failed to register Example Handler");
+    }
+}
+
 } // namespace blobs
