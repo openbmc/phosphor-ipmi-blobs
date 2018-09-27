@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#include "manager.hpp"
-
+#include <blobs-ipmid/manager.hpp>
 #include <string>
 #include <vector>
 

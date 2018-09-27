@@ -20,4 +20,8 @@ libblobcmds_la_LDFLAGS = $(SYSTEMD_LIBS) \
 
 libblobcmds_la_CXXFLAGS = $(SYSTEMD_CFLAGS)
 
+nobase_include_HEADERS = \
+	blobs-ipmid/blobs.hpp \
+	blobs-ipmid/manager.hpp
+
 SUBDIRS = . test

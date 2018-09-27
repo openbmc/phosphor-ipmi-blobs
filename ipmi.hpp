@@ -1,9 +1,8 @@
 #pragma once
 
-#include "manager.hpp"
-
 #include <host-ipmid/ipmid-api.h>
 
+#include <blobs-ipmid/manager.hpp>
 #include <string>
 
 namespace blobs

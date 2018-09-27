@@ -1,7 +1,6 @@
 #pragma once
 
-#include "blobs.hpp"
-
+#include <blobs-ipmid/blobs.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>

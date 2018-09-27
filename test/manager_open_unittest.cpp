@@ -1,6 +1,6 @@
 #include "blob_mock.hpp"
-#include "manager.hpp"
 
+#include <blobs-ipmid/manager.hpp>
 #include <string>
 
 #include <gtest/gtest.h>
