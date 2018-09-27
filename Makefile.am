@@ -13,12 +13,17 @@ libblobcmds_la_SOURCES = main.cpp \
 			 manager.cpp \
 			 process.cpp \
 			 crc.cpp \
+			 utils.cpp \
 			 $(HANDLERS)
 
 libblobcmds_la_LDFLAGS = $(SYSTEMD_LIBS) \
+			 $(LIBADD_DLOPEN) \
+			 $(PHOSPHOR_LOGGING_LIBS) \
+			 -lstdc++fs \
                          -version-info 0:0:0 -shared
 
-libblobcmds_la_CXXFLAGS = $(SYSTEMD_CFLAGS)
+libblobcmds_la_CXXFLAGS = $(SYSTEMD_CFLAGS) \
+			  $(PHOSPHOR_LOGGING_CFLAGS)
 
 nobase_include_HEADERS = \
 	blobs-ipmid/blobs.hpp \
