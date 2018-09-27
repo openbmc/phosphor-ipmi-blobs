@@ -13,6 +13,7 @@ libblobcmds_la_SOURCES = main.cpp \
 			 manager.cpp \
 			 process.cpp \
 			 crc.cpp \
+			 utils.cpp \
 			 $(HANDLERS)
 
 libblobcmds_la_LDFLAGS = $(SYSTEMD_LIBS) \
