@@ -14,7 +14,8 @@ struct ExampleBlob
 {
     ExampleBlob() = default;
     ExampleBlob(uint16_t id, uint16_t flags) :
-        sessionId(id), flags(flags), length(0)
+        sessionId(id), flags(flags),
+        state(StateFlags::open_read | StateFlags::open_write), length(0)
     {
     }
 
@@ -23,6 +24,9 @@ struct ExampleBlob
 
     /* The flags passed into open. */
     uint16_t flags;
+
+    /* The current state. */
+    uint16_t state;
 
     /* The buffer is a fixed size, but length represents the number of bytes
      * expected to be used contiguously from offset 0.
