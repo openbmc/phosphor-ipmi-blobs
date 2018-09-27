@@ -1,11 +1,17 @@
 #include "example/example.hpp"
 
 #include <algorithm>
+#include <blobs-ipmid/manager.hpp>
+#include <cstring>
+#include <memory>
+#include <phosphor-logging/log.hpp>
 #include <string>
 #include <vector>
 
 namespace blobs
 {
+
+using namespace phosphor::logging;
 
 constexpr char ExampleBlobHandler::supportedPath[];
 
@@ -162,6 +168,24 @@ bool ExampleBlobHandler::expire(uint16_t session)
     }
     /* TODO: implement session expiration behavior. */
     return false;
+}
+
+static ExampleBlobHandler exampler;
+
+GenericBlobInterface* BuildExampleHandler()
+{
+    return &exampler;
+}
+
+void setupExampleHandler() __attribute__((constructor));
+
+void setupExampleHandler()
+{
+    BlobManager* manager = getBlobManager();
+    if (!manager->registerHandler(BuildExampleHandler))
+    {
+        log<level::ERR>("Failed to register Example Handler");
+    }
 }
 
 } // namespace blobs

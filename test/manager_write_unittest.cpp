@@ -1,5 +1,6 @@
 #include "blob_mock.hpp"
-#include "manager.hpp"
+
+#include <blobs-ipmid/manager.hpp>
 
 #include <gtest/gtest.h>
 
@@ -8,6 +9,18 @@ using ::testing::Return;
 
 namespace blobs
 {
+
+namespace
+{
+
+BlobMock* currentHandler;
+
+GenericBlobInterface* CreateBlobMock()
+{
+    return currentHandler;
+}
+
+} // namespace
 
 TEST(ManagerWriteTest, WriteNoSessionReturnsFalse)
 {
@@ -28,7 +41,8 @@ TEST(ManagerWriteTest, WriteSessionFoundButHandlerReturnsFalse)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     uint16_t flags = OpenFlags::write, sess;
     std::string path = "/asdf/asdf";
@@ -51,7 +65,8 @@ TEST(ManagerWriteTest, WriteFailsBecauseFileOpenedReadOnly)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     uint16_t flags = OpenFlags::read, sess;
     std::string path = "/asdf/asdf";
@@ -72,7 +87,8 @@ TEST(ManagerWriteTest, WriteSessionFoundAndHandlerReturnsSuccess)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     uint16_t flags = OpenFlags::write, sess;
     std::string path = "/asdf/asdf";

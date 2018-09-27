@@ -1,10 +1,23 @@
 #include "blob_mock.hpp"
-#include "manager.hpp"
+
+#include <blobs-ipmid/manager.hpp>
 
 #include <gtest/gtest.h>
 
 namespace blobs
 {
+
+namespace
+{
+
+BlobMock* currentHandler;
+
+GenericBlobInterface* CreateBlobMock()
+{
+    return currentHandler;
+}
+
+} // namespace
 
 using ::testing::Return;
 
@@ -15,7 +28,8 @@ TEST(ManagerStatTest, StatNoHandler)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     struct BlobMeta meta;
     std::string path = "/asdf/asdf";
@@ -31,7 +45,8 @@ TEST(ManagerStatTest, StatHandlerFoundButFails)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     struct BlobMeta meta;
     std::string path = "/asdf/asdf";
@@ -48,7 +63,8 @@ TEST(ManagerStatTest, StatHandlerFoundAndSucceeds)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     struct BlobMeta meta;
     std::string path = "/asdf/asdf";

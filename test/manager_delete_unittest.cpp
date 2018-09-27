@@ -1,10 +1,23 @@
 #include "blob_mock.hpp"
-#include "manager.hpp"
+
+#include <blobs-ipmid/manager.hpp>
 
 #include <gtest/gtest.h>
 
 namespace blobs
 {
+
+namespace
+{
+
+BlobMock* currentHandler;
+
+GenericBlobInterface* CreateBlobMock()
+{
+    return currentHandler;
+}
+
+} // namespace
 
 using ::testing::_;
 using ::testing::Return;
@@ -18,7 +31,8 @@ TEST(ManagerDeleteTest, FileIsOpenReturnsFailure)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     uint16_t flags = OpenFlags::read, sess;
     std::string path = "/asdf/asdf";
@@ -38,7 +52,8 @@ TEST(ManagerDeleteTest, FileHasNoHandler)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     std::string path = "/asdf/asdf";
 
@@ -56,7 +71,8 @@ TEST(ManagerDeleteTest, FileIsNotOpenButHandlerDeleteFails)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     std::string path = "/asdf/asdf";
 
@@ -74,7 +90,8 @@ TEST(ManagerDeleteTest, FileIsNotOpenAndHandlerSucceeds)
     BlobManager mgr;
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+    currentHandler = m1ptr;
+    EXPECT_TRUE(mgr.registerHandler(CreateBlobMock));
 
     std::string path = "/asdf/asdf";
 

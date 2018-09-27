@@ -1,6 +1,6 @@
 #pragma once
 
-#include "blobs.hpp"
+#include <blobs-ipmid/blobs.hpp>
 
 #include <gmock/gmock.h>
 

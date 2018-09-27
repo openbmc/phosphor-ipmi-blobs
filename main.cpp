@@ -16,6 +16,7 @@
 
 #include "config.h"
 
+#include "internal.hpp"
 #include "ipmi.hpp"
 #include "process.hpp"
 
@@ -39,8 +40,6 @@ constexpr auto blobTransferCmd = 128;
 namespace blobs
 {
 
-static std::unique_ptr<BlobManager> manager;
-
 static ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
                                     uint8_t* replyCmdBuf, size_t* dataLen)
 {
@@ -60,9 +59,13 @@ static ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
         return IPMI_CC_INVALID;
     }
 
-    return processBlobCommand(command, manager.get(), &crc, reqBuf, replyCmdBuf,
+    BlobManager* manager = getBlobManager();
+    return processBlobCommand(command, manager, &crc, reqBuf, replyCmdBuf,
                               dataLen);
 }
+
+/* TODO: this should come from the makefile or recipe... */
+constexpr auto expectedHandlerPath = "/usr/lib/blobs-ipmid";
 
 void setupBlobGlobalHandler() __attribute__((constructor));
 
@@ -76,10 +79,6 @@ void setupBlobGlobalHandler()
     oemRouter->registerHandler(oem::obmcOemNumber, oem::blobTransferCmd,
                                handleBlobCommand);
 
-    manager = std::make_unique<BlobManager>();
-
-#if ENABLE_EXAMPLE
-    manager->registerHandler(std::move(std::make_unique<ExampleBlobHandler>()));
-#endif
+    installHandlers(expectedHandlerPath);
 }
 } // namespace blobs

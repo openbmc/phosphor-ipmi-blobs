@@ -17,6 +17,7 @@ AX_CXX_COMPILE_STDCXX_17([noext])
 AX_APPEND_COMPILE_FLAGS([-Wall -Werror], [CXXFLAGS])
 
 # Checks for libraries.
+PKG_CHECK_MODULES([PHOSPHOR_LOGGING], [phosphor-logging],, [AC_MSG_ERROR([Could not find phosphor-logging...openbmc/phosphor-logging package required])])
 AC_CHECK_HEADER([host-ipmid], [AC_MSG_ERROR(["phosphor-host-ipmid required and not found."])])
 AX_PTHREAD([], [AC_MSG_ERROR(["pthread required and not found"])])
 
@@ -50,16 +51,6 @@ AS_IF([test "x$enable_oe_sdk" == "xyes"],
         testcase_flags="${testcase_flags} -Wl,-dynamic-linker,`find \${OECORE_TARGET_SYSROOT}/lib/ld-*.so | sort -r -n | head -n1`"
     ]
     AC_SUBST([OESDK_TESTCASE_FLAGS], [$testcase_flags])
-)
-
-# Do you want to include the example blob handler?
-AC_ARG_ENABLE([example],
-    AS_HELP_STRING([--enable-example], [Enable example blob handler])
-)
-AM_CONDITIONAL(ENABLE_EXAMPLE, [test "x$enable_example" = "xyes"])
-AS_IF([test "x$enable_example" = "xyes"],
-    [AC_DEFINE(ENABLE_EXAMPLE, [1], [Build and install the example handler.])],
-    [AC_DEFINE(ENABLE_EXAMPLE, [0], [Do not build and install the example handler.])]
 )
 
 # Create configured output
