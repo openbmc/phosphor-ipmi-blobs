@@ -41,6 +41,11 @@ namespace blobs
 
 static std::unique_ptr<BlobManager> manager;
 
+BlobManager* getBlobManager()
+{
+    return manager.get();
+}
+
 static ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
                                     uint8_t* replyCmdBuf, size_t* dataLen)
 {
