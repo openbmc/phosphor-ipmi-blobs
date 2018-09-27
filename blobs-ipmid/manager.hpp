@@ -250,4 +250,12 @@ class BlobManager : public ManagerInterface
     /* Mapping of open blobIds */
     std::unordered_map<std::string, int> openFiles;
 };
+
+/**
+ * @brief Gets a handle to the BlobManager.
+ *
+ * @return a pointer to the BlobManager instance.
+ */
+BlobManager* getBlobManager();
+
 } // namespace blobs
