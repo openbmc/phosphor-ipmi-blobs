@@ -37,6 +37,7 @@ Makefile.in
 
 # Repo Specific Items
 *.o
+*.lo
 /config.h
 /config.h.in~
 /config.log
