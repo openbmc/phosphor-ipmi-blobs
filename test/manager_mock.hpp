@@ -15,7 +15,7 @@ class ManagerMock : public ManagerInterface
   public:
     virtual ~ManagerMock() = default;
 
-    MOCK_METHOD1(registerHandler, bool(std::unique_ptr<GenericBlobInterface>));
+    MOCK_METHOD1(registerHandler, bool(HandlerFactory));
     MOCK_METHOD0(buildBlobList, uint32_t());
     MOCK_METHOD1(getBlobId, std::string(uint32_t));
     MOCK_METHOD3(open, bool(uint16_t, const std::string&, uint16_t*));
