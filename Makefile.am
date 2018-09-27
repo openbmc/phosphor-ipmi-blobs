@@ -1,11 +1,5 @@
 AM_DEFAULT_SOURCE_EXT = .cpp
 
-HANDLERS =
-
-if ENABLE_EXAMPLE
-HANDLERS += example/example.cpp
-endif
-
 libblobcmdsdir = ${libdir}/ipmid-providers
 libblobcmds_LTLIBRARIES = libblobcmds.la
 libblobcmds_la_SOURCES = main.cpp \
@@ -14,7 +8,7 @@ libblobcmds_la_SOURCES = main.cpp \
 			 process.cpp \
 			 crc.cpp \
 			 utils.cpp \
-			 $(HANDLERS)
+			 internal.cpp
 
 libblobcmds_la_LDFLAGS = $(SYSTEMD_LIBS) \
 			 $(PHOSPHOR_LOGGING_LIBS) \
@@ -27,5 +21,15 @@ libblobcmds_la_CXXFLAGS = $(SYSTEMD_CFLAGS) \
 nobase_include_HEADERS = \
 	blobs-ipmid/blobs.hpp \
 	blobs-ipmid/manager.hpp
+
+# Always build but only installed if you add the item:
+# BLOBIPMI_PROVIDER_LIBRARY += "libexample.so"
+libexampledir = ${libdir}/blob-providers
+libexample_LTLIBRARIES = libexample.la
+libexample_la_SOURCES = example/example.cpp
+libexample_la_LDFLAGS = $(PHOSPHOR_LOGGING_LIBS) \
+			-version-info 0:0:0 -shared
+libexample_la_CXXFLAGS = $(PHOSPHOR_LOGGING_CFLAGS) \
+			 -flto
 
 SUBDIRS = . test

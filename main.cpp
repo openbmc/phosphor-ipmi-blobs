@@ -16,6 +16,7 @@
 
 #include "config.h"
 
+#include "internal.hpp"
 #include "ipmi.hpp"
 #include "process.hpp"
 
@@ -25,10 +26,6 @@
 #include <host-ipmid/iana.hpp>
 #include <host-ipmid/oemrouter.hpp>
 #include <memory>
-
-#if ENABLE_EXAMPLE
-#include "example/example.hpp"
-#endif
 
 /* TODO: Swap out once https://gerrit.openbmc-project.xyz/12743 is merged */
 namespace oem
@@ -63,6 +60,9 @@ static ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
                               dataLen);
 }
 
+/* TODO: this should come from the makefile or recipe... */
+constexpr auto expectedHandlerPath = "/usr/lib/blobs-ipmid";
+
 void setupBlobGlobalHandler() __attribute__((constructor));
 
 void setupBlobGlobalHandler()
@@ -75,9 +75,6 @@ void setupBlobGlobalHandler()
     oemRouter->registerHandler(oem::obmcOemNumber, oem::blobTransferCmd,
                                handleBlobCommand);
 
-#if ENABLE_EXAMPLE
-    BlobManager* manager = getBlobManager();
-    manager->registerHandler(BuildExampleHandler);
-#endif
+    installHandlers(expectedHandlerPath);
 }
 } // namespace blobs
