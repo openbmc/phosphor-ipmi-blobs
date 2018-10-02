@@ -256,6 +256,6 @@ class BlobManager : public ManagerInterface
  *
  * @return a pointer to the BlobManager instance.
  */
-BlobManager* getBlobManager();
+ManagerInterface* getBlobManager();
 
 } // namespace blobs

@@ -55,9 +55,8 @@ static ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
         return IPMI_CC_INVALID;
     }
 
-    BlobManager* manager = getBlobManager();
-    return processBlobCommand(command, manager, &crc, reqBuf, replyCmdBuf,
-                              dataLen);
+    return processBlobCommand(command, getBlobManager(), &crc, reqBuf,
+                              replyCmdBuf, dataLen);
 }
 
 /* TODO: this should come from the makefile or recipe... */

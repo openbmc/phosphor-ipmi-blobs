@@ -347,7 +347,7 @@ bool BlobManager::getSession(uint16_t* sess)
 
 static std::unique_ptr<BlobManager> manager;
 
-BlobManager* getBlobManager()
+ManagerInterface* getBlobManager()
 {
     if (manager == nullptr)
     {
