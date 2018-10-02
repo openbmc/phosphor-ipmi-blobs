@@ -174,7 +174,7 @@ void setupExampleHandler() __attribute__((constructor));
 
 void setupExampleHandler()
 {
-    BlobManager* manager = getBlobManager();
+    auto* manager = getBlobManager();
     if (!manager->registerHandler(std::make_unique<ExampleBlobHandler>()))
     {
         log<level::ERR>("Failed to register Example Handler");
