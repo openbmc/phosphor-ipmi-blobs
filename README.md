@@ -321,6 +321,30 @@ struct BmcBlobSessionStatRx {
 };
 ```
 
+### BmcBlobWriteMeta (10)
+
+The `BmcBlobWriteMeta` command behaves like `BmcBlobWrite`. Its purpose is
+blob-specific, and not all blobs must support it.
+
+The `BmcBlobWriteMeta` command expects to receive a body of:
+
+```
+struct BmcBlobWriteMetaTx
+{
+    uint16_t crc16;
+    uint16_t session_id; /* Returned from BmcBlobOpen. */
+    uint32_t offset; /* The byte sequence start, 0-based. */
+    uint8_t  data[];
+};
+```
+
+Immediately following this structure are the bytes to write. The length of the
+entire packet is variable and handled at a higher level, therefore the number
+of bytes to write is the size of the command body less the OEN and sub-command
+(4 bytes) and less the structure size.
+
+On success it will return a success completion code.
+
 ## Idempotent Commands
 
 The IPMI transport layer is somewhat flaky. Client code must rely on a
