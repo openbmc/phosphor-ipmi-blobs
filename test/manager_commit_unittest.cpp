@@ -1,6 +1,5 @@
-#include "blob_mock.hpp"
-
 #include <blobs-ipmid/manager.hpp>
+#include <blobs-ipmid/test/blob_mock.hpp>
 #include <vector>
 
 #include <gtest/gtest.h>
