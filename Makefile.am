@@ -22,14 +22,19 @@ nobase_include_HEADERS = \
 	blobs-ipmid/blobs.hpp \
 	blobs-ipmid/manager.hpp
 
+# Install the blob handlers in ipmid-providers so you can leverage
+# meta-phosphor/blob/master/classes/obmc-phosphor-ipmiprovider-symlink.bbclass
+# Which will create a symlink in ${D}/${libdir}/blob-ipmid/ pointing to the
+# library in ${D}/${libdir}/ipmid-providers/
+
 # Always build but only installed if you add the item:
 # BLOBIPMI_PROVIDER_LIBRARY += "libexample.so"
-libexampledir = ${libdir}/blob-providers
-libexample_LTLIBRARIES = libexample.la
-libexample_la_SOURCES = example/example.cpp
-libexample_la_LDFLAGS = $(PHOSPHOR_LOGGING_LIBS) \
-			-version-info 0:0:0 -shared
-libexample_la_CXXFLAGS = $(PHOSPHOR_LOGGING_CFLAGS) \
-			 -flto
+libblobexampledir = ${libdir}/ipmid-providers
+libblobexample_LTLIBRARIES = libexample.la
+libblobexample_la_SOURCES = example/example.cpp
+libblobexample_la_LDFLAGS = $(PHOSPHOR_LOGGING_LIBS) \
+			    -version-info 0:0:0 -shared
+libblobexample_la_CXXFLAGS = $(PHOSPHOR_LOGGING_CFLAGS) \
+			     -flto
 
 SUBDIRS = . test
