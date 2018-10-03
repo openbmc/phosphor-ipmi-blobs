@@ -20,7 +20,9 @@ libblobcmds_la_CXXFLAGS = $(SYSTEMD_CFLAGS) \
 
 nobase_include_HEADERS = \
 	blobs-ipmid/blobs.hpp \
-	blobs-ipmid/manager.hpp
+	blobs-ipmid/manager.hpp \
+	blobs-ipmid/test/blob_mock.hpp \
+	blobs-ipmid/test/manager_mock.hpp
 
 # Always build but only installed if you add the item:
 # BLOBIPMI_PROVIDER_LIBRARY += "libexample.so"

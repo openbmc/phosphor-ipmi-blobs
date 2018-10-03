@@ -1,6 +1,6 @@
 #include "ipmi.hpp"
-#include "manager_mock.hpp"
 
+#include <blobs-ipmid/test/manager_mock.hpp>
 #include <cstring>
 #include <string>
 
