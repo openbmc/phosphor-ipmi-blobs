@@ -56,6 +56,9 @@ class ManagerInterface
                        const std::vector<uint8_t>& data) = 0;
 
     virtual bool deleteBlob(const std::string& path) = 0;
+
+    virtual bool writeMeta(uint16_t session, uint32_t offset,
+                           const std::vector<uint8_t>& data) = 0;
 };
 
 /**
@@ -190,6 +193,17 @@ class BlobManager : public ManagerInterface
      * @return bool - true if delete was successful.
      */
     bool deleteBlob(const std::string& path) override;
+
+    /**
+     * Attempt to write Metadata to a blob.
+     *
+     * @param[in] session - the session for this command.
+     * @param[in] offset - the offset into the blob to write.
+     * @param[in] data - the bytes to write to the blob.
+     * @return bool - true if the write succeeded.
+     */
+    bool writeMeta(uint16_t session, uint32_t offset,
+                   const std::vector<uint8_t>& data) override;
 
     /**
      * Attempts to return a valid unique session id.
