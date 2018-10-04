@@ -19,6 +19,7 @@
 #include "ipmi.hpp"
 
 #include <cstring>
+#include <unordered_map>
 #include <vector>
 
 namespace blobs
@@ -32,10 +33,22 @@ struct BmcRx
     uint8_t data; /* one byte minimum of data. */
 } __attribute__((packed));
 
+static const std::unordered_map<BlobOEMCommands, IpmiBlobHandler> handlers = {
+    {BlobOEMCommands::bmcBlobGetCount, getBlobCount},
+    {BlobOEMCommands::bmcBlobEnumerate, enumerateBlob},
+    {BlobOEMCommands::bmcBlobOpen, openBlob},
+    {BlobOEMCommands::bmcBlobRead, readBlob},
+    {BlobOEMCommands::bmcBlobWrite, writeBlob},
+    {BlobOEMCommands::bmcBlobCommit, commitBlob},
+    {BlobOEMCommands::bmcBlobClose, closeBlob},
+    {BlobOEMCommands::bmcBlobDelete, deleteBlob},
+    {BlobOEMCommands::bmcBlobStat, statBlob},
+    {BlobOEMCommands::bmcBlobSessionStat, sessionStatBlob},
+};
+
 IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
                                     uint8_t* replyCmdBuf, size_t* dataLen)
 {
-    IpmiBlobHandler cmd;
     size_t requestLength = (*dataLen);
     /* We know dataLen is at least 1 already */
     auto command = static_cast<BlobOEMCommands>(reqBuf[0]);
@@ -81,46 +94,14 @@ IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
         }
     }
 
-    /* Grab the corresponding handler for the command (could do map or array
-     * of function pointer lookup).
-     */
-    switch (command)
+    /* Grab the corresponding handler for the command. */
+    auto found = handlers.find(command);
+    if (found == handlers.end())
     {
-        case BlobOEMCommands::bmcBlobGetCount:
-            cmd = getBlobCount;
-            break;
-        case BlobOEMCommands::bmcBlobEnumerate:
-            cmd = enumerateBlob;
-            break;
-        case BlobOEMCommands::bmcBlobOpen:
-            cmd = openBlob;
-            break;
-        case BlobOEMCommands::bmcBlobRead:
-            cmd = readBlob;
-            break;
-        case BlobOEMCommands::bmcBlobWrite:
-            cmd = writeBlob;
-            break;
-        case BlobOEMCommands::bmcBlobCommit:
-            cmd = commitBlob;
-            break;
-        case BlobOEMCommands::bmcBlobClose:
-            cmd = closeBlob;
-            break;
-        case BlobOEMCommands::bmcBlobDelete:
-            cmd = deleteBlob;
-            break;
-        case BlobOEMCommands::bmcBlobStat:
-            cmd = statBlob;
-            break;
-        case BlobOEMCommands::bmcBlobSessionStat:
-            cmd = sessionStatBlob;
-            break;
-        default:
-            return nullptr;
+        return nullptr;
     }
 
-    return cmd;
+    return found->second;
 }
 
 ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
