@@ -106,6 +106,17 @@ class GenericBlobInterface
                        const std::vector<uint8_t>& data) = 0;
 
     /**
+     * Attempt to write metadata to a blob.
+     *
+     * @param[in] session - the session id.
+     * @param[in] offset - offset into the blob.
+     * @param[in] data - the data to write.
+     * @return bool - was able to write.
+     */
+    virtual bool writeMeta(uint16_t session, uint32_t offset,
+                           const std::vector<uint8_t>& data) = 0;
+
+    /**
      * Attempt to commit to a blob.
      *
      * @param[in] session - the session id.

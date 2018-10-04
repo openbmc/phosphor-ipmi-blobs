@@ -43,6 +43,8 @@ bool validateRequestLength(BlobOEMCommands command, size_t requestLen)
         {BlobOEMCommands::bmcBlobRead, sizeof(struct BmcBlobReadTx)},
         {BlobOEMCommands::bmcBlobWrite,
          sizeof(struct BmcBlobWriteTx) + sizeof(uint8_t)},
+        {BlobOEMCommands::bmcBlobWriteMeta,
+         sizeof(struct BmcBlobWriteMetaTx) + sizeof(uint8_t)},
     };
 
     auto results = minimumLengths.find(command);
@@ -314,6 +316,31 @@ ipmi_ret_t writeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
 
     /* Attempt to write the bytes. */
     if (!mgr->write(request->sessionId, request->offset, data))
+    {
+        return IPMI_CC_INVALID;
+    }
+
+    return IPMI_CC_OK;
+}
+
+ipmi_ret_t writeMeta(ManagerInterface* mgr, const uint8_t* reqBuf,
+                     uint8_t* replyCmdBuf, size_t* dataLen)
+{
+    size_t requestLen = (*dataLen);
+    struct BmcBlobWriteMetaTx request;
+
+    /* Copy over the request. */
+    std::memcpy(&request, reqBuf, sizeof(request));
+
+    /* Determine number of bytes of metadata to write. */
+    uint32_t size = requestLen - sizeof(request);
+
+    /* Nothing really else to validate, we just copy those bytes. */
+    std::vector<uint8_t> data(size);
+    std::memcpy(data.data(), &reqBuf[sizeof(request)], size);
+
+    /* Attempt to write the bytes. */
+    if (!mgr->writeMeta(request.sessionId, request.offset, data))
     {
         return IPMI_CC_INVALID;
     }

@@ -26,6 +26,8 @@ class ManagerMock : public ManagerInterface
     MOCK_METHOD3(read, std::vector<uint8_t>(uint16_t, uint32_t, uint32_t));
     MOCK_METHOD3(write, bool(uint16_t, uint32_t, const std::vector<uint8_t>&));
     MOCK_METHOD1(deleteBlob, bool(const std::string&));
+    MOCK_METHOD3(writeMeta,
+                 bool(uint16_t, uint32_t, const std::vector<uint8_t>&));
 };
 
 /*
