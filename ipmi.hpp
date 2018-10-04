@@ -20,6 +20,7 @@ enum BlobOEMCommands
     bmcBlobDelete = 7,
     bmcBlobStat = 8,
     bmcBlobSessionStat = 9,
+    bmcBlobWriteMeta = 10,
 };
 
 /* Used by bmcBlobGetCount */
@@ -140,6 +141,16 @@ struct BmcBlobWriteTx
     uint8_t data[];
 } __attribute__((packed));
 
+/* Used by bmcBlobWriteMeta */
+struct BmcBlobWriteMetaTx
+{
+    uint8_t cmd; /* bmcBlobWriteMeta */
+    uint16_t crc16;
+    uint16_t sessionId; /* Returned from BmcBlobOpen. */
+    uint32_t offset; /* The byte sequence start, 0-based. */
+    uint8_t  data[];
+} __attribute__((packed));
+
 /**
  * Validate the minimum request length if there is one.
  *
@@ -223,4 +234,11 @@ ipmi_ret_t readBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
  */
 ipmi_ret_t writeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
                      uint8_t* replyCmdBuf, size_t* dataLen);
+
+/**
+ * Attempt to write metadata to the blob.
+ */
+ipmi_ret_t writeMeta(ManagerInterface* mgr, const uint8_t* reqBuf,
+                     uint8_t* replyCmdBuf, size_t* dataLen);
+
 } // namespace blobs
