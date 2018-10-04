@@ -117,6 +117,13 @@ bool ExampleBlobHandler::write(uint16_t session, uint32_t offset,
     return true;
 }
 
+bool ExampleBlobHandler::writeMeta(uint16_t session, uint32_t offset,
+                                   const std::vector<uint8_t>& data)
+{
+    /* Not supported. */
+    return false;
+}
+
 bool ExampleBlobHandler::commit(uint16_t session,
                                 const std::vector<uint8_t>& data)
 {

@@ -44,6 +44,7 @@ static const std::unordered_map<BlobOEMCommands, IpmiBlobHandler> handlers = {
     {BlobOEMCommands::bmcBlobDelete, deleteBlob},
     {BlobOEMCommands::bmcBlobStat, statBlob},
     {BlobOEMCommands::bmcBlobSessionStat, sessionStatBlob},
+    {BlobOEMCommands::bmcBlobWriteMeta, writeMeta},
 };
 
 IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,

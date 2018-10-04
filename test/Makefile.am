@@ -21,6 +21,7 @@ check_PROGRAMS = \
 	ipmi_commit_unittest \
 	ipmi_read_unittest \
 	ipmi_write_unittest \
+	ipmi_writemeta_unittest \
 	ipmi_validate_unittest \
 	manager_unittest \
 	manager_getsession_unittest \
@@ -32,6 +33,7 @@ check_PROGRAMS = \
 	manager_delete_unittest \
 	manager_write_unittest \
 	manager_read_unittest \
+	manager_writemeta_unittest \
 	process_unittest \
 	crc_unittest
 TESTS = $(check_PROGRAMS)
@@ -69,6 +71,9 @@ ipmi_read_unittest_LDADD = $(top_builddir)/ipmi.o
 ipmi_write_unittest_SOURCES = ipmi_write_unittest.cpp
 ipmi_write_unittest_LDADD = $(top_builddir)/ipmi.o
 
+ipmi_writemeta_unittest_SOURCES = ipmi_writemeta_unittest.cpp
+ipmi_writemeta_unittest_LDADD = $(top_builddir)/ipmi.o
+
 ipmi_validate_unittest_SOURCES = ipmi_validate_unittest.cpp
 ipmi_validate_unittest_LDADD = $(top_builddir)/ipmi.o
 
@@ -101,6 +106,9 @@ manager_write_unittest_LDADD = $(top_builddir)/manager.o
 
 manager_read_unittest_SOURCES = manager_read_unittest.cpp
 manager_read_unittest_LDADD = $(top_builddir)/manager.o
+
+manager_writemeta_unittest_SOURCES = manager_writemeta_unittest.cpp
+manager_writemeta_unittest_LDADD = $(top_builddir)/manager.o
 
 process_unittest_SOURCES = process_unittest.cpp
 process_unittest_LDADD = $(top_builddir)/process.o $(top_builddir)/ipmi.o \

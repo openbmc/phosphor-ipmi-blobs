@@ -58,6 +58,8 @@ class ExampleBlobHandler : public GenericBlobInterface
                               uint32_t requestedSize) override;
     bool write(uint16_t session, uint32_t offset,
                const std::vector<uint8_t>& data) override;
+    bool writeMeta(uint16_t session, uint32_t offset,
+                   const std::vector<uint8_t>& data) override;
     bool commit(uint16_t session, const std::vector<uint8_t>& data) override;
     bool close(uint16_t session) override;
     bool stat(uint16_t session, struct BlobMeta* meta) override;
