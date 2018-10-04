@@ -27,4 +27,16 @@ class ManagerMock : public ManagerInterface
     MOCK_METHOD3(write, bool(uint16_t, uint32_t, const std::vector<uint8_t>&));
     MOCK_METHOD1(deleteBlob, bool(const std::string&));
 };
+
+/*
+ * Provide a one-off implementation for now.
+ * To test this, set managerReturned as you need.
+ */
+ManagerInterface* managerReturned;
+
+ManagerInterface* getBlobManager()
+{
+    return managerReturned;
+}
+
 } // namespace blobs
