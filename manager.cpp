@@ -316,6 +316,21 @@ bool BlobManager::deleteBlob(const std::string& path)
     return handler->deleteBlob(path);
 }
 
+bool BlobManager::writeMeta(uint16_t session, uint32_t offset,
+                            const std::vector<uint8_t>& data)
+{
+    SessionInfo* info = getSessionInfo(session);
+
+    /* No session found. */
+    if (!info)
+    {
+        return false;
+    }
+
+    /* Try writing metadata to it. */
+    return info->handler->writeMeta(session, offset, data);
+}
+
 bool BlobManager::getSession(uint16_t* sess)
 {
     uint16_t tries = 0;
