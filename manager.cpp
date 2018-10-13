@@ -334,7 +334,6 @@ bool BlobManager::writeMeta(uint16_t session, uint32_t offset,
 bool BlobManager::getSession(uint16_t* sess)
 {
     uint16_t tries = 0;
-    uint16_t lsess;
 
     if (!sess)
     {
@@ -348,7 +347,7 @@ bool BlobManager::getSession(uint16_t* sess)
      */
     do
     {
-        lsess = next++;
+        uint16_t lsess = next++;
         if (!sessions.count(lsess))
         {
             /* value not in use, return it. */
