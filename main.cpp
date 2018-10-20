@@ -26,6 +26,7 @@
 #include <host-ipmid/iana.hpp>
 #include <host-ipmid/oemrouter.hpp>
 #include <memory>
+#include <phosphor-logging/log.hpp>
 
 /* TODO: Swap out once https://gerrit.openbmc-project.xyz/12743 is merged */
 namespace oem
@@ -35,6 +36,8 @@ constexpr auto blobTransferCmd = 128;
 
 namespace blobs
 {
+
+using namespace phosphor::logging;
 
 static ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
                                     uint8_t* replyCmdBuf, size_t* dataLen)
@@ -75,6 +78,14 @@ void setupBlobGlobalHandler()
                                handleBlobCommand);
 
     /* Install handlers. */
-    loadLibraries(expectedHandlerPath);
+    try
+    {
+        loadLibraries(expectedHandlerPath);
+    }
+    catch (const std::exception& e)
+    {
+        log<level::ERR>("ERROR loading blob handlers",
+                        entry("ERROR=%s", e.what()));
+    }
 }
 } // namespace blobs
