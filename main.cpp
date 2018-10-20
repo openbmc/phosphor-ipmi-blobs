@@ -75,6 +75,12 @@ void setupBlobGlobalHandler()
                                handleBlobCommand);
 
     /* Install handlers. */
-    loadLibraries(expectedHandlerPath);
+    try {
+        loadLibraries(expectedHandlerPath);
+    }
+    catch (const std::exception& e)
+    {
+        std::fprintf(stderr, "Failed to load blob handlers: %s\n", e.what());
+    }
 }
 } // namespace blobs
