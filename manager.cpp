@@ -83,7 +83,7 @@ uint32_t BlobManager::buildBlobList()
     ids.clear();
 
     /* Grab the list of blobs and extend the local list */
-    for (auto& h : handlers)
+    for (const auto& h : handlers)
     {
         std::vector<std::string> blobs = h->getBlobIds();
         ids.insert(ids.end(), blobs.begin(), blobs.end());
@@ -144,7 +144,7 @@ GenericBlobInterface* BlobManager::getHandler(const std::string& path)
     /* Find a handler. */
     GenericBlobInterface* handler = nullptr;
 
-    for (auto& h : handlers)
+    for (const auto& h : handlers)
     {
         if (h->canHandleBlob(path))
         {
