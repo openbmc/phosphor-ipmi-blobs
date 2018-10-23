@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <blobs-ipmid/manager.hpp>
 #include <memory>
 #include <string>
@@ -142,18 +143,15 @@ bool BlobManager::open(uint16_t flags, const std::string& path,
 GenericBlobInterface* BlobManager::getHandler(const std::string& path)
 {
     /* Find a handler. */
-    GenericBlobInterface* handler = nullptr;
-
-    for (const auto& h : handlers)
+    auto h = std::find_if(
+        handlers.begin(), handlers.end(),
+        [&path](const auto& iter) { return (iter->canHandleBlob(path)); });
+    if (h != handlers.end())
     {
-        if (h->canHandleBlob(path))
-        {
-            handler = h.get();
-            break;
-        }
+        return h->get();
     }
 
-    return handler;
+    return nullptr;
 }
 
 GenericBlobInterface* BlobManager::getHandler(uint16_t session)
