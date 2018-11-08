@@ -63,7 +63,7 @@ static ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
 }
 
 /* TODO: this should come from the makefile or recipe... */
-constexpr auto expectedHandlerPath = "/usr/lib/blobs-ipmid";
+constexpr auto expectedHandlerPath = "/usr/lib/blob-ipmid";
 
 void setupBlobGlobalHandler() __attribute__((constructor));
 
