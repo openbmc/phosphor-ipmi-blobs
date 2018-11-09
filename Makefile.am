@@ -19,7 +19,8 @@ libblobcmds_la_LDFLAGS = \
 
 libblobcmds_la_CXXFLAGS = \
 	$(SYSTEMD_CFLAGS) \
-	$(PHOSPHOR_LOGGING_CFLAGS)
+	$(PHOSPHOR_LOGGING_CFLAGS) \
+	-flto
 
 nobase_include_HEADERS = \
 	blobs-ipmid/blobs.hpp \
