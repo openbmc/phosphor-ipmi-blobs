@@ -22,10 +22,12 @@ using IpmiBlobHandler =
  * @param[in,out] replyCmdBuf - a pointer to the ipmi reply packet buffer.
  * @param[in,out] dataLen - initially the request length, set to reply length
  *                          on return.
- * @return the ipmi command handler.
+ * @param[in,out] code - set to the IPMI error on failure, otherwise unset.
+ * @return the ipmi command handler, or nullptr on failure.
  */
 IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
-                                    uint8_t* replyCmdBuf, size_t* dataLen);
+                                    uint8_t* replyCmdBuf, size_t* dataLen,
+                                    ipmi_ret_t* code);
 
 /**
  * Call the IPMI command and process the result, including running the CRC
