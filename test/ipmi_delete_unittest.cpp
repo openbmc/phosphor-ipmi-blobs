@@ -36,7 +36,8 @@ TEST(BlobDeleteTest, InvalidRequestLengthReturnsFailure)
 
     dataLen = sizeof(struct BmcBlobDeleteTx) + blobId.length();
 
-    EXPECT_EQ(IPMI_CC_INVALID, deleteBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_REQ_DATA_LEN_INVALID,
+              deleteBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobDeleteTest, RequestRejectedReturnsFailure)
@@ -60,7 +61,8 @@ TEST(BlobDeleteTest, RequestRejectedReturnsFailure)
 
     EXPECT_CALL(mgr, deleteBlob(StrEq(blobId))).WillOnce(Return(false));
 
-    EXPECT_EQ(IPMI_CC_INVALID, deleteBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
+              deleteBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobDeleteTest, BlobDeleteReturnsOk)

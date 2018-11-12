@@ -31,7 +31,8 @@ TEST(BlobEnumerateTest, VerifyIfRequestByIdInvalidReturnsFailure)
 
     EXPECT_CALL(mgr, getBlobId(req.blobIdx)).WillOnce(Return(""));
 
-    EXPECT_EQ(IPMI_CC_INVALID, enumerateBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_INVALID_FIELD_REQUEST,
+              enumerateBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobEnumerateTest, BoringRequestByIdAndReceive)

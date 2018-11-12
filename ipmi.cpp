@@ -105,7 +105,7 @@ ipmi_ret_t enumerateBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     std::string blobId = mgr->getBlobId(request.blobIdx);
     if (blobId == "")
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_INVALID_FIELD_REQUEST;
     }
 
     /* TODO(venture): Need to do a hard-code check against the maximum
@@ -130,7 +130,7 @@ ipmi_ret_t openBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
         request->blobId, (requestLen - sizeof(struct BmcBlobOpenTx)));
     if (path.empty())
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_REQ_DATA_LEN_INVALID;
     }
 
     /* Attempt to open. */
@@ -158,7 +158,7 @@ ipmi_ret_t closeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     /* Attempt to close. */
     if (!mgr->close(request.sessionId))
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_UNSPECIFIED_ERROR;
     }
 
     (*dataLen) = 0;
@@ -175,13 +175,13 @@ ipmi_ret_t deleteBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
         request->blobId, (requestLen - sizeof(struct BmcBlobDeleteTx)));
     if (path.empty())
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_REQ_DATA_LEN_INVALID;
     }
 
     /* Attempt to delete. */
     if (!mgr->deleteBlob(path))
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_UNSPECIFIED_ERROR;
     }
 
     (*dataLen) = 0;
@@ -220,7 +220,7 @@ ipmi_ret_t statBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
         request->blobId, (requestLen - sizeof(struct BmcBlobStatTx)));
     if (path.empty())
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_REQ_DATA_LEN_INVALID;
     }
 
     /* Attempt to stat. */
@@ -244,7 +244,7 @@ ipmi_ret_t sessionStatBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
 
     if (!mgr->stat(request.sessionId, &meta))
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_UNSPECIFIED_ERROR;
     }
 
     return returnStatBlob(&meta, replyCmdBuf, dataLen);
@@ -259,7 +259,7 @@ ipmi_ret_t commitBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     /* Sanity check the commitDataLen */
     if (request->commitDataLen > (requestLen - sizeof(struct BmcBlobCommitTx)))
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_REQ_DATA_LEN_INVALID;
     }
 
     std::vector<uint8_t> data(request->commitDataLen);
@@ -267,7 +267,7 @@ ipmi_ret_t commitBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
 
     if (!mgr->commit(request->sessionId, data))
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_UNSPECIFIED_ERROR;
     }
 
     (*dataLen) = 0;
@@ -317,7 +317,7 @@ ipmi_ret_t writeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     /* Attempt to write the bytes. */
     if (!mgr->write(request->sessionId, request->offset, data))
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_UNSPECIFIED_ERROR;
     }
 
     return IPMI_CC_OK;
@@ -342,7 +342,7 @@ ipmi_ret_t writeMeta(ManagerInterface* mgr, const uint8_t* reqBuf,
     /* Attempt to write the bytes. */
     if (!mgr->writeMeta(request.sessionId, request.offset, data))
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_UNSPECIFIED_ERROR;
     }
 
     return IPMI_CC_OK;

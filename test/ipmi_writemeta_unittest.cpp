@@ -39,7 +39,8 @@ TEST(BlobWriteMetaTest, ManagerReturnsFailureReturnsFailure)
                        ElementsAreArray(expectedBytes, sizeof(expectedBytes))))
         .WillOnce(Return(false));
 
-    EXPECT_EQ(IPMI_CC_INVALID, writeMeta(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
+              writeMeta(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobWriteMetaTest, ManagerReturnsTrueWriteSucceeds)
