@@ -53,6 +53,38 @@ All multi-byte values are encoded as little-endian. All structs are assumed
 packed. Success codes are returned via the "completion code" field from the IPMI
 spec.
 
+### Return Response Codes
+
+Most IPMI client implementations only regard the data returned from an IPMI
+command if that command returns IPMI_CC_OK (or 0) for the return code.
+Therefore, to enrich the returned failure information the blob manager needs to
+return IPMI_CC_OK even on failures.
+
+Therefore the third byte of a response packet, immediately following the CRC is
+a response code, from the following list:
+
+```
+enum ResponseCodes {
+    ok = 0,
+    internalError = 1, /* General internal error. */
+    noHandlerFound = 2, /* No handler has acknowledged the blob_id */
+    invalidSession = 3, /* No matching session found. */
+    /* 128 - 255 reserved for handler specific codes. */
+};
+```
+
+The above list will grow over time.
+
+If the resposneCode provided is non-zero the response takes on the form of:
+
+```
+struct ErrorRx {
+    uint16_t crc16;
+    uint8_t  responseCode;
+    uint8_t  errorData[]; /* Optional error data, defined by the code. */
+};
+```
+
 ### BmcBlobGetCount (0)
 
 The `BmcBlobGetCount` command expects to receive an empty body. The BMC will
@@ -61,9 +93,14 @@ return the number of enumerable blobs:
 ```
 struct BmcBlobCountRx {
     uint16_t crc16;
+    uint8_t  responseCode;
     uint32_t blob_count;
 };
 ```
+
+If the failure experienced is at the IPMI level, such as, the blob request
+packet is too small or something along those lines, it'll leverage an IPMI
+failure return code and not return IPMI_CC_OK.
 
 ### BmcBlobEnumerate (1)
 
@@ -81,6 +118,7 @@ The BMC will return the corresponding blob identifier:
 ```
 struct BmcBlobEnumerateRx {
     uint16_t crc16;
+    uint8_t  responseCode;
     char     blob_id[];
 };
 ```
@@ -128,6 +166,7 @@ blob identifier.
 ```
 struct BmcBlobOpenRx {
     uint16_t crc16;
+    uint8_t  responseCode;
     uint16_t session_id;
 };
 ```
@@ -152,6 +191,7 @@ successful.
 ```
 struct BmcBlobReadRx {
     uint16_t crc16;
+    uint8_t  responseCode;
     uint8_t  data[];
 };
 ```
@@ -261,6 +301,7 @@ The BMC returns the following data:
 ```
 struct BmcBlobStatRx {
     uint16_t crc16;
+    uint8_t  responseCode;
     uint16_t blob_state;
     uint32_t size; /* Size in bytes of the blob. */
     uint8_t  metadata_len;
@@ -314,6 +355,7 @@ struct BmcBlobSessionStatTx {
 ```
 struct BmcBlobSessionStatRx {
     uint16_t crc16;
+    uint8_t  responseCode;
     uint16_t blob_state;
     uint32_t size; /* Size in bytes of the blob. */
     uint8_t  metadata_size;
