@@ -48,7 +48,8 @@ static const std::unordered_map<BlobOEMCommands, IpmiBlobHandler> handlers = {
 };
 
 IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
-                                    uint8_t* replyCmdBuf, size_t* dataLen)
+                                    uint8_t* replyCmdBuf, size_t* dataLen,
+                                    ipmi_ret_t* code)
 {
     size_t requestLength = (*dataLen);
     /* We know dataLen is at least 1 already */
@@ -57,6 +58,7 @@ IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
     /* Validate it's at least well-formed. */
     if (!validateRequestLength(command, requestLength))
     {
+        *code = IPMI_CC_REQ_DATA_LEN_INVALID;
         return nullptr;
     }
 
@@ -66,6 +68,7 @@ IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
         /* Verify the request includes: command, crc16, data */
         if (requestLength < sizeof(struct BmcRx))
         {
+            *code = IPMI_CC_REQ_DATA_LEN_INVALID;
             return nullptr;
         }
 
@@ -91,6 +94,7 @@ IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
         /* Crc expected but didn't match. */
         if (crcValue != crc->get())
         {
+            *code = IPMI_CC_UNSPECIFIED_ERROR;
             return nullptr;
         }
     }
@@ -99,6 +103,7 @@ IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
     auto found = handlers.find(command);
     if (found == handlers.end())
     {
+        *code = IPMI_CC_INVALID_FIELD_REQUEST;
         return nullptr;
     }
 
@@ -126,7 +131,7 @@ ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
     /* The response, if it has one byte, has three, to include the crc16. */
     if (replyLength < (sizeof(uint16_t) + 1))
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_UNSPECIFIED_ERROR;
     }
 
     /* The command, whatever it was, replied, so let's set the CRC. */
