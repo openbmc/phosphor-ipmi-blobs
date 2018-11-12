@@ -39,7 +39,8 @@ TEST(BlobStatTest, InvalidRequestLengthReturnsFailure)
 
     dataLen = sizeof(struct BmcBlobStatTx) + blobId.length();
 
-    EXPECT_EQ(IPMI_CC_INVALID, statBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_REQ_DATA_LEN_INVALID,
+              statBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobStatTest, RequestRejectedReturnsFailure)
@@ -65,7 +66,8 @@ TEST(BlobStatTest, RequestRejectedReturnsFailure)
                           Matcher<struct BlobMeta*>(_)))
         .WillOnce(Return(false));
 
-    EXPECT_EQ(IPMI_CC_INVALID, statBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
+              statBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobStatTest, RequestSucceedsNoMetadata)

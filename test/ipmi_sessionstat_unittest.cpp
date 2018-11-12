@@ -37,7 +37,8 @@ TEST(BlobSessionStatTest, RequestRejectedByManagerReturnsFailure)
                           Matcher<struct BlobMeta*>(_)))
         .WillOnce(Return(false));
 
-    EXPECT_EQ(IPMI_CC_INVALID, sessionStatBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
+              sessionStatBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobSessionStatTest, RequestSucceedsNoMetadata)

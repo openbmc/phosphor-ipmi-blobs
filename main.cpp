@@ -47,15 +47,17 @@ static ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
      */
     if ((*dataLen) < 1)
     {
-        return IPMI_CC_INVALID;
+        return IPMI_CC_REQ_DATA_LEN_INVALID;
     }
 
+    /* on failure rc is set to the corresponding IPMI error. */
+    ipmi_ret_t rc = IPMI_CC_OK;
     Crc16 crc;
     IpmiBlobHandler command =
-        validateBlobCommand(&crc, reqBuf, replyCmdBuf, dataLen);
+        validateBlobCommand(&crc, reqBuf, replyCmdBuf, dataLen, &rc);
     if (command == nullptr)
     {
-        return IPMI_CC_INVALID;
+        return rc;
     }
 
     return processBlobCommand(command, getBlobManager(), &crc, reqBuf,

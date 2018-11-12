@@ -39,7 +39,8 @@ TEST(BlobOpenTest, InvalidRequestLengthReturnsFailure)
 
     dataLen = sizeof(struct BmcBlobOpenTx) + blobId.length();
 
-    EXPECT_EQ(IPMI_CC_INVALID, openBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_REQ_DATA_LEN_INVALID,
+              openBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobOpenTest, RequestRejectedReturnsFailure)
@@ -65,7 +66,8 @@ TEST(BlobOpenTest, RequestRejectedReturnsFailure)
     EXPECT_CALL(mgr, open(req->flags, StrEq(blobId), _))
         .WillOnce(Return(false));
 
-    EXPECT_EQ(IPMI_CC_INVALID, openBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
+              openBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobOpenTest, BlobOpenReturnsOk)

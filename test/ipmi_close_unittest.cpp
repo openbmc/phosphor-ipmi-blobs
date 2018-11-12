@@ -38,7 +38,8 @@ TEST(BlobCloseTest, ManagerRejectsCloseReturnsFailure)
     std::memcpy(request, &req, sizeof(req));
 
     EXPECT_CALL(mgr, close(sessionId)).WillOnce(Return(false));
-    EXPECT_EQ(IPMI_CC_INVALID, closeBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
+              closeBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobCloseTest, BlobClosedReturnsSuccess)
