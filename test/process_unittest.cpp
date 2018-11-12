@@ -57,8 +57,11 @@ TEST(ValidateBlobCommandTest, InvalidCommandReturnsFailure)
 
     request[0] = 0xff;         // There is no command 0xff.
     dataLen = sizeof(uint8_t); // There is no payload for CRC.
+    ipmi_ret_t rc;
 
-    EXPECT_EQ(nullptr, validateBlobCommand(&crc, request, reply, &dataLen));
+    EXPECT_EQ(nullptr,
+              validateBlobCommand(&crc, request, reply, &dataLen, &rc));
+    EXPECT_EQ(IPMI_CC_INVALID_FIELD_REQUEST, rc);
 }
 
 TEST(ValidateBlobCommandTest, ValidCommandWithoutPayload)
@@ -72,8 +75,10 @@ TEST(ValidateBlobCommandTest, ValidCommandWithoutPayload)
 
     request[0] = BlobOEMCommands::bmcBlobGetCount;
     dataLen = sizeof(uint8_t); // There is no payload for CRC.
+    ipmi_ret_t rc;
 
-    IpmiBlobHandler res = validateBlobCommand(&crc, request, reply, &dataLen);
+    IpmiBlobHandler res =
+        validateBlobCommand(&crc, request, reply, &dataLen, &rc);
     EXPECT_FALSE(res == nullptr);
     EqualFunctions(getBlobCount, res);
 }
@@ -91,8 +96,11 @@ TEST(ValidateBlobCommandTest, WithPayloadMinimumLengthIs3VerifyChecks)
     request[0] = BlobOEMCommands::bmcBlobGetCount;
     dataLen = sizeof(uint8_t) + sizeof(uint16_t);
     // There is a payload, but there are insufficient bytes.
+    ipmi_ret_t rc;
 
-    EXPECT_EQ(nullptr, validateBlobCommand(&crc, request, reply, &dataLen));
+    EXPECT_EQ(nullptr,
+              validateBlobCommand(&crc, request, reply, &dataLen, &rc));
+    EXPECT_EQ(IPMI_CC_REQ_DATA_LEN_INVALID, rc);
 }
 
 TEST(ValidateBlobCommandTest, WithPayloadAndInvalidCrc)
@@ -125,7 +133,11 @@ TEST(ValidateBlobCommandTest, WithPayloadAndInvalidCrc)
         }));
     EXPECT_CALL(crc, get()).WillOnce(Return(0x1234));
 
-    EXPECT_EQ(nullptr, validateBlobCommand(&crc, request, reply, &dataLen));
+    ipmi_ret_t rc;
+
+    EXPECT_EQ(nullptr,
+              validateBlobCommand(&crc, request, reply, &dataLen, &rc));
+    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR, rc);
 }
 
 TEST(ValidateBlobCommandTest, WithPayloadAndValidCrc)
@@ -158,7 +170,10 @@ TEST(ValidateBlobCommandTest, WithPayloadAndValidCrc)
         }));
     EXPECT_CALL(crc, get()).WillOnce(Return(0x3412));
 
-    IpmiBlobHandler res = validateBlobCommand(&crc, request, reply, &dataLen);
+    ipmi_ret_t rc;
+
+    IpmiBlobHandler res =
+        validateBlobCommand(&crc, request, reply, &dataLen, &rc);
     EXPECT_FALSE(res == nullptr);
     EqualFunctions(writeBlob, res);
 }
@@ -181,8 +196,10 @@ TEST(ValidateBlobCommandTest, InputIntegrationTest)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
 
     dataLen = sizeof(request);
+    ipmi_ret_t rc;
 
-    IpmiBlobHandler res = validateBlobCommand(&crc, request, reply, &dataLen);
+    IpmiBlobHandler res =
+        validateBlobCommand(&crc, request, reply, &dataLen, &rc);
     EXPECT_FALSE(res == nullptr);
     EqualFunctions(openBlob, res);
 }
@@ -250,7 +267,7 @@ TEST(ProcessBlobCommandTest, CommandReturnsOkWithInvalidPayloadLength)
 
     dataLen = sizeof(request);
 
-    EXPECT_EQ(IPMI_CC_INVALID,
+    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
               processBlobCommand(h, &manager, &crc, request, reply, &dataLen));
 }
 

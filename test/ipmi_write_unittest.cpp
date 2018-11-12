@@ -40,7 +40,8 @@ TEST(BlobWriteTest, ManagerReturnsFailureReturnsFailure)
                       ElementsAreArray(expectedBytes, sizeof(expectedBytes))))
         .WillOnce(Return(false));
 
-    EXPECT_EQ(IPMI_CC_INVALID, writeBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
+              writeBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobWriteTest, ManagerReturnsTrueWriteSucceeds)

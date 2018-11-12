@@ -35,7 +35,8 @@ TEST(BlobCommitTest, InvalidCommitDataLengthReturnsFailure)
 
     dataLen = sizeof(struct BmcBlobCommitTx);
 
-    EXPECT_EQ(IPMI_CC_INVALID, commitBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_REQ_DATA_LEN_INVALID,
+              commitBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobCommitTest, ValidCommitNoDataHandlerRejectsReturnsFailure)
@@ -57,7 +58,8 @@ TEST(BlobCommitTest, ValidCommitNoDataHandlerRejectsReturnsFailure)
 
     EXPECT_CALL(mgr, commit(req->sessionId, _)).WillOnce(Return(false));
 
-    EXPECT_EQ(IPMI_CC_INVALID, commitBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
+              commitBlob(&mgr, request, reply, &dataLen));
 }
 
 TEST(BlobCommitTest, ValidCommitNoDataHandlerAcceptsReturnsSuccess)
