@@ -138,7 +138,8 @@ ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
     crc->clear();
     replyCmdBuf[0] = 0x00;
     replyCmdBuf[1] = 0x00;
-    crc->compute(replyCmdBuf, replyLength);
+    crc->compute(replyCmdBuf + sizeof(uint16_t),
+                 replyLength - sizeof(uint16_t));
 
     /* Copy the CRC into place. */
     uint16_t crcValue = crc->get();
