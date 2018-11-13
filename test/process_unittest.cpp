@@ -294,7 +294,7 @@ TEST(ProcessBlobCommandTest, CommandReturnsOkWithValidPayloadLength)
     dataLen = sizeof(request);
 
     EXPECT_CALL(crc, clear());
-    EXPECT_CALL(crc, compute(_, payloadLen));
+    EXPECT_CALL(crc, compute(_, payloadLen - sizeof(uint16_t)));
     EXPECT_CALL(crc, get()).WillOnce(Return(0x3412));
 
     EXPECT_EQ(IPMI_CC_OK,
