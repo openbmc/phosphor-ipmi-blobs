@@ -20,7 +20,12 @@ void loadLibraries(const std::string& path)
     {
         auto ps = p.path().string();
 
-        if (!std::regex_match(ps, std::regex(".+\\.so$")))
+        /* The bitbake recipe symlinks the library lib*.so.? into the folder
+         * only, and not the other names, .so, .so.?.?, .so.?.?.?
+         *
+         * Therefore only care if it's lib*.so.?
+         */
+        if (!std::regex_match(ps, std::regex(".+\\.so\\.\\d+$")))
         {
             continue;
         }
