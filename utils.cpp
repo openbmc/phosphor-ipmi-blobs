@@ -18,7 +18,7 @@ void loadLibraries(const std::string& path)
 
     for (const auto& p : fs::recursive_directory_iterator(path))
     {
-        auto ps = p.path().string();
+        auto ps = fs::canonical(p.path()).string();
 
         /* The bitbake recipe symlinks the library lib*.so.? into the folder
          * only, and not the other names, .so, .so.?.?, .so.?.?.?
