@@ -15,6 +15,7 @@ libblobcmds_la_LDFLAGS = \
 	$(LIBADD_DLOPEN) \
 	$(PHOSPHOR_LOGGING_LIBS) \
 	-lstdc++fs \
+	-export-dynamic \
 	-version-info 0:0:0 -shared
 
 libblobcmds_la_CXXFLAGS = \
