@@ -181,11 +181,17 @@ void setupExampleHandler() __attribute__((constructor));
 
 void setupExampleHandler()
 {
-    auto* manager = getBlobManager();
-    if (!manager->registerHandler(std::make_unique<ExampleBlobHandler>()))
-    {
-        log<level::ERR>("Failed to register Example Handler");
-    }
+    // You don't need to do anything in the constructor.
 }
 
 } // namespace blobs
+
+/**
+ * This method is required by the blob manager.
+ *
+ * It is called to grab a handler for registering the blob handler instance.
+ */
+std::unique_ptr<blobs::GenericBlobInterface> createHandler()
+{
+    return std::make_unique<blobs::ExampleBlobHandler>();
+}

@@ -2,7 +2,9 @@
 
 #include <dlfcn.h>
 
+#include <blobs-ipmid/manager.hpp>
 #include <experimental/filesystem>
+#include <memory>
 #include <phosphor-logging/log.hpp>
 #include <regex>
 
@@ -12,9 +14,13 @@ namespace blobs
 namespace fs = std::experimental::filesystem;
 using namespace phosphor::logging;
 
+using HandlerFactory = std::unique_ptr<GenericBlobInterface> (*)();
+
 void loadLibraries(const std::string& path)
 {
     void* libHandle = NULL;
+    HandlerFactory factory;
+    auto* manager = getBlobManager();
 
     for (const auto& p : fs::recursive_directory_iterator(path))
     {
@@ -30,12 +36,37 @@ void loadLibraries(const std::string& path)
             continue;
         }
 
-        libHandle = dlopen(ps.c_str(), RTLD_NOW);
+        libHandle = dlopen(ps.c_str(), RTLD_NOW | RTLD_GLOBAL);
         if (!libHandle)
         {
             log<level::ERR>("ERROR opening", entry("HANDLER=%s", ps.c_str()),
                             entry("ERROR=%s", dlerror()));
+            continue;
         }
+
+        dlerror(); /* Clear any previous error. */
+
+        void* factoryPtr = dlsym(libHandle, "createHandler");
+        factory = reinterpret_cast<HandlerFactory>(factoryPtr);
+
+        const char* error = dlerror();
+        if (error)
+        {
+            log<level::ERR>("ERROR loading symbol",
+                            entry("HANDLER=%s", ps.c_str()),
+                            entry("ERROR=%s", error));
+            continue;
+        }
+
+        std::unique_ptr<GenericBlobInterface> result = factory();
+        if (!result)
+        {
+            log<level::ERR>("Unable to create handler",
+                            entry("HANDLER=%s", ps.c_str()));
+            continue;
+        }
+
+        manager->registerHandler(std::move(result));
     }
 }
 
