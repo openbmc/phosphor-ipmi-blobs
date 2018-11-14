@@ -1,9 +1,24 @@
 #pragma once
 
 #include <blobs-ipmid/blobs.hpp>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * This method must be declared as extern C for blob manager to lookup the
+ * symbol.
+ */
+std::unique_ptr<blobs::GenericBlobInterface> createHandler();
+
+#ifdef __cplusplus
+}
+#endif
 
 namespace blobs
 {

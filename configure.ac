@@ -17,7 +17,7 @@ AX_CXX_COMPILE_STDCXX_17([noext])
 AX_APPEND_COMPILE_FLAGS([-Wall -Werror], [CXXFLAGS])
 
 # Checks for library functions.
-LT_INIT([dlopen]) # Required for systemd linking
+LT_INIT([dlopen disable-static shared]) # Required for systemd linking
 LT_LIB_DLLOAD
 
 # Checks for libraries.
