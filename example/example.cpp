@@ -181,11 +181,11 @@ void setupExampleHandler() __attribute__((constructor));
 
 void setupExampleHandler()
 {
-    auto* manager = getBlobManager();
-    if (!manager->registerHandler(std::make_unique<ExampleBlobHandler>()))
-    {
-        log<level::ERR>("Failed to register Example Handler");
-    }
 }
 
 } // namespace blobs
+
+std::unique_ptr<blobs::GenericBlobInterface> createHandler()
+{
+    return std::make_unique<blobs::ExampleBlobHandler>();
+}
