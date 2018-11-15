@@ -24,15 +24,10 @@
 
 #include <cstdio>
 #include <host-ipmid/iana.hpp>
+#include <host-ipmid/oemopenbmc.hpp>
 #include <host-ipmid/oemrouter.hpp>
 #include <memory>
 #include <phosphor-logging/log.hpp>
-
-/* TODO: Swap out once https://gerrit.openbmc-project.xyz/12743 is merged */
-namespace oem
-{
-constexpr auto blobTransferCmd = 128;
-} // namespace oem
 
 namespace blobs
 {
@@ -74,9 +69,9 @@ void setupBlobGlobalHandler()
     oem::Router* oemRouter = oem::mutableRouter();
     std::fprintf(stderr,
                  "Registering OEM:[%#08X], Cmd:[%#04X] for Blob Commands\n",
-                 oem::obmcOemNumber, oem::blobTransferCmd);
+                 oem::obmcOemNumber, oem::Cmd::blobTransferCmd);
 
-    oemRouter->registerHandler(oem::obmcOemNumber, oem::blobTransferCmd,
+    oemRouter->registerHandler(oem::obmcOemNumber, oem::Cmd::blobTransferCmd,
                                handleBlobCommand);
 
     /* Install handlers. */
