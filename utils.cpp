@@ -16,60 +16,55 @@
 
 #include "utils.hpp"
 
+#include "fs.hpp"
+
 #include <dlfcn.h>
 
 #include <blobs-ipmid/manager.hpp>
-#include <experimental/filesystem>
 #include <memory>
 #include <phosphor-logging/log.hpp>
 #include <regex>
+#include <string>
+#include <vector>
 
 namespace blobs
 {
 
-namespace fs = std::experimental::filesystem;
 using namespace phosphor::logging;
 
-using HandlerFactory = std::unique_ptr<GenericBlobInterface> (*)();
+bool matchBlobHandler(const std::string& filename)
+{
+    return std::regex_match(filename, std::regex(".+\\.so\\.\\d+$"));
+}
 
-void loadLibraries(const std::string& path)
+void loadLibraries(ManagerInterface* manager, const std::string& path,
+                   const internal::DlSysInterface* sys)
 {
     void* libHandle = NULL;
     HandlerFactory factory;
-    auto* manager = getBlobManager();
 
-    for (const auto& p : fs::recursive_directory_iterator(path))
+    std::vector<std::string> libs = getLibraryList(path, matchBlobHandler);
+
+    for (const auto& p : libs)
     {
-        auto ps = p.path().string();
-
-        /* The bitbake recipe symlinks the library lib*.so.? into the folder
-         * only, and not the other names, .so, .so.?.?, .so.?.?.?
-         *
-         * Therefore only care if it's lib*.so.?
-         */
-        if (!std::regex_match(ps, std::regex(".+\\.so\\.\\d+$")))
-        {
-            continue;
-        }
-
-        libHandle = dlopen(ps.c_str(), RTLD_NOW | RTLD_GLOBAL);
+        libHandle = sys->dlopen(p.c_str(), RTLD_NOW | RTLD_GLOBAL);
         if (!libHandle)
         {
-            log<level::ERR>("ERROR opening", entry("HANDLER=%s", ps.c_str()),
-                            entry("ERROR=%s", dlerror()));
+            log<level::ERR>("ERROR opening", entry("HANDLER=%s", p.c_str()),
+                            entry("ERROR=%s", sys->dlerror()));
             continue;
         }
 
-        dlerror(); /* Clear any previous error. */
+        sys->dlerror(); /* Clear any previous error. */
 
-        factory =
-            reinterpret_cast<HandlerFactory>(dlsym(libHandle, "createHandler"));
+        factory = reinterpret_cast<HandlerFactory>(
+            sys->dlsym(libHandle, "createHandler"));
 
-        const char* error = dlerror();
+        const char* error = sys->dlerror();
         if (error)
         {
             log<level::ERR>("ERROR loading symbol",
-                            entry("HANDLER=%s", ps.c_str()),
+                            entry("HANDLER=%s", p.c_str()),
                             entry("ERROR=%s", error));
             continue;
         }
@@ -78,7 +73,7 @@ void loadLibraries(const std::string& path)
         if (!result)
         {
             log<level::ERR>("Unable to create handler",
-                            entry("HANDLER=%s", ps.c_str()));
+                            entry("HANDLER=%s", p.c_str()));
             continue;
         }
 
