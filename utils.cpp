@@ -32,11 +32,11 @@ using namespace phosphor::logging;
 
 using HandlerFactory = std::unique_ptr<GenericBlobInterface> (*)();
 
-void loadLibraries(const std::string& path)
+void loadLibraries(ManagerInterface* manager, const std::string& path,
+                   const internal::DlSysInterface* sys)
 {
     void* libHandle = NULL;
     HandlerFactory factory;
-    auto* manager = getBlobManager();
 
     for (const auto& p : fs::recursive_directory_iterator(path))
     {
@@ -52,20 +52,20 @@ void loadLibraries(const std::string& path)
             continue;
         }
 
-        libHandle = dlopen(ps.c_str(), RTLD_NOW | RTLD_GLOBAL);
+        libHandle = sys->dlopen(ps.c_str(), RTLD_NOW | RTLD_GLOBAL);
         if (!libHandle)
         {
             log<level::ERR>("ERROR opening", entry("HANDLER=%s", ps.c_str()),
-                            entry("ERROR=%s", dlerror()));
+                            entry("ERROR=%s", sys->dlerror()));
             continue;
         }
 
-        dlerror(); /* Clear any previous error. */
+        sys->dlerror(); /* Clear any previous error. */
 
-        factory =
-            reinterpret_cast<HandlerFactory>(dlsym(libHandle, "createHandler"));
+        factory = reinterpret_cast<HandlerFactory>(
+            sys->dlsym(libHandle, "createHandler"));
 
-        const char* error = dlerror();
+        const char* error = sys->dlerror();
         if (error)
         {
             log<level::ERR>("ERROR loading symbol",
