@@ -8,7 +8,9 @@ libblobcmds_la_SOURCES = \
 	manager.cpp \
 	process.cpp \
 	crc.cpp \
-	utils.cpp
+	utils.cpp \
+	internal/sys.cpp \
+	fs.cpp
 
 libblobcmds_la_LDFLAGS = \
 	$(SYSTEMD_LIBS) \

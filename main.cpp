@@ -78,7 +78,7 @@ void setupBlobGlobalHandler()
     /* Install handlers. */
     try
     {
-        loadLibraries(expectedHandlerPath);
+        loadLibraries(getBlobManager(), expectedHandlerPath);
     }
     catch (const std::exception& e)
     {
