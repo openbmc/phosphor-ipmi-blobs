@@ -22,6 +22,7 @@
 
 #include <host-ipmid/ipmid-api.h>
 
+#include <blobs-ipmid/manager.hpp>
 #include <cstdio>
 #include <host-ipmid/iana.hpp>
 #include <host-ipmid/oemopenbmc.hpp>
