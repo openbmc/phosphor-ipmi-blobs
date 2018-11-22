@@ -21,9 +21,14 @@ LT_INIT([dlopen disable-static shared]) # Required for systemd linking
 LT_LIB_DLLOAD
 
 # Checks for libraries.
-PKG_CHECK_MODULES([PHOSPHOR_LOGGING], [phosphor-logging],, [AC_MSG_ERROR([Could not find phosphor-logging...openbmc/phosphor-logging package required])])
+PKG_CHECK_MODULES(
+    [PHOSPHOR_LOGGING],
+    [phosphor-logging],
+    [],
+    [AC_MSG_ERROR([Could not find phosphor-logging...openbmc/phosphor-logging package required])]
+)
 AC_CHECK_HEADER([host-ipmid], [AC_MSG_ERROR(["phosphor-host-ipmid required and not found."])])
-AC_CHECK_HEADER(experimental/filesystem, ,[AC_MSG_ERROR([Could not find experimental/filesystem...libstdc++fs developement package required])])
+AC_CHECK_HEADER(experimental/filesystem, [], [AC_MSG_ERROR([Could not find experimental/filesystem...libstdc++fs developement package required])])
 AX_PTHREAD([], [AC_MSG_ERROR(["pthread required and not found"])])
 
 # Check/set gtest specific functions.
@@ -38,7 +43,8 @@ AC_ARG_ENABLE([oe-sdk],
 
 # Check for OECORE_TARGET_SYSROOT in the environment.
 AC_ARG_VAR(OECORE_TARGET_SYSROOT,
-    [Path to the OE SDK SYSROOT])
+    [Path to the OE SDK SYSROOT]
+)
 
 # Configure OESDK_TESTCASE_FLAGS environment variable, which will be later
 # used in test/Makefile.am
