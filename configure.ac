@@ -3,6 +3,7 @@ AC_PREREQ([2.69])
 AC_INIT([phosphor-ipmi-blobs], [1.0], [https://github.com/openbmc/phosphor-ipmi-blobs/issues])
 AC_LANG([C++])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIRS([m4])
 AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign dist-xz])
 AM_SILENT_RULES([yes])
 
