@@ -56,6 +56,10 @@ AS_IF([test "x$enable_oe_sdk" == "xyes"],
     AC_SUBST([OESDK_TESTCASE_FLAGS], [$testcase_flags])
 )
 
+AC_ARG_VAR(BLOB_LIB_PATH, [The file path to search for libraries.])
+AS_IF([test "x$BLOB_LIB_PATH" == "x"], [BLOB_LIB_PATH="/usr/lib/blob-ipmid"])
+AC_DEFINE_UNQUOTED([BLOB_LIB_PATH], ["$BLOB_LIB_PATH"], [The file path to search for libraries.])
+
 # Create configured output
 AC_CONFIG_FILES([Makefile test/Makefile])
 AC_OUTPUT

@@ -60,9 +60,6 @@ static ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
                               replyCmdBuf, dataLen);
 }
 
-/* TODO: this should come from the makefile or recipe... */
-constexpr auto expectedHandlerPath = "/usr/lib/blob-ipmid";
-
 void setupBlobGlobalHandler() __attribute__((constructor));
 
 void setupBlobGlobalHandler()
@@ -78,7 +75,7 @@ void setupBlobGlobalHandler()
     /* Install handlers. */
     try
     {
-        loadLibraries(getBlobManager(), expectedHandlerPath);
+        loadLibraries(getBlobManager(), BLOB_LIB_PATH);
     }
     catch (const std::exception& e)
     {
