@@ -105,6 +105,7 @@ ipmi_ret_t enumerateBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     std::string blobId = mgr->getBlobId(request.blobIdx);
     if (blobId == "")
     {
+        (*dataLen) = 0;
         return IPMI_CC_INVALID_FIELD_REQUEST;
     }
 
@@ -125,6 +126,7 @@ ipmi_ret_t openBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     size_t requestLen = (*dataLen);
     auto request = reinterpret_cast<const struct BmcBlobOpenTx*>(reqBuf);
     uint16_t session;
+    (*dataLen) = 0;
 
     std::string path = stringFromBuffer(
         request->blobId, (requestLen - sizeof(struct BmcBlobOpenTx)));
@@ -154,6 +156,7 @@ ipmi_ret_t closeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
 {
     struct BmcBlobCloseTx request;
     std::memcpy(&request, reqBuf, sizeof(request));
+    (*dataLen) = 0;
 
     /* Attempt to close. */
     if (!mgr->close(request.sessionId))
@@ -161,7 +164,6 @@ ipmi_ret_t closeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
         return IPMI_CC_UNSPECIFIED_ERROR;
     }
 
-    (*dataLen) = 0;
     return IPMI_CC_OK;
 }
 
@@ -170,6 +172,7 @@ ipmi_ret_t deleteBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
 {
     size_t requestLen = (*dataLen);
     auto request = reinterpret_cast<const struct BmcBlobDeleteTx*>(reqBuf);
+    (*dataLen) = 0;
 
     std::string path = stringFromBuffer(
         request->blobId, (requestLen - sizeof(struct BmcBlobDeleteTx)));
@@ -184,7 +187,6 @@ ipmi_ret_t deleteBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
         return IPMI_CC_UNSPECIFIED_ERROR;
     }
 
-    (*dataLen) = 0;
     return IPMI_CC_OK;
 }
 
@@ -215,6 +217,7 @@ ipmi_ret_t statBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
 {
     size_t requestLen = (*dataLen);
     auto request = reinterpret_cast<const struct BmcBlobStatTx*>(reqBuf);
+    (*dataLen) = 0;
 
     std::string path = stringFromBuffer(
         request->blobId, (requestLen - sizeof(struct BmcBlobStatTx)));
@@ -238,6 +241,7 @@ ipmi_ret_t sessionStatBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
 {
     struct BmcBlobSessionStatTx request;
     std::memcpy(&request, reqBuf, sizeof(request));
+    (*dataLen) = 0;
 
     /* Attempt to stat. */
     struct BlobMeta meta;
@@ -255,6 +259,7 @@ ipmi_ret_t commitBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
 {
     size_t requestLen = (*dataLen);
     auto request = reinterpret_cast<const struct BmcBlobCommitTx*>(reqBuf);
+    (*dataLen) = 0;
 
     /* Sanity check the commitDataLen */
     if (request->commitDataLen > (requestLen - sizeof(struct BmcBlobCommitTx)))
@@ -270,7 +275,6 @@ ipmi_ret_t commitBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
         return IPMI_CC_UNSPECIFIED_ERROR;
     }
 
-    (*dataLen) = 0;
     return IPMI_CC_OK;
 }
 
@@ -308,6 +312,7 @@ ipmi_ret_t writeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
 {
     size_t requestLen = (*dataLen);
     auto request = reinterpret_cast<const struct BmcBlobWriteTx*>(reqBuf);
+    (*dataLen) = 0;
 
     uint32_t size = requestLen - sizeof(struct BmcBlobWriteTx);
     std::vector<uint8_t> data(size);
@@ -328,6 +333,7 @@ ipmi_ret_t writeMeta(ManagerInterface* mgr, const uint8_t* reqBuf,
 {
     size_t requestLen = (*dataLen);
     struct BmcBlobWriteMetaTx request;
+    (*dataLen) = 0;
 
     /* Copy over the request. */
     std::memcpy(&request, reqBuf, sizeof(request));
