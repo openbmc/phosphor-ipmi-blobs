@@ -26,6 +26,7 @@ Makefile.in
 /install-sh
 /missing
 /stamp-h1
+/m4
 
 # https://www.gnu.org/software/libtool/
 
