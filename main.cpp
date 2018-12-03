@@ -53,6 +53,7 @@ static ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
         validateBlobCommand(&crc, reqBuf, replyCmdBuf, dataLen, &rc);
     if (command == nullptr)
     {
+        (*dataLen) = 0;
         return rc;
     }
 
