@@ -115,7 +115,7 @@ bool BlobManager::open(uint16_t flags, const std::string& path,
         return false;
     }
 
-    /* No sessions availabe... */
+    /* No sessions available... */
     if (!getSession(session))
     {
         return false;
