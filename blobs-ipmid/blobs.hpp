@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -152,3 +153,19 @@ class GenericBlobInterface
     virtual bool expire(uint16_t session) = 0;
 };
 } // namespace blobs
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * All Blob handlers need to implement this method.  It is called after loading
+ * the library to then get a handle to the blob handler.
+ *
+ * @return a unique pointer to your blob handler instance.
+ */
+std::unique_ptr<blobs::GenericBlobInterface> createHandler();
+
+#ifdef __cplusplus
+}
+#endif
