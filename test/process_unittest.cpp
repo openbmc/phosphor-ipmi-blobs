@@ -250,8 +250,8 @@ TEST(ProcessBlobCommandTest, CommandReturnsOkWithNoPayload)
 
 TEST(ProcessBlobCommandTest, CommandReturnsOkWithInvalidPayloadLength)
 {
-    // There is a minimum payload length of 3 bytes, this command returns a
-    // payload of 2 bytes.
+    // There is a minimum payload length of 2 bytes (the CRC only, no data, for
+    // read), this returns 1.
 
     StrictMock<CrcMock> crc;
     StrictMock<ManagerMock> manager;
@@ -261,7 +261,7 @@ TEST(ProcessBlobCommandTest, CommandReturnsOkWithInvalidPayloadLength)
 
     IpmiBlobHandler h = [](ManagerInterface* mgr, const uint8_t* reqBuf,
                            uint8_t* replyCmdBuf, size_t* dataLen) {
-        (*dataLen) = sizeof(uint16_t);
+        (*dataLen) = sizeof(uint8_t);
         return IPMI_CC_OK;
     };
 

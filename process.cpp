@@ -128,8 +128,10 @@ ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
         return result;
     }
 
-    /* The response, if it has one byte, has three, to include the crc16. */
-    if (replyLength < (sizeof(uint16_t) + 1))
+    /* Read can return 0 bytes, and just a CRC, otherwise you need a CRC and 1
+     * byte, therefore the limit is 2 bytes.
+     */
+    if (replyLength < (sizeof(uint16_t)))
     {
         return IPMI_CC_UNSPECIFIED_ERROR;
     }
