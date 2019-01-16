@@ -1,8 +1,8 @@
 #pragma once
 
 #include "internal/sys.hpp"
+#include "manager.hpp"
 
-#include <blobs-ipmid/manager.hpp>
 #include <memory>
 #include <string>
 

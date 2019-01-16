@@ -17,12 +17,12 @@
 #include "config.h"
 
 #include "ipmi.hpp"
+#include "manager.hpp"
 #include "process.hpp"
 #include "utils.hpp"
 
 #include <host-ipmid/ipmid-api.h>
 
-#include <blobs-ipmid/manager.hpp>
 #include <cstdio>
 #include <host-ipmid/iana.hpp>
 #include <host-ipmid/oemopenbmc.hpp>

@@ -1,10 +1,10 @@
 #pragma once
 
 #include "crc.hpp"
+#include "manager.hpp"
 
 #include <host-ipmid/ipmid-api.h>
 
-#include <blobs-ipmid/manager.hpp>
 #include <functional>
 
 namespace blobs

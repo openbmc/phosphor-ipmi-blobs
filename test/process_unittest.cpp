@@ -1,9 +1,9 @@
 #include "crc.hpp"
 #include "crc_mock.hpp"
 #include "ipmi.hpp"
+#include "manager_mock.hpp"
 #include "process.hpp"
 
-#include <blobs-ipmid/test/manager_mock.hpp>
 #include <cstring>
 
 #include <gtest/gtest.h>

@@ -27,10 +27,7 @@ libblobcmds_la_CXXFLAGS = \
 	-flto
 
 nobase_include_HEADERS = \
-	blobs-ipmid/blobs.hpp \
-	blobs-ipmid/manager.hpp \
-	blobs-ipmid/test/blob_mock.hpp \
-	blobs-ipmid/test/manager_mock.hpp
+	blobs-ipmid/blobs.hpp
 
 # Install the blob handlers in ipmid-providers so you can leverage
 # meta-phosphor/blob/master/classes/obmc-phosphor-ipmiprovider-symlink.bbclass

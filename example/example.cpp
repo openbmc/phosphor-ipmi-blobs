@@ -1,7 +1,6 @@
 #include "example/example.hpp"
 
 #include <algorithm>
-#include <blobs-ipmid/manager.hpp>
 #include <cstring>
 #include <memory>
 #include <phosphor-logging/log.hpp>

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "manager.hpp"
+
 #include <blobs-ipmid/blobs.hpp>
-#include <blobs-ipmid/manager.hpp>
 #include <memory>
 #include <string>
 

@@ -17,10 +17,10 @@
 #include "utils.hpp"
 
 #include "fs.hpp"
+#include "manager.hpp"
 
 #include <dlfcn.h>
 
-#include <blobs-ipmid/manager.hpp>
 #include <memory>
 #include <phosphor-logging/log.hpp>
 #include <regex>

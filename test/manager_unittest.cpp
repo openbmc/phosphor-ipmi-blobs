@@ -1,6 +1,7 @@
+#include "blob_mock.hpp"
+#include "manager.hpp"
+
 #include <algorithm>
-#include <blobs-ipmid/manager.hpp>
-#include <blobs-ipmid/test/blob_mock.hpp>
 #include <string>
 #include <vector>
 
