@@ -17,8 +17,10 @@
 #include "manager.hpp"
 
 #include <algorithm>
+#include <host-ipmid/oemrouter.hpp>
 #include <memory>
 #include <string>
+#include <user_channel/channel_layer.hpp>
 #include <vector>
 
 namespace blobs
@@ -270,8 +272,23 @@ std::vector<uint8_t> BlobManager::read(uint16_t session, uint32_t offset,
         return std::vector<uint8_t>();
     }
 
+    /* TODO: Currently, configure_ac isn't finding libuserlayer, w.r.t the
+     * symbols I need.
+     */
+
+    /** The channel to use for now.
+     * TODO: We will receive this information through the IPMI message call.
+     */
+    // const int ipmiChannel = ipmi::currentChNum;
+    /** This information is transport specific.
+     * TODO: We need a way to know this dynamically.
+     * on BT, 4 bytes of header, and 1 reply code.
+     */
+    // uint32_t maxTransportSize = ipmi::getChannelMaxTransferSize(ipmiChannel);
+
     /* Try reading from it. */
-    return info->handler->read(session, offset, requestedSize);
+    return info->handler->read(session, offset,
+                               std::min(maximumReadSize, requestedSize));
 }
 
 bool BlobManager::write(uint16_t session, uint32_t offset,

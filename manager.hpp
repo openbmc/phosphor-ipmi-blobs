@@ -2,6 +2,7 @@
 
 #include <blobs-ipmid/blobs.hpp>
 #include <ctime>
+#include <host-ipmid/oemrouter.hpp>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -9,6 +10,16 @@
 
 namespace blobs
 {
+
+/* The maximum read size.
+ * NOTE: Once this can be dynamically determined, we'll switch to that method.
+ * Having this in a header allows it to used cleanly for now.
+ */
+const int crcSize = sizeof(uint16_t);
+const int ipmiBtReplyHdrLen = 5;
+const int btTransportLength = 64;
+const uint32_t maximumReadSize =
+    btTransportLength - (ipmiBtReplyHdrLen + oem::groupMagicSize + crcSize);
 
 struct SessionInfo
 {
