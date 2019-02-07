@@ -2,7 +2,7 @@
 
 #include "manager.hpp"
 
-#include <host-ipmid/ipmid-api.h>
+#include <ipmid/api.h>
 
 #include <blobs-ipmid/blobs.hpp>
 #include <string>
