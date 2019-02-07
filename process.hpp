@@ -3,7 +3,7 @@
 #include "crc.hpp"
 #include "manager.hpp"
 
-#include <host-ipmid/ipmid-api.h>
+#include <ipmid/api.h>
 
 #include <functional>
 

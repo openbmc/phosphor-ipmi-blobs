@@ -2,7 +2,7 @@
 
 #include <blobs-ipmid/blobs.hpp>
 #include <ctime>
-#include <host-ipmid/oemrouter.hpp>
+#include <libipmid/oemrouter.hpp>
 #include <memory>
 #include <string>
 #include <unordered_map>
