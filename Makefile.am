@@ -17,6 +17,7 @@ libblobcmds_la_LDFLAGS = \
 	$(SYSTEMD_LIBS) \
 	$(LIBADD_DLOPEN) \
 	$(PHOSPHOR_LOGGING_LIBS) \
+	$(LIBIPMID_LIBS) \
 	-lstdc++fs \
 	-export-dynamic \
 	-version-info 0:0:0 -shared
@@ -24,6 +25,7 @@ libblobcmds_la_LDFLAGS = \
 libblobcmds_la_CXXFLAGS = \
 	$(SYSTEMD_CFLAGS) \
 	$(PHOSPHOR_LOGGING_CFLAGS) \
+	$(LIBIPMID_CFLAGS) \
 	-flto
 
 nobase_include_HEADERS = \
