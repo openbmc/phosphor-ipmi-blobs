@@ -39,6 +39,9 @@ bytes, but some hardware only supports packets up to 64 bytes.
 If an identifier is malformed, e.g. does not have a trailing NUL-byte or is
 otherwise unrecognizable by the BMC, an error is returned.
 
+The OEM Number to use with these commands is [openbmc oen](https://github.com/openbmc/phosphor-host-ipmid/blob/194375f2676715a0e0697bab63234a4efe39fb96/include/ipmid/iana.hpp#L12)
+ 49871.
+
 ## Commands
 
 The following details each subcommand in the blob spec. In the following, any
