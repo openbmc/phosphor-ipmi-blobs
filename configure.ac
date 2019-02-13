@@ -22,12 +22,7 @@ LT_INIT([dlopen disable-static shared]) # Required for systemd linking
 LT_LIB_DLLOAD
 
 # Checks for libraries.
-PKG_CHECK_MODULES(
-    [PHOSPHOR_LOGGING],
-    [phosphor-logging],
-    [],
-    [AC_MSG_ERROR([Could not find phosphor-logging...openbmc/phosphor-logging package required])]
-)
+PKG_CHECK_MODULES([PHOSPHOR_LOGGING], [phosphor-logging])
 PKG_CHECK_MODULES(
     [LIBIPMID],
     [libipmid],
