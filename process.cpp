@@ -19,6 +19,7 @@
 #include "ipmi.hpp"
 
 #include <cstring>
+#include <ipmiblob/crc.hpp>
 #include <unordered_map>
 #include <vector>
 
@@ -47,9 +48,8 @@ static const std::unordered_map<BlobOEMCommands, IpmiBlobHandler> handlers = {
     {BlobOEMCommands::bmcBlobWriteMeta, writeMeta},
 };
 
-IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
-                                    uint8_t* replyCmdBuf, size_t* dataLen,
-                                    ipmi_ret_t* code)
+IpmiBlobHandler validateBlobCommand(const uint8_t* reqBuf, uint8_t* replyCmdBuf,
+                                    size_t* dataLen, ipmi_ret_t* code)
 {
     size_t requestLength = (*dataLen);
     /* We know dataLen is at least 1 already */
@@ -88,11 +88,8 @@ IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
         /* Set the in-place CRC to zero. */
         std::memcpy(bytes.data(), &reqBuf[3], requestBodyLen);
 
-        crc->clear();
-        crc->compute(bytes.data(), bytes.size());
-
         /* Crc expected but didn't match. */
-        if (crcValue != crc->get())
+        if (crcValue != ipmiblob::generateCrc(bytes))
         {
             *code = IPMI_CC_UNSPECIFIED_ERROR;
             return nullptr;
@@ -111,8 +108,8 @@ IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
 }
 
 ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
-                              CrcInterface* crc, const uint8_t* reqBuf,
-                              uint8_t* replyCmdBuf, size_t* dataLen)
+                              const uint8_t* reqBuf, uint8_t* replyCmdBuf,
+                              size_t* dataLen)
 {
     ipmi_ret_t result = cmd(mgr, reqBuf, replyCmdBuf, dataLen);
     if (result != IPMI_CC_OK)
@@ -137,12 +134,10 @@ ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
     }
 
     /* The command, whatever it was, replied, so let's set the CRC. */
-    crc->clear();
-    crc->compute(replyCmdBuf + sizeof(uint16_t),
-                 replyLength - sizeof(uint16_t));
-
+    std::vector<std::uint8_t> crcBuffer(replyCmdBuf + sizeof(uint16_t),
+                                        replyCmdBuf + replyLength);
     /* Copy the CRC into place. */
-    uint16_t crcValue = crc->get();
+    uint16_t crcValue = ipmiblob::generateCrc(crcBuffer);
     std::memcpy(replyCmdBuf, &crcValue, sizeof(crcValue));
 
     return result;
