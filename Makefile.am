@@ -34,7 +34,6 @@ libblobcmds_la_SOURCES = \
 	ipmi.cpp \
 	manager.cpp \
 	process.cpp \
-	crc.cpp \
 	utils.cpp \
 	internal/sys.cpp \
 	fs.cpp
@@ -45,6 +44,7 @@ libblobcmds_la_LDFLAGS = \
 	$(PHOSPHOR_LOGGING_LIBS) \
 	$(LIBIPMID_LIBS) \
 	$(CODE_COVERAGE_LIBS) \
+	$(IPMIBLOB_LIBS) \
 	-lstdc++fs \
 	-export-dynamic \
 	-version-info 0:0:0 -shared
@@ -54,6 +54,7 @@ libblobcmds_la_CXXFLAGS = \
 	$(PHOSPHOR_LOGGING_CFLAGS) \
 	$(LIBIPMID_CFLAGS) \
 	$(CODE_COVERAGE_CXXFLAGS) \
+	$(IPMIBLOB_CFLAGS) \
 	-flto
 
 nobase_include_HEADERS = \

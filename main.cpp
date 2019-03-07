@@ -48,17 +48,16 @@ static ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
 
     /* on failure rc is set to the corresponding IPMI error. */
     ipmi_ret_t rc = IPMI_CC_OK;
-    Crc16 crc;
     IpmiBlobHandler command =
-        validateBlobCommand(&crc, reqBuf, replyCmdBuf, dataLen, &rc);
+        validateBlobCommand(reqBuf, replyCmdBuf, dataLen, &rc);
     if (command == nullptr)
     {
         (*dataLen) = 0;
         return rc;
     }
 
-    return processBlobCommand(command, getBlobManager(), &crc, reqBuf,
-                              replyCmdBuf, dataLen);
+    return processBlobCommand(command, getBlobManager(), reqBuf, replyCmdBuf,
+                              dataLen);
 }
 
 void setupBlobGlobalHandler() __attribute__((constructor));

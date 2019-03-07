@@ -1,6 +1,5 @@
 #pragma once
 
-#include "crc.hpp"
 #include "manager.hpp"
 
 #include <ipmid/api.h>
@@ -17,7 +16,6 @@ using IpmiBlobHandler =
 /**
  * Validate the IPMI request and determine routing.
  *
- * @param[in] crc - a pointer to the crc interface.
  * @param[in] reqBuf - a pointer to the ipmi request packet buffer.
  * @param[in,out] replyCmdBuf - a pointer to the ipmi reply packet buffer.
  * @param[in,out] dataLen - initially the request length, set to reply length
@@ -25,9 +23,8 @@ using IpmiBlobHandler =
  * @param[out] code - set to the IPMI error on failure, otherwise unset.
  * @return the ipmi command handler, or nullptr on failure.
  */
-IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
-                                    uint8_t* replyCmdBuf, size_t* dataLen,
-                                    ipmi_ret_t* code);
+IpmiBlobHandler validateBlobCommand(const uint8_t* reqBuf, uint8_t* replyCmdBuf,
+                                    size_t* dataLen, ipmi_ret_t* code);
 
 /**
  * Call the IPMI command and process the result, including running the CRC
@@ -35,7 +32,6 @@ IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
  *
  * @param[in] cmd - a funtion pointer to the ipmi command to process.
  * @param[in] mgr - a pointer to the manager interface.
- * @param[in] crc - a pointer to the crc interface.
  * @param[in] reqBuf - a pointer to the ipmi request packet buffer.
  * @param[in,out] replyCmdBuf - a pointer to the ipmi reply packet buffer.
  * @param[in,out] dataLen - initially the request length, set to reply length
@@ -43,6 +39,6 @@ IpmiBlobHandler validateBlobCommand(CrcInterface* crc, const uint8_t* reqBuf,
  * @return the ipmi command result.
  */
 ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
-                              CrcInterface* crc, const uint8_t* reqBuf,
-                              uint8_t* replyCmdBuf, size_t* dataLen);
+                              const uint8_t* reqBuf, uint8_t* replyCmdBuf,
+                              size_t* dataLen);
 } // namespace blobs
