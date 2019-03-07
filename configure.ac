@@ -42,6 +42,14 @@ PKG_CHECK_MODULES(
     [],
     [AC_MSG_ERROR([Could not find libipmid...openbmc/phosphor-host-ipmid package required])]
 )
+PKG_CHECK_MODULES(
+    [IPMIBLOB],
+    [ipmiblob],
+    [],
+    [AC_MSG_ERROR(
+        [Could not find ipmiblob...openbmc/ipmi-blob-tool package required])
+    ]
+)
 AC_CHECK_HEADER(
     experimental/filesystem,
     [],
