@@ -16,13 +16,13 @@
 
 #include "fs.hpp"
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <string>
 #include <vector>
 
 namespace blobs
 {
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 std::vector<std::string> getLibraryList(const std::string& path,
                                         PathMatcher check)

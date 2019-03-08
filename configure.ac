@@ -42,11 +42,6 @@ PKG_CHECK_MODULES(
     [],
     [AC_MSG_ERROR([Could not find libipmid...openbmc/phosphor-host-ipmid package required])]
 )
-AC_CHECK_HEADER(
-    experimental/filesystem,
-    [],
-    [AC_MSG_ERROR([Could not find experimental/filesystem...libstdc++fs developement package required])]
-)
 AX_PTHREAD([], [AC_MSG_ERROR(["pthread required and not found"])])
 
 # Make it possible for users to choose if they want test support
