@@ -1,0 +1,8 @@
+Code-Review+2: Kun Yi <kunyi731@gmail.com>
+Ok-To-Test+1: Jenkins <openbmc-ci-admin@ozlabs.org>
+Verified+1: Jenkins <openbmc-ci-admin@ozlabs.org>
+Submitted-by: Patrick Venture <venture@google.com>
+Submitted-at: Tue, 12 Mar 2019 19:06:50 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/19041
+Project: openbmc/phosphor-ipmi-blobs
+Branch: refs/heads/master
