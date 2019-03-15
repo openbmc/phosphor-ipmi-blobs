@@ -4,7 +4,7 @@ AC_INIT([phosphor-ipmi-blobs], [1.0], [https://github.com/openbmc/phosphor-ipmi-
 AC_LANG([C++])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
-AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign dist-xz])
+AM_INIT_AUTOMAKE([subdir-objects -Wall -Wno-portability -Werror foreign dist-xz])
 AM_SILENT_RULES([yes])
 
 # Make sure the default CFLAGS of `-O2 -g` don't override CODE_COVERAGE_CFLAGS
@@ -133,10 +133,13 @@ m4_foreach([vgtool], [valgrind_tool_list],
 
 # Code coverage
 AX_CODE_COVERAGE
-AM_EXTRA_RECURSIVE_TARGETS([check-code-coverage])
 AS_IF([test "x$CODE_COVERAGE_ENABLED" = "xyes"], [
     AX_APPEND_COMPILE_FLAGS([-DHAVE_GCOV], [CODE_COVERAGE_CPPFLAGS])
 ])
+m4_ifdef([_AX_CODE_COVERAGE_RULES],
+    [AM_CONDITIONAL(AUTOCONF_CODE_COVERAGE_2019_01_06, [true])],
+    [AM_CONDITIONAL(AUTOCONF_CODE_COVERAGE_2019_01_06, [false])])
+AX_ADD_AM_MACRO_STATIC([])
 
 # Add --enable-oe-sdk flag to configure script
 AC_ARG_ENABLE([oe-sdk],
