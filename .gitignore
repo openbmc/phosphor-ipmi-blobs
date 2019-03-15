@@ -22,6 +22,7 @@ Makefile.in
 /autoscan.log
 /autoscan-*.log
 /aclocal.m4
+/aminclude_static.am
 /compile
 /config.guess
 /config.h.in
