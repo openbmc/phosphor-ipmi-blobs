@@ -35,16 +35,34 @@ else
 @CODE_COVERAGE_RULES@
 endif
 
-libblobcmdsdir = ${libdir}/ipmid-providers
-libblobcmds_LTLIBRARIES = libblobcmds.la
-libblobcmds_la_SOURCES = \
-	main.cpp \
-	ipmi.cpp \
+noinst_LTLIBRARIES = libblobcmds_common.la
+libblobcmds_common_la_SOURCES = \
+	fs.cpp \
 	manager.cpp \
+	ipmi.cpp \
 	process.cpp \
 	utils.cpp \
-	internal/sys.cpp \
-	fs.cpp
+	internal/sys.cpp
+libblobcmds_common_la_CXXFLAGS = \
+	$(SYSTEMD_CFLAGS) \
+	$(PHOSPHOR_LOGGING_CFLAGS) \
+	$(LIBIPMID_CFLAGS) \
+	$(CODE_COVERAGE_CXXFLAGS) \
+	$(IPMIBLOB_CFLAGS) \
+	-flto
+libblobcmds_common_la_LDFLAGS = \
+	$(SYSTEMD_LIBS) \
+        $(LIBADD_DLOPEN) \
+        $(PHOSPHOR_LOGGING_LIBS) \
+        $(LIBIPMID_LIBS) \
+        $(CODE_COVERAGE_LIBS) \
+        $(IPMIBLOB_LIBS) \
+        -lstdc++fs
+
+libblobcmdsdir = ${libdir}/ipmid-providers
+libblobcmds_LTLIBRARIES = libblobcmds.la
+libblobcmds_la_SOURCES = main.cpp
+libblobcmds_la_LIBADD = libblobcmds_common.la
 
 libblobcmds_la_LDFLAGS = \
 	$(SYSTEMD_LIBS) \
