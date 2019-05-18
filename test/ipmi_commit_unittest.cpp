@@ -27,7 +27,7 @@ TEST(BlobCommitTest, InvalidCommitDataLengthReturnsFailure)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     auto req = reinterpret_cast<struct BmcBlobCommitTx*>(request);
 
-    req->cmd = BlobOEMCommands::bmcBlobCommit;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobCommit);
     req->crc = 0;
     req->sessionId = 0x54;
     req->commitDataLen =
@@ -49,7 +49,7 @@ TEST(BlobCommitTest, ValidCommitNoDataHandlerRejectsReturnsFailure)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     auto req = reinterpret_cast<struct BmcBlobCommitTx*>(request);
 
-    req->cmd = BlobOEMCommands::bmcBlobCommit;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobCommit);
     req->crc = 0;
     req->sessionId = 0x54;
     req->commitDataLen = 0;
@@ -72,7 +72,7 @@ TEST(BlobCommitTest, ValidCommitNoDataHandlerAcceptsReturnsSuccess)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     auto req = reinterpret_cast<struct BmcBlobCommitTx*>(request);
 
-    req->cmd = BlobOEMCommands::bmcBlobCommit;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobCommit);
     req->crc = 0;
     req->sessionId = 0x54;
     req->commitDataLen = 0;
@@ -96,7 +96,7 @@ TEST(BlobCommitTest, ValidCommitWithDataHandlerAcceptsReturnsSuccess)
 
     uint8_t expectedBlob[4] = {0x25, 0x33, 0x45, 0x67};
 
-    req->cmd = BlobOEMCommands::bmcBlobCommit;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobCommit);
     req->crc = 0;
     req->sessionId = 0x54;
     req->commitDataLen = sizeof(expectedBlob);

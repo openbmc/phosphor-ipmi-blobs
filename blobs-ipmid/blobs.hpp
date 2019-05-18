@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -7,7 +8,7 @@
 namespace blobs
 {
 
-enum BlobOEMCommands
+enum class BlobOEMCommands : std::uint8_t
 {
     bmcBlobGetCount = 0,
     bmcBlobEnumerate = 1,

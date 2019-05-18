@@ -32,7 +32,7 @@ TEST(BlobStatTest, InvalidRequestLengthReturnsFailure)
     auto req = reinterpret_cast<struct BmcBlobStatTx*>(request);
     std::string blobId = "abc";
 
-    req->cmd = BlobOEMCommands::bmcBlobStat;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobStat);
     req->crc = 0;
     // length() doesn't include the nul-terminator.
     std::memcpy(req->blobId, blobId.c_str(), blobId.length());
@@ -54,7 +54,7 @@ TEST(BlobStatTest, RequestRejectedReturnsFailure)
     auto req = reinterpret_cast<struct BmcBlobStatTx*>(request);
     std::string blobId = "a";
 
-    req->cmd = BlobOEMCommands::bmcBlobStat;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobStat);
     req->crc = 0;
     // length() doesn't include the nul-terminator, request buff is initialized
     // to 0s
@@ -81,7 +81,7 @@ TEST(BlobStatTest, RequestSucceedsNoMetadata)
     auto req = reinterpret_cast<struct BmcBlobStatTx*>(request);
     std::string blobId = "a";
 
-    req->cmd = BlobOEMCommands::bmcBlobStat;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobStat);
     req->crc = 0;
     // length() doesn't include the nul-terminator, request buff is initialized
     // to 0s
@@ -120,7 +120,7 @@ TEST(BlobStatTest, RequestSucceedsWithMetadata)
     auto req = reinterpret_cast<struct BmcBlobStatTx*>(request);
     std::string blobId = "a";
 
-    req->cmd = BlobOEMCommands::bmcBlobStat;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobStat);
     req->crc = 0;
     // length() doesn't include the nul-terminator, request buff is initialized
     // to 0s

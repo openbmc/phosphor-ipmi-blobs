@@ -31,7 +31,7 @@ TEST(BlobOpenTest, InvalidRequestLengthReturnsFailure)
     auto req = reinterpret_cast<struct BmcBlobOpenTx*>(request);
     std::string blobId = "abc";
 
-    req->cmd = BlobOEMCommands::bmcBlobOpen;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobOpen);
     req->crc = 0;
     req->flags = 0;
     // length() doesn't include the nul-terminator.
@@ -54,7 +54,7 @@ TEST(BlobOpenTest, RequestRejectedReturnsFailure)
     auto req = reinterpret_cast<struct BmcBlobOpenTx*>(request);
     std::string blobId = "a";
 
-    req->cmd = BlobOEMCommands::bmcBlobOpen;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobOpen);
     req->crc = 0;
     req->flags = 0;
     // length() doesn't include the nul-terminator, request buff is initialized
@@ -82,7 +82,7 @@ TEST(BlobOpenTest, BlobOpenReturnsOk)
     struct BmcBlobOpenRx rep;
     std::string blobId = "a";
 
-    req->cmd = BlobOEMCommands::bmcBlobOpen;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobOpen);
     req->crc = 0;
     req->flags = 0;
     // length() doesn't include the nul-terminator, request buff is initialized

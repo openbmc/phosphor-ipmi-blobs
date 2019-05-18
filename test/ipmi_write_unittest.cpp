@@ -25,7 +25,7 @@ TEST(BlobWriteTest, ManagerReturnsFailureReturnsFailure)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     auto req = reinterpret_cast<struct BmcBlobWriteTx*>(request);
 
-    req->cmd = BlobOEMCommands::bmcBlobWrite;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite);
     req->crc = 0;
     req->sessionId = 0x54;
     req->offset = 0x100;
@@ -54,7 +54,7 @@ TEST(BlobWriteTest, ManagerReturnsTrueWriteSucceeds)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     auto req = reinterpret_cast<struct BmcBlobWriteTx*>(request);
 
-    req->cmd = BlobOEMCommands::bmcBlobWrite;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite);
     req->crc = 0;
     req->sessionId = 0x54;
     req->offset = 0x100;

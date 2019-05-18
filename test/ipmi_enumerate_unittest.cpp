@@ -25,7 +25,7 @@ TEST(BlobEnumerateTest, VerifyIfRequestByIdInvalidReturnsFailure)
     struct BmcBlobEnumerateTx req;
     uint8_t* request = reinterpret_cast<uint8_t*>(&req);
 
-    req.cmd = BlobOEMCommands::bmcBlobEnumerate;
+    req.cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobEnumerate);
     req.blobIdx = 0;
     dataLen = sizeof(struct BmcBlobEnumerateTx);
 
@@ -48,7 +48,7 @@ TEST(BlobEnumerateTest, BoringRequestByIdAndReceive)
     uint8_t* request = reinterpret_cast<uint8_t*>(&req);
     std::string blobId = "/asdf";
 
-    req.cmd = BlobOEMCommands::bmcBlobEnumerate;
+    req.cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobEnumerate);
     req.blobIdx = 0;
     dataLen = sizeof(struct BmcBlobEnumerateTx);
 

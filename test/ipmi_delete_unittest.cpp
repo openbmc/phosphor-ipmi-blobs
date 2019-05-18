@@ -29,7 +29,7 @@ TEST(BlobDeleteTest, InvalidRequestLengthReturnsFailure)
     auto req = reinterpret_cast<struct BmcBlobDeleteTx*>(request);
     std::string blobId = "abc";
 
-    req->cmd = BlobOEMCommands::bmcBlobDelete;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobDelete);
     req->crc = 0;
     // length() doesn't include the nul-terminator.
     std::memcpy(req->blobId, blobId.c_str(), blobId.length());
@@ -51,7 +51,7 @@ TEST(BlobDeleteTest, RequestRejectedReturnsFailure)
     auto req = reinterpret_cast<struct BmcBlobDeleteTx*>(request);
     std::string blobId = "a";
 
-    req->cmd = BlobOEMCommands::bmcBlobDelete;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobDelete);
     req->crc = 0;
     // length() doesn't include the nul-terminator, request buff is initialized
     // to 0s
@@ -76,7 +76,7 @@ TEST(BlobDeleteTest, BlobDeleteReturnsOk)
     auto req = reinterpret_cast<struct BmcBlobDeleteTx*>(request);
     std::string blobId = "a";
 
-    req->cmd = BlobOEMCommands::bmcBlobDelete;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobDelete);
     req->crc = 0;
     // length() doesn't include the nul-terminator, request buff is initialized
     // to 0s

@@ -29,7 +29,7 @@ TEST(BlobCloseTest, ManagerRejectsCloseReturnsFailure)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     struct BmcBlobCloseTx req;
 
-    req.cmd = BlobOEMCommands::bmcBlobClose;
+    req.cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobClose);
     req.crc = 0;
     req.sessionId = sessionId;
 
@@ -53,7 +53,7 @@ TEST(BlobCloseTest, BlobClosedReturnsSuccess)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     struct BmcBlobCloseTx req;
 
-    req.cmd = BlobOEMCommands::bmcBlobClose;
+    req.cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobClose);
     req.crc = 0;
     req.sessionId = sessionId;
 
