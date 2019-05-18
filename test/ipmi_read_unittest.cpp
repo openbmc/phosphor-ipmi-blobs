@@ -26,7 +26,7 @@ TEST(BlobReadTest, ManagerReturnsNoData)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     auto req = reinterpret_cast<struct BmcBlobReadTx*>(request);
 
-    req->cmd = BlobOEMCommands::bmcBlobRead;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobRead);
     req->crc = 0;
     req->sessionId = 0x54;
     req->offset = 0x100;
@@ -53,7 +53,7 @@ TEST(BlobReadTest, ManagerReturnsData)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     auto req = reinterpret_cast<struct BmcBlobReadTx*>(request);
 
-    req->cmd = BlobOEMCommands::bmcBlobRead;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobRead);
     req->crc = 0;
     req->sessionId = 0x54;
     req->offset = 0x100;

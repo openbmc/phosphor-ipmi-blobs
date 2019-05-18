@@ -90,7 +90,7 @@ TEST_F(ValidateBlobCommandTest, ValidCommandWithoutPayload)
     uint8_t request[MAX_IPMI_BUFFER] = {0};
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
 
-    request[0] = BlobOEMCommands::bmcBlobGetCount;
+    request[0] = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobGetCount);
     dataLen = sizeof(uint8_t); // There is no payload for CRC.
     ipmi_ret_t rc;
 
@@ -108,7 +108,7 @@ TEST_F(ValidateBlobCommandTest, WithPayloadMinimumLengthIs3VerifyChecks)
     uint8_t request[MAX_IPMI_BUFFER] = {0};
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
 
-    request[0] = BlobOEMCommands::bmcBlobGetCount;
+    request[0] = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobGetCount);
     dataLen = sizeof(uint8_t) + sizeof(uint16_t);
     // There is a payload, but there are insufficient bytes.
     ipmi_ret_t rc;
@@ -126,7 +126,7 @@ TEST_F(ValidateBlobCommandTest, WithPayloadAndInvalidCrc)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
 
     auto req = reinterpret_cast<struct BmcBlobWriteTx*>(request);
-    req->cmd = BlobOEMCommands::bmcBlobWrite;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite);
     req->crc = 0x34;
     req->sessionId = 0x54;
     req->offset = 0x100;
@@ -155,7 +155,7 @@ TEST_F(ValidateBlobCommandTest, WithPayloadAndValidCrc)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
 
     auto req = reinterpret_cast<struct BmcBlobWriteTx*>(request);
-    req->cmd = BlobOEMCommands::bmcBlobWrite;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite);
     req->crc = 0x3412;
     req->sessionId = 0x54;
     req->offset = 0x100;

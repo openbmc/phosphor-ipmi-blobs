@@ -27,7 +27,7 @@ TEST(BlobSessionStatTest, RequestRejectedByManagerReturnsFailure)
     uint8_t request[MAX_IPMI_BUFFER] = {0};
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     auto req = reinterpret_cast<struct BmcBlobSessionStatTx*>(request);
-    req->cmd = BlobOEMCommands::bmcBlobSessionStat;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobSessionStat);
     req->crc = 0;
     req->sessionId = 0x54;
 
@@ -50,7 +50,7 @@ TEST(BlobSessionStatTest, RequestSucceedsNoMetadata)
     uint8_t request[MAX_IPMI_BUFFER] = {0};
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     auto req = reinterpret_cast<struct BmcBlobSessionStatTx*>(request);
-    req->cmd = BlobOEMCommands::bmcBlobSessionStat;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobSessionStat);
     req->crc = 0;
     req->sessionId = 0x54;
 
@@ -85,7 +85,7 @@ TEST(BlobSessionStatTest, RequestSucceedsWithMetadata)
     uint8_t request[MAX_IPMI_BUFFER] = {0};
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     auto req = reinterpret_cast<struct BmcBlobSessionStatTx*>(request);
-    req->cmd = BlobOEMCommands::bmcBlobSessionStat;
+    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobSessionStat);
     req->crc = 0;
     req->sessionId = 0x54;
 

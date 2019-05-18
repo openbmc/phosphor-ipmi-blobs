@@ -30,7 +30,7 @@ TEST(BlobCountTest, ReturnsZeroBlobs)
     struct BmcBlobCountRx rep;
     uint8_t* request = reinterpret_cast<uint8_t*>(&req);
 
-    req.cmd = BlobOEMCommands::bmcBlobGetCount;
+    req.cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobGetCount);
     dataLen = sizeof(req);
 
     rep.crc = 0;
@@ -56,7 +56,7 @@ TEST(BlobCountTest, ReturnsTwoBlobs)
     struct BmcBlobCountRx rep;
     uint8_t* request = reinterpret_cast<uint8_t*>(&req);
 
-    req.cmd = BlobOEMCommands::bmcBlobGetCount;
+    req.cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobGetCount);
     dataLen = sizeof(req);
 
     rep.crc = 0;

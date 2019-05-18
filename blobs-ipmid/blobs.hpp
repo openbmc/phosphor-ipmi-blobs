@@ -7,7 +7,7 @@
 namespace blobs
 {
 
-enum BlobOEMCommands
+enum class BlobOEMCommands
 {
     bmcBlobGetCount = 0,
     bmcBlobEnumerate = 1,
