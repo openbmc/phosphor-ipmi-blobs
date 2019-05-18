@@ -44,6 +44,12 @@ struct BlobMeta
     uint16_t blobState;
     uint32_t size;
     std::vector<uint8_t> metadata;
+
+    bool operator==(const BlobMeta& rhs) const
+    {
+        return (this->blobState == rhs.blobState && this->size == rhs.size &&
+                this->metadata == rhs.metadata);
+    }
 };
 
 /*
