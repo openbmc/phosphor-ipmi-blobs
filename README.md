@@ -369,3 +369,14 @@ open for longer than 10 minutes with no activity. For each session, the
 associated blob type’s cleansing routine will be invoked, and the associated
 session ID will be freed. This function will be invoked from the `BmcBlobOpen`
 command handler, though not more than once every minute.
+
+## Handler Calling Contract
+
+The blob manager provides the following calling contract guarantees:
+
+* The blob manager will only call `open()` on your handler if the handler
+  responds that they can handle the path.
+* The blob manager will only call a session-based command against your handler
+  if that session is already open (e.g. `stat()` or `commit()`).
+ * The caveat is the open command where the session is provided to the handler
+   within the call.
