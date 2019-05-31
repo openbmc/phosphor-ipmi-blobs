@@ -39,8 +39,9 @@ bytes, but some hardware only supports packets up to 64 bytes.
 If an identifier is malformed, e.g. does not have a trailing NUL-byte or is
 otherwise unrecognizable by the BMC, an error is returned.
 
-The OEM Number to use with these commands is [openbmc oen](https://github.com/openbmc/phosphor-host-ipmid/blob/194375f2676715a0e0697bab63234a4efe39fb96/include/ipmid/iana.hpp#L12)
- 49871.
+The OEM Number to use with these commands is
+[openbmc oen](https://github.com/openbmc/phosphor-host-ipmid/blob/194375f2676715a0e0697bab63234a4efe39fb96/include/ipmid/iana.hpp#L12)
+49871.
 
 ## Commands
 
@@ -204,9 +205,8 @@ struct BmcBlobCommitTx {
 ```
 
 Each blob defines its own commit behavior. A BMC firmware blob may be verified
-and saved to the filesystem. Commit operations may require additional
-data, which
-would be provided following the structure in the IPMI packet.
+and saved to the filesystem. Commit operations may require additional data,
+which would be provided following the structure in the IPMI packet.
 
 The commit operation may exceed the IPMI timeout duration of ~5 seconds
 (implementation dependant). Callers are expected to poll on `BmcBlobSessionStat`
@@ -342,9 +342,9 @@ struct BmcBlobWriteMetaTx
 ```
 
 Immediately following this structure are the bytes to write. The length of the
-entire packet is variable and handled at a higher level, therefore the number
-of bytes to write is the size of the command body less the OEN and sub-command
-(4 bytes) and less the structure size.
+entire packet is variable and handled at a higher level, therefore the number of
+bytes to write is the size of the command body less the OEN and sub-command (4
+bytes) and less the structure size.
 
 On success it will return a success completion code.
 
@@ -369,3 +369,14 @@ open for longer than 10 minutes with no activity. For each session, the
 associated blob type’s cleansing routine will be invoked, and the associated
 session ID will be freed. This function will be invoked from the `BmcBlobOpen`
 command handler, though not more than once every minute.
+
+## Handler Calling Contract
+
+The blob manager provides the following calling contract guarantees:
+
+*   The blob manager will only call `open()` on your handler if the handler
+    responds that they can handle the path.
+*   The blob manager will only call a session-based command against your handler
+    if that session is already open (e.g. `stat()` or `commit()`).
+    *   The caveat is the open command where the session is provided to the
+        handler within the call.
