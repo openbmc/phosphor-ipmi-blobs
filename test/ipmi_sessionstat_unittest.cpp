@@ -33,8 +33,8 @@ TEST(BlobSessionStatTest, RequestRejectedByManagerReturnsFailure)
 
     dataLen = sizeof(struct BmcBlobSessionStatTx);
 
-    EXPECT_CALL(mgr, stat(Matcher<uint16_t>(req->sessionId),
-                          Matcher<struct BlobMeta*>(_)))
+    EXPECT_CALL(mgr,
+                stat(Matcher<uint16_t>(req->sessionId), Matcher<BlobMeta*>(_)))
         .WillOnce(Return(false));
 
     EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
@@ -63,8 +63,8 @@ TEST(BlobSessionStatTest, RequestSucceedsNoMetadata)
     rep.metadataLen = 0x00;
 
     EXPECT_CALL(mgr, stat(Matcher<uint16_t>(req->sessionId),
-                          Matcher<struct BlobMeta*>(NotNull())))
-        .WillOnce(Invoke([&](uint16_t session, struct BlobMeta* meta) {
+                          Matcher<BlobMeta*>(NotNull())))
+        .WillOnce(Invoke([&](uint16_t session, BlobMeta* meta) {
             meta->blobState = rep.blobState;
             meta->size = rep.size;
             return true;
@@ -91,7 +91,7 @@ TEST(BlobSessionStatTest, RequestSucceedsWithMetadata)
 
     dataLen = sizeof(struct BmcBlobSessionStatTx);
 
-    struct BlobMeta lmeta;
+    BlobMeta lmeta;
     lmeta.blobState = 0x01;
     lmeta.size = 0x100;
     lmeta.metadata.push_back(0x01);
@@ -106,8 +106,8 @@ TEST(BlobSessionStatTest, RequestSucceedsWithMetadata)
     rep.metadataLen = lmeta.metadata.size();
 
     EXPECT_CALL(mgr, stat(Matcher<uint16_t>(req->sessionId),
-                          Matcher<struct BlobMeta*>(NotNull())))
-        .WillOnce(Invoke([&](uint16_t session, struct BlobMeta* meta) {
+                          Matcher<BlobMeta*>(NotNull())))
+        .WillOnce(Invoke([&](uint16_t session, BlobMeta* meta) {
             (*meta) = lmeta;
             return true;
         }));

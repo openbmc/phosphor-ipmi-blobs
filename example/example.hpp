@@ -66,7 +66,7 @@ class ExampleBlobHandler : public GenericBlobInterface
     bool canHandleBlob(const std::string& path) override;
     std::vector<std::string> getBlobIds() override;
     bool deleteBlob(const std::string& path) override;
-    bool stat(const std::string& path, struct BlobMeta* meta) override;
+    bool stat(const std::string& path, BlobMeta* meta) override;
     bool open(uint16_t session, uint16_t flags,
               const std::string& path) override;
     std::vector<uint8_t> read(uint16_t session, uint32_t offset,
@@ -77,7 +77,7 @@ class ExampleBlobHandler : public GenericBlobInterface
                    const std::vector<uint8_t>& data) override;
     bool commit(uint16_t session, const std::vector<uint8_t>& data) override;
     bool close(uint16_t session) override;
-    bool stat(uint16_t session, struct BlobMeta* meta) override;
+    bool stat(uint16_t session, BlobMeta* meta) override;
     bool expire(uint16_t session) override;
 
     constexpr static char supportedPath[] = "/dev/fake/command";

@@ -17,7 +17,7 @@ TEST(ManagerStatTest, StatNoHandler)
     auto m1ptr = m1.get();
     EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
 
-    struct BlobMeta meta;
+    BlobMeta meta;
     std::string path = "/asdf/asdf";
     EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillOnce(Return(false));
 
@@ -33,7 +33,7 @@ TEST(ManagerStatTest, StatHandlerFoundButFails)
     auto m1ptr = m1.get();
     EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
 
-    struct BlobMeta meta;
+    BlobMeta meta;
     std::string path = "/asdf/asdf";
     EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillOnce(Return(true));
     EXPECT_CALL(*m1ptr, stat(path, &meta)).WillOnce(Return(false));
@@ -50,7 +50,7 @@ TEST(ManagerStatTest, StatHandlerFoundAndSucceeds)
     auto m1ptr = m1.get();
     EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
 
-    struct BlobMeta meta;
+    BlobMeta meta;
     std::string path = "/asdf/asdf";
     EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillOnce(Return(true));
     EXPECT_CALL(*m1ptr, stat(path, &meta)).WillOnce(Return(true));

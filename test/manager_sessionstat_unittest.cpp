@@ -14,7 +14,7 @@ TEST(ManagerSessionStatTest, StatNoSessionReturnsFalse)
     // Calling Stat on a session that doesn't exist should return false.
 
     BlobManager mgr;
-    struct BlobMeta meta;
+    BlobMeta meta;
     uint16_t sess = 1;
 
     EXPECT_FALSE(mgr.stat(sess, &meta));
@@ -36,7 +36,7 @@ TEST(ManagerSessionStatTest, StatSessionFoundButHandlerReturnsFalse)
     EXPECT_CALL(*m1ptr, open(_, flags, path)).WillOnce(Return(true));
     EXPECT_TRUE(mgr.open(flags, path, &sess));
 
-    struct BlobMeta meta;
+    BlobMeta meta;
     EXPECT_CALL(*m1ptr, stat(sess, &meta)).WillOnce(Return(false));
 
     EXPECT_FALSE(mgr.stat(sess, &meta));
@@ -58,7 +58,7 @@ TEST(ManagerSessionStatTest, StatSessionFoundAndHandlerReturnsSuccess)
     EXPECT_CALL(*m1ptr, open(_, flags, path)).WillOnce(Return(true));
     EXPECT_TRUE(mgr.open(flags, path, &sess));
 
-    struct BlobMeta meta;
+    BlobMeta meta;
     EXPECT_CALL(*m1ptr, stat(sess, &meta)).WillOnce(Return(true));
 
     EXPECT_TRUE(mgr.stat(sess, &meta));
