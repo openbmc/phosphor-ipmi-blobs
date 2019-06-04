@@ -191,7 +191,7 @@ std::string BlobManager::getPath(uint16_t session) const
     return item->second.blobId;
 }
 
-bool BlobManager::stat(const std::string& path, struct BlobMeta* meta)
+bool BlobManager::stat(const std::string& path, BlobMeta* meta)
 {
     /* meta should never be NULL. */
     GenericBlobInterface* handler = getHandler(path);
@@ -205,7 +205,7 @@ bool BlobManager::stat(const std::string& path, struct BlobMeta* meta)
     return handler->stat(path, meta);
 }
 
-bool BlobManager::stat(uint16_t session, struct BlobMeta* meta)
+bool BlobManager::stat(uint16_t session, BlobMeta* meta)
 {
     /* meta should never be NULL. */
     GenericBlobInterface* handler = getHandler(session);

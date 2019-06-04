@@ -63,7 +63,7 @@ TEST(BlobStatTest, RequestRejectedReturnsFailure)
     dataLen = sizeof(struct BmcBlobStatTx) + blobId.length() + 1;
 
     EXPECT_CALL(mgr, stat(Matcher<const std::string&>(StrEq(blobId)),
-                          Matcher<struct BlobMeta*>(_)))
+                          Matcher<BlobMeta*>(_)))
         .WillOnce(Return(false));
 
     EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
@@ -96,8 +96,8 @@ TEST(BlobStatTest, RequestSucceedsNoMetadata)
     rep.metadataLen = 0x00;
 
     EXPECT_CALL(mgr, stat(Matcher<const std::string&>(StrEq(blobId)),
-                          Matcher<struct BlobMeta*>(NotNull())))
-        .WillOnce(Invoke([&](const std::string& path, struct BlobMeta* meta) {
+                          Matcher<BlobMeta*>(NotNull())))
+        .WillOnce(Invoke([&](const std::string& path, BlobMeta* meta) {
             meta->blobState = rep.blobState;
             meta->size = rep.size;
             return true;
@@ -128,7 +128,7 @@ TEST(BlobStatTest, RequestSucceedsWithMetadata)
 
     dataLen = sizeof(struct BmcBlobStatTx) + blobId.length() + 1;
 
-    struct BlobMeta lmeta;
+    BlobMeta lmeta;
     lmeta.blobState = 0x01;
     lmeta.size = 0x100;
     lmeta.metadata.push_back(0x01);
@@ -143,8 +143,8 @@ TEST(BlobStatTest, RequestSucceedsWithMetadata)
     rep.metadataLen = lmeta.metadata.size();
 
     EXPECT_CALL(mgr, stat(Matcher<const std::string&>(StrEq(blobId)),
-                          Matcher<struct BlobMeta*>(NotNull())))
-        .WillOnce(Invoke([&](const std::string& path, struct BlobMeta* meta) {
+                          Matcher<BlobMeta*>(NotNull())))
+        .WillOnce(Invoke([&](const std::string& path, BlobMeta* meta) {
             (*meta) = lmeta;
             return true;
         }));

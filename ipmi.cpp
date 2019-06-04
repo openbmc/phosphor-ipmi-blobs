@@ -190,7 +190,7 @@ ipmi_ret_t deleteBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     return IPMI_CC_OK;
 }
 
-static ipmi_ret_t returnStatBlob(struct BlobMeta* meta, uint8_t* replyCmdBuf,
+static ipmi_ret_t returnStatBlob(BlobMeta* meta, uint8_t* replyCmdBuf,
                                  size_t* dataLen)
 {
     struct BmcBlobStatRx reply;
@@ -227,7 +227,7 @@ ipmi_ret_t statBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     }
 
     /* Attempt to stat. */
-    struct BlobMeta meta;
+    BlobMeta meta;
     if (!mgr->stat(path, &meta))
     {
         return IPMI_CC_UNSPECIFIED_ERROR;
@@ -244,7 +244,7 @@ ipmi_ret_t sessionStatBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     (*dataLen) = 0;
 
     /* Attempt to stat. */
-    struct BlobMeta meta;
+    BlobMeta meta;
 
     if (!mgr->stat(request.sessionId, &meta))
     {

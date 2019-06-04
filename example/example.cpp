@@ -41,7 +41,7 @@ bool ExampleBlobHandler::deleteBlob(const std::string& path)
     return false;
 }
 
-bool ExampleBlobHandler::stat(const std::string& path, struct BlobMeta* meta)
+bool ExampleBlobHandler::stat(const std::string& path, BlobMeta* meta)
 {
     return false;
 }
@@ -149,7 +149,7 @@ bool ExampleBlobHandler::close(uint16_t session)
     return true;
 }
 
-bool ExampleBlobHandler::stat(uint16_t session, struct BlobMeta* meta)
+bool ExampleBlobHandler::stat(uint16_t session, BlobMeta* meta)
 {
     ExampleBlob* sess = getSession(session);
     if (!sess)

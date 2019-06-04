@@ -52,9 +52,9 @@ class ManagerInterface
     virtual bool open(uint16_t flags, const std::string& path,
                       uint16_t* session) = 0;
 
-    virtual bool stat(const std::string& path, struct BlobMeta* meta) = 0;
+    virtual bool stat(const std::string& path, BlobMeta* meta) = 0;
 
-    virtual bool stat(uint16_t session, struct BlobMeta* meta) = 0;
+    virtual bool stat(uint16_t session, BlobMeta* meta) = 0;
 
     virtual bool commit(uint16_t session, const std::vector<uint8_t>& data) = 0;
 
@@ -135,7 +135,7 @@ class BlobManager : public ManagerInterface
      * @param[in,out] meta - a pointer to store the metadata.
      * @return bool - true if able to retrieve the information.
      */
-    bool stat(const std::string& path, struct BlobMeta* meta) override;
+    bool stat(const std::string& path, BlobMeta* meta) override;
 
     /**
      * Attempts to retrieve a BlobMeta for a given session.
@@ -144,7 +144,7 @@ class BlobManager : public ManagerInterface
      * @param[in,out] meta - a pointer to store the metadata.
      * @return bool - true if able to retrieve the information.
      */
-    bool stat(uint16_t session, struct BlobMeta* meta) override;
+    bool stat(uint16_t session, BlobMeta* meta) override;
 
     /**
      * Attempt to commit a blob for a given session.

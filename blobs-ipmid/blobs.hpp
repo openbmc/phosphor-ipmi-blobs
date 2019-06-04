@@ -91,7 +91,7 @@ class GenericBlobInterface
      * @param[in,out] meta - a pointer to a blobmeta.
      * @return bool - true if it was successful.
      */
-    virtual bool stat(const std::string& path, struct BlobMeta* meta) = 0;
+    virtual bool stat(const std::string& path, BlobMeta* meta) = 0;
 
     /* The methods below are per session. */
 
@@ -163,7 +163,7 @@ class GenericBlobInterface
      * @param[in,out] meta - pointer to update with the BlobMeta.
      * @return bool - wether it was successful.
      */
-    virtual bool stat(uint16_t session, struct BlobMeta* meta) = 0;
+    virtual bool stat(uint16_t session, BlobMeta* meta) = 0;
 
     /**
      * Attempt to expire a session.  This is called when a session has been
