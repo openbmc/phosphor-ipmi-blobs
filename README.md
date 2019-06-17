@@ -380,3 +380,5 @@ The blob manager provides the following calling contract guarantees:
     if that session is already open (e.g. `stat()` or `commit()`).
     *   The caveat is the open command where the session is provided to the
         handler within the call.
+*   The blob manager will only call `delete()` on a blob if there are no open
+    sessions to that blob id.
