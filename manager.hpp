@@ -6,6 +6,7 @@
 #include <iostream>
 #include <ipmid/oemrouter.hpp>
 #include <memory>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -296,6 +297,8 @@ class BlobManager : public ManagerInterface
     std::unordered_map<uint16_t, SessionInfo> sessions;
     /* Mapping of open blobIds */
     std::unordered_map<std::string, int> openFiles;
+    /* Map of handlers to their open sessions */
+    std::unordered_map<GenericBlobInterface*, std::set<uint16_t>> openSessions;
 };
 
 /**

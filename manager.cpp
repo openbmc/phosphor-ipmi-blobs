@@ -137,6 +137,7 @@ bool BlobManager::open(uint16_t flags, const std::string& path,
 
     /* Associate session with handler */
     sessions[*session] = SessionInfo(path, handler, flags);
+    openSessions[handler].insert(*session);
     incrementOpen(path);
     return true;
 }
@@ -249,6 +250,11 @@ bool BlobManager::close(uint16_t session)
     }
 
     sessions.erase(session);
+    openSessions[handler].erase(session);
+    if (openSessions[handler].size() == 0)
+    {
+        openSessions.erase(handler);
+    }
     decrementOpen(getPath(session));
     return true;
 }
