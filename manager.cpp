@@ -67,6 +67,17 @@ int BlobManager::getOpen(const std::string& path) const
     return 0;
 }
 
+void BlobManager::updateSessionTime(uint16_t sessionId)
+{
+    auto item = sessions.find(sessionId);
+    if (item == sessions.end())
+    {
+        return;
+    }
+
+    item->second.lastActionTime = std::chrono::steady_clock::now();
+}
+
 bool BlobManager::registerHandler(std::unique_ptr<GenericBlobInterface> handler)
 {
     if (!handler)
@@ -216,6 +227,7 @@ bool BlobManager::stat(uint16_t session, BlobMeta* meta)
         return false;
     }
 
+    updateSessionTime(session);
     return handler->stat(session, meta);
 }
 
@@ -229,6 +241,7 @@ bool BlobManager::commit(uint16_t session, const std::vector<uint8_t>& data)
         return false;
     }
 
+    updateSessionTime(session);
     return handler->commit(session, data);
 }
 
@@ -284,6 +297,7 @@ std::vector<uint8_t> BlobManager::read(uint16_t session, uint32_t offset,
      */
     // uint32_t maxTransportSize = ipmi::getChannelMaxTransferSize(ipmiChannel);
 
+    updateSessionTime(session);
     /* Try reading from it. */
     return info->handler->read(session, offset,
                                std::min(maximumReadSize, requestedSize));
@@ -306,6 +320,7 @@ bool BlobManager::write(uint16_t session, uint32_t offset,
         return false;
     }
 
+    updateSessionTime(session);
     /* Try writing to it. */
     return info->handler->write(session, offset, data);
 }
@@ -341,6 +356,7 @@ bool BlobManager::writeMeta(uint16_t session, uint32_t offset,
         return false;
     }
 
+    updateSessionTime(session);
     /* Try writing metadata to it. */
     return info->handler->writeMeta(session, offset, data);
 }

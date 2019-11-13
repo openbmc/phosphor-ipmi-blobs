@@ -1,6 +1,7 @@
 #pragma once
 
 #include <blobs-ipmid/blobs.hpp>
+#include <chrono>
 #include <ctime>
 #include <ipmid/oemrouter.hpp>
 #include <memory>
@@ -20,9 +21,13 @@ const int btReplyHdrLen = 5;
 const int btTransportLength = 64;
 const uint32_t maximumReadSize =
     btTransportLength - (btReplyHdrLen + oem::groupMagicSize + crcSize);
+constexpr auto sessionTimeout =
+    std::chrono::duration<double, std::ratio<60>>{10}; // 10 minutes
 
 struct SessionInfo
 {
+    using timestamp_t = std::chrono::time_point<std::chrono::steady_clock>;
+
     SessionInfo() = default;
     SessionInfo(const std::string& path, GenericBlobInterface* handler,
                 uint16_t flags) :
@@ -35,6 +40,11 @@ struct SessionInfo
     std::string blobId;
     GenericBlobInterface* handler;
     uint16_t flags;
+
+    /* Initially set during open(). read/write/writeMeta/commit/stat operations
+     * would update it.
+     */
+    timestamp_t lastActionTime = std::chrono::steady_clock::now();
 };
 
 class ManagerInterface
@@ -262,6 +272,8 @@ class BlobManager : public ManagerInterface
     void incrementOpen(const std::string& path);
     void decrementOpen(const std::string& path);
     int getOpen(const std::string& path) const;
+
+    void updateSessionTime(uint16_t sessionId);
 
     /* The next session ID to use */
     uint16_t next;
