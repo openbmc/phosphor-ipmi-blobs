@@ -1,7 +1,9 @@
 #pragma once
 
 #include <blobs-ipmid/blobs.hpp>
+#include <chrono>
 #include <ctime>
+#include <iostream>
 #include <ipmid/oemrouter.hpp>
 #include <memory>
 #include <string>
@@ -20,21 +22,41 @@ const int btReplyHdrLen = 5;
 const int btTransportLength = 64;
 const uint32_t maximumReadSize =
     btTransportLength - (btReplyHdrLen + oem::groupMagicSize + crcSize);
+constexpr auto sessionTimeout =
+    std::chrono::duration<double, std::ratio<60>>{10}; // 10 minutes
 
 struct SessionInfo
 {
+    using timestamp_t = std::chrono::time_point<std::chrono::steady_clock>;
+
     SessionInfo() = default;
     SessionInfo(const std::string& path, GenericBlobInterface* handler,
                 uint16_t flags) :
         blobId(path),
         handler(handler), flags(flags)
     {
+        debugPrint();
     }
     ~SessionInfo() = default;
 
     std::string blobId;
     GenericBlobInterface* handler;
     uint16_t flags;
+
+    /* When this session should be cleaned up due to inactivity.
+     * Each operation will reset the expiration time to now() + globalTimeout;
+     */
+    timestamp_t lastActionTime = std::chrono::steady_clock::now();
+
+    void debugPrint()
+    {
+        auto now_c = std::chrono::steady_clock::now();
+        std::cout << "Since last update: "
+                  << std::chrono::duration_cast<std::chrono::microseconds>(
+                         now_c - lastActionTime)
+                         .count()
+                  << std::endl;
+    }
 };
 
 class ManagerInterface
