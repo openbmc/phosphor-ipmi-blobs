@@ -1,6 +1,7 @@
 #pragma once
 
 #include <blobs-ipmid/blobs.hpp>
+#include <chrono>
 #include <ctime>
 #include <ipmid/oemrouter.hpp>
 #include <memory>
@@ -35,6 +36,12 @@ struct SessionInfo
     std::string blobId;
     GenericBlobInterface* handler;
     uint16_t flags;
+
+    /* Initially set during open(). read/write/writeMeta/commit/stat operations
+     * would update it.
+     */
+    std::chrono::time_point<std::chrono::steady_clock> lastActionTime =
+        std::chrono::steady_clock::now();
 };
 
 class ManagerInterface
@@ -240,6 +247,23 @@ class BlobManager : public ManagerInterface
      * @return pointer to the handler or nullptr if not found.
      */
     GenericBlobInterface* getHandler(uint16_t session);
+
+    /**
+     * Given a session id, update session time and return a handle to take
+     * action
+     *
+     * @param[in] session - session ID
+     * @return session handler, nullptr if cannot get handler
+     */
+    GenericBlobInterface* getActionHandle(uint16_t session)
+    {
+        if (auto item = sessions.find(session); item != sessions.end())
+        {
+            item->second.lastActionTime = std::chrono::steady_clock::now();
+            return item->second.handler;
+        }
+        return nullptr;
+    }
 
     /**
      * Given a session id will return associated metadata, including
