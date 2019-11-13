@@ -41,13 +41,9 @@ void BlobManager::decrementOpen(const std::string& path)
         return;
     }
 
-    /* TODO(venture): Check into the iterator from find, does it makes sense
-     * to just update it directly? */
-    auto entry = openFiles.find(path);
-    if (entry != openFiles.end())
+    if (auto entry = openFiles.find(path); entry != openFiles.end();
+        openFiles[path] -= 1);
     {
-        /* found it, decrement it and remove it if 0. */
-        openFiles[path] -= 1;
         if (openFiles[path] == 0)
         {
             openFiles.erase(path);
