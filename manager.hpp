@@ -5,6 +5,7 @@
 #include <ctime>
 #include <ipmid/oemrouter.hpp>
 #include <memory>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -273,6 +274,11 @@ class BlobManager : public ManagerInterface
     void decrementOpen(const std::string& path);
     int getOpen(const std::string& path) const;
 
+    /* Helper method to erase a session from all maps */
+    void eraseSession(GenericBlobInterface* handler, uint16_t session);
+    /* For each session owned by this handler, call expire if session stale. */
+    void cleanUpStaleSessions(GenericBlobInterface* handler);
+
     void updateSessionTime(uint16_t sessionId);
 
     /* The next session ID to use */
@@ -286,6 +292,8 @@ class BlobManager : public ManagerInterface
     std::unordered_map<uint16_t, SessionInfo> sessions;
     /* Mapping of open blobIds */
     std::unordered_map<std::string, int> openFiles;
+    /* Map of handlers to their open sessions */
+    std::unordered_map<GenericBlobInterface*, std::set<uint16_t>> openSessions;
 };
 
 /**
