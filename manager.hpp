@@ -289,6 +289,8 @@ class BlobManager : public ManagerInterface
     /* For each session owned by this handler, call expire if session stale. */
     void cleanUpStaleSessions(GenericBlobInterface* handler);
 
+    void updateSessionTime(uint16_t sessionId);
+
     /* The next session ID to use */
     uint16_t next;
     /* Temporary list of blobIds used for enumeration. */
