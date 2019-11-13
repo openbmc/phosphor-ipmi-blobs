@@ -286,6 +286,9 @@ class BlobManager : public ManagerInterface
     void decrementOpen(const std::string& path);
     int getOpen(const std::string& path) const;
 
+    /* For each session owned by this handler, call expire if session stale. */
+    void cleanUpStaleSessions(GenericBlobInterface* handler);
+
     /* The next session ID to use */
     uint16_t next;
     /* Temporary list of blobIds used for enumeration. */

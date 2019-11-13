@@ -17,6 +17,7 @@
 #include "manager.hpp"
 
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -65,6 +66,41 @@ int BlobManager::getOpen(const std::string& path) const
     }
 
     return 0;
+}
+
+void BlobManager::cleanUpStaleSessions(GenericBlobInterface* handler)
+{
+    if (openSessions.count(handler) == 0)
+    {
+        return;
+    }
+
+    auto now_t = std::chrono::steady_clock::now();
+
+    std::set<uint16_t> eraseSet;
+    for (const auto& session : openSessions[handler])
+    {
+        if (now_t - sessions[session].lastActionTime >= sessionTimeout)
+            if (!handler->expire(session))
+            {
+                std::cout << "Cannot expire" << std::endl;
+                continue;
+            }
+        std::cout << "Expired" << std::endl;
+        eraseSet.insert(session);
+    }
+
+    for (const auto& session : eraseSet)
+    {
+
+        sessions.erase(session);
+        openSessions[handler].erase(session);
+        if (openSessions[handler].size() == 0)
+        {
+            openSessions.erase(handler);
+        }
+        decrementOpen(getPath(session));
+    }
 }
 
 bool BlobManager::registerHandler(std::unique_ptr<GenericBlobInterface> handler)
