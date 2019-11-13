@@ -166,6 +166,10 @@ bool BlobManager::open(uint16_t flags, const std::string& path,
         return false;
     }
 
+    /* Try to clean up anything that's falling out of cleanup timeout for this
+     * handler */
+    cleanUpStaleSessions(handler);
+
     if (!handler->open(*session, flags, path))
     {
         return false;
