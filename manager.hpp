@@ -5,12 +5,15 @@
 #include <ctime>
 #include <ipmid/oemrouter.hpp>
 #include <memory>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace blobs
 {
+
+using namespace std::chrono_literals;
 
 /* The maximum read size.
  * NOTE: Once this can be dynamically determined, we'll switch to that method.
@@ -21,6 +24,7 @@ const int btReplyHdrLen = 5;
 const int btTransportLength = 64;
 const uint32_t maximumReadSize =
     btTransportLength - (btReplyHdrLen + oem::groupMagicSize + crcSize);
+constexpr auto defaultSessionTimeout = 10min;
 
 struct SessionInfo
 {
@@ -85,7 +89,8 @@ class ManagerInterface
 class BlobManager : public ManagerInterface
 {
   public:
-    BlobManager()
+    BlobManager(std::chrono::seconds sessionTimeout = defaultSessionTimeout) :
+        sessionTimeout(sessionTimeout)
     {
         next = static_cast<uint16_t>(std::time(nullptr));
     };
@@ -279,6 +284,13 @@ class BlobManager : public ManagerInterface
     void decrementOpen(const std::string& path);
     int getOpen(const std::string& path) const;
 
+    /* Helper method to erase a session from all maps */
+    void eraseSession(GenericBlobInterface* handler, uint16_t session);
+    /* For each session owned by this handler, call expire if it is stale */
+    void cleanUpStaleSessions(GenericBlobInterface* handler);
+
+    /* How long a session has to be inactive to be considered stale */
+    std::chrono::seconds sessionTimeout;
     /* The next session ID to use */
     uint16_t next;
     /* Temporary list of blobIds used for enumeration. */
@@ -290,6 +302,8 @@ class BlobManager : public ManagerInterface
     std::unordered_map<uint16_t, SessionInfo> sessions;
     /* Mapping of open blobIds */
     std::unordered_map<std::string, int> openFiles;
+    /* Map of handlers to their open sessions */
+    std::unordered_map<GenericBlobInterface*, std::set<uint16_t>> openSessions;
 };
 
 /**

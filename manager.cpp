@@ -17,6 +17,7 @@
 #include "manager.hpp"
 
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -65,6 +66,50 @@ int BlobManager::getOpen(const std::string& path) const
     }
 
     return 0;
+}
+
+void BlobManager::eraseSession(GenericBlobInterface* handler, uint16_t session)
+{
+    sessions.erase(session);
+    /* Ok for openSessions[handler] to be an empty set */
+    openSessions[handler].erase(session);
+    decrementOpen(getPath(session));
+}
+
+void BlobManager::cleanUpStaleSessions(GenericBlobInterface* handler)
+{
+    if (openSessions.count(handler) == 0)
+    {
+        return;
+    }
+    auto timeNow = std::chrono::steady_clock::now();
+
+    std::set<uint16_t> expiredSet;
+    std::copy_if(openSessions[handler].begin(), openSessions[handler].end(),
+                 std::inserter(expiredSet, expiredSet.begin()),
+                 [&](auto sessionId) {
+                     return timeNow - sessions[sessionId].lastActionTime >=
+                            sessionTimeout;
+                 });
+
+    for (const auto& session : expiredSet)
+    {
+        std::cerr << "phosphor-ipmi-blobs: expiring stale session " << session
+                  << std::endl;
+
+        /* We do a best case recovery by issuing an expire call. If it fails
+         * don't erase sessions since the handler side might be still tracking
+         * it as open. */
+        if (handler->expire(session))
+        {
+            eraseSession(handler, session);
+        }
+        else
+        {
+            std::cerr << "phosphor-ipmi-blobs: failed to expire session "
+                      << session << std::endl;
+        }
+    }
 }
 
 bool BlobManager::registerHandler(std::unique_ptr<GenericBlobInterface> handler)
@@ -130,6 +175,10 @@ bool BlobManager::open(uint16_t flags, const std::string& path,
         return false;
     }
 
+    /* Try to clean up anything that's falling out of cleanup timeout for this
+     * handler */
+    cleanUpStaleSessions(handler);
+
     if (!handler->open(*session, flags, path))
     {
         return false;
@@ -137,6 +186,7 @@ bool BlobManager::open(uint16_t flags, const std::string& path,
 
     /* Associate session with handler */
     sessions[*session] = SessionInfo(path, handler, flags);
+    openSessions[handler].insert(*session);
     incrementOpen(path);
     return true;
 }
@@ -220,8 +270,7 @@ bool BlobManager::close(uint16_t session)
         {
             return false;
         }
-        sessions.erase(session);
-        decrementOpen(getPath(session));
+        eraseSession(handler, session);
         return true;
     }
     return false;
