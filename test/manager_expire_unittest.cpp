@@ -8,66 +8,15 @@
 namespace blobs
 {
 
+using namespace std::chrono_literals;
+
 using ::testing::_;
 using ::testing::Return;
 
-TEST(ManagerExpireTest, OpenButNoHandler)
+TEST(ManagerExpireTest, OpenWithLongTimeoutSucceeds)
 {
-    // No handler claims to be able to open the file.
-
-    BlobManager mgr;
-    std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
-    auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
-
-    uint16_t flags = OpenFlags::read, sess;
-    std::string path = "/asdf/asdf";
-
-    EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillOnce(Return(false));
-    EXPECT_FALSE(mgr.open(flags, path, &sess));
-}
-
-TEST(ManagerExpireTest, OpenButHandlerFailsOpen)
-{
-    // The handler is found but Open fails.
-
-    BlobManager mgr;
-    std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
-    auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
-
-    uint16_t flags = OpenFlags::read, sess;
-    std::string path = "/asdf/asdf";
-
-    EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillOnce(Return(true));
-    EXPECT_CALL(*m1ptr, open(_, flags, path)).WillOnce(Return(false));
-    EXPECT_FALSE(mgr.open(flags, path, &sess));
-}
-
-TEST(ManagerExpireTest, OpenFailsMustSupplyAtLeastReadOrWriteFlag)
-{
-    // One must supply either read or write in the flags for the session to
-    // open.
-
-    BlobManager mgr;
-    std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
-    auto m1ptr = m1.get();
-    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
-
-    uint16_t flags = 0, sess;
-    std::string path = "/asdf/asdf";
-
-    /* It checks if someone can handle the blob before it checks the flags. */
-    EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillOnce(Return(true));
-
-    EXPECT_FALSE(mgr.open(flags, path, &sess));
-}
-
-TEST(ManagerExpireTest, OpenSucceeds)
-{
-    // The handler is found and Open succeeds.
-
-    BlobManager mgr;
+    // With a long timeout, open should succeed without calling expire.
+    BlobManager mgr(2min);
     std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
     auto m1ptr = m1.get();
     EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
@@ -78,8 +27,33 @@ TEST(ManagerExpireTest, OpenSucceeds)
     EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillOnce(Return(true));
     EXPECT_CALL(*m1ptr, open(_, flags, path)).WillOnce(Return(true));
     EXPECT_TRUE(mgr.open(flags, path, &sess));
+    // Do not expect the open session to expire
+    EXPECT_CALL(*m1ptr, expire(sess)).Times(0);
+}
 
-    // TODO(venture): Need a way to verify the session is associated with it,
-    // maybe just call Read() or SessionStat()
+TEST(ManagerExpireTest, ZeroTimeoutWillCauseExpiration)
+{
+    // With timeout being zero, every open will cause all previous opened
+    // sessions to expire.
+    BlobManager mgr(0min);
+    std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
+    auto m1ptr = m1.get();
+    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+
+    uint16_t flags = OpenFlags::read, sess;
+    std::string path = "/asdf/asdf";
+    const int testIterations = 10;
+
+    EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m1ptr, open(_, flags, path)).WillRepeatedly(Return(true));
+    for (int i = 0; i < testIterations; ++i)
+    {
+        if (i != 0)
+        {
+            // Here 'sess' is the session ID obtained in previous loop
+            EXPECT_CALL(*m1ptr, expire(sess)).WillOnce(Return(true));
+        }
+        EXPECT_TRUE(mgr.open(flags, path, &sess));
+    }
 }
 } // namespace blobs
