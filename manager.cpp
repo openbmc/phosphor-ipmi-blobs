@@ -25,55 +25,18 @@
 namespace blobs
 {
 
-void BlobManager::incrementOpen(const std::string& path)
-{
-    if (path.empty())
-    {
-        return;
-    }
-
-    openFiles[path] += 1;
-}
-
-void BlobManager::decrementOpen(const std::string& path)
-{
-    if (path.empty())
-    {
-        return;
-    }
-
-    /* TODO(venture): Check into the iterator from find, does it makes sense
-     * to just update it directly? */
-    auto entry = openFiles.find(path);
-    if (entry != openFiles.end())
-    {
-        /* found it, decrement it and remove it if 0. */
-        openFiles[path] -= 1;
-        if (openFiles[path] == 0)
-        {
-            openFiles.erase(path);
-        }
-    }
-}
-
-int BlobManager::getOpen(const std::string& path) const
-{
-    /* No need to input check on the read-only call. */
-    auto entry = openFiles.find(path);
-    if (entry != openFiles.end())
-    {
-        return entry->second;
-    }
-
-    return 0;
-}
-
 void BlobManager::eraseSession(GenericBlobInterface* handler, uint16_t session)
 {
     sessions.erase(session);
     /* Ok for openSessions[handler] to be an empty set */
     openSessions[handler].erase(session);
-    decrementOpen(getPath(session));
+
+    auto path = getPath(session);
+    openFiles[path]--;
+    if (openFiles[path] == 0)
+    {
+        openFiles.erase(path);
+    }
 }
 
 void BlobManager::cleanUpStaleSessions(GenericBlobInterface* handler)
@@ -187,7 +150,7 @@ bool BlobManager::open(uint16_t flags, const std::string& path,
     /* Associate session with handler */
     sessions[*session] = SessionInfo(path, handler, flags);
     openSessions[handler].insert(*session);
-    incrementOpen(path);
+    openFiles[path]++;
     return true;
 }
 
@@ -346,7 +309,7 @@ bool BlobManager::deleteBlob(const std::string& path)
     }
 
     /* Check if the file has any open handles. */
-    if (getOpen(path) > 0)
+    if (openFiles[path] > 0)
     {
         return false;
     }
