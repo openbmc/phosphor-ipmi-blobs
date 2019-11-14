@@ -34,6 +34,7 @@ check_PROGRAMS = \
 	manager_unittest \
 	manager_getsession_unittest \
 	manager_open_unittest \
+	manager_expire_unittest \
 	manager_stat_unittest \
 	manager_sessionstat_unittest \
 	manager_commit_unittest \
@@ -94,6 +95,9 @@ manager_getsession_unittest_LDADD = $(top_builddir)/libblobcmds_common.la
 
 manager_open_unittest_SOURCES = manager_open_unittest.cpp
 manager_open_unittest_LDADD = $(top_builddir)/libblobcmds_common.la
+
+manager_expire_unittest_SOURCES = manager_expire_unittest.cpp
+manager_expire_unittest_LDADD = $(top_builddir)/libblobcmds_common.la
 
 manager_stat_unittest_SOURCES = manager_stat_unittest.cpp
 manager_stat_unittest_LDADD = $(top_builddir)/libblobcmds_common.la
