@@ -65,12 +65,10 @@ void BlobManager::cleanUpStaleSessions(GenericBlobInterface* handler)
 
 void BlobManager::updateSessionTime(uint16_t sessionId)
 {
-    auto item = sessions.find(sessionId);
-    if (item == sessions.end())
+    if (auto item = sessions.find(sessionId); item != sessions.end())
     {
-        return;
+        item->second.lastActionTime = std::chrono::steady_clock::now();
     }
-    item->second.lastActionTime = std::chrono::steady_clock::now();
 }
 
 bool BlobManager::registerHandler(std::unique_ptr<GenericBlobInterface> handler)
@@ -168,38 +166,35 @@ GenericBlobInterface* BlobManager::getHandler(const std::string& path)
 
 GenericBlobInterface* BlobManager::getHandler(uint16_t session)
 {
-    auto item = sessions.find(session);
-    if (item == sessions.end())
+    if (auto item = sessions.find(session); item != sessions.end())
     {
-        return nullptr;
+        return item->second.handler;
     }
 
-    return item->second.handler;
+    return nullptr;
 }
 
 SessionInfo* BlobManager::getSessionInfo(uint16_t session)
 {
-    auto item = sessions.find(session);
-    if (item == sessions.end())
-    {
-        return nullptr;
-    }
-
     /* If we go to multi-threaded, this pointer can be invalidated and this
      * method will need to change.
      */
-    return &item->second;
+    if (auto item = sessions.find(session); item != sessions.end())
+    {
+        return &item->second;
+    }
+
+    return nullptr;
 }
 
 std::string BlobManager::getPath(uint16_t session) const
 {
-    auto item = sessions.find(session);
-    if (item == sessions.end())
+    if (auto item = sessions.find(session); item != sessions.end())
     {
-        return "";
+        return item->second.blobId;
     }
 
-    return item->second.blobId;
+    return "";
 }
 
 bool BlobManager::stat(const std::string& path, BlobMeta* meta)
