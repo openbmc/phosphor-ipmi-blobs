@@ -172,13 +172,12 @@ GenericBlobInterface* BlobManager::getHandler(const std::string& path)
 
 std::string BlobManager::getPath(uint16_t session) const
 {
-    auto item = sessions.find(session);
-    if (item == sessions.end())
+    if (auto item = sessions.find(session); item != sessions.end())
     {
-        return "";
+        return item->second.blobId;
     }
 
-    return item->second.blobId;
+    return "";
 }
 
 bool BlobManager::stat(const std::string& path, BlobMeta* meta)
