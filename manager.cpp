@@ -170,15 +170,26 @@ GenericBlobInterface* BlobManager::getHandler(const std::string& path)
     return nullptr;
 }
 
+GenericBlobInterface* BlobManager::getActionHandle(uint16_t session,
+                                                   uint16_t requiredFlags)
+{
+    if (auto item = sessions.find(session);
+        item != sessions.end() && (item->second.flags & requiredFlags))
+    {
+        item->second.lastActionTime = std::chrono::steady_clock::now();
+        return item->second.handler;
+    }
+    return nullptr;
+}
+
 std::string BlobManager::getPath(uint16_t session) const
 {
-    auto item = sessions.find(session);
-    if (item == sessions.end())
+    if (auto item = sessions.find(session); item != sessions.end())
     {
-        return "";
+        return item->second.blobId;
     }
 
-    return item->second.blobId;
+    return "";
 }
 
 bool BlobManager::stat(const std::string& path, BlobMeta* meta)
@@ -259,7 +270,7 @@ bool BlobManager::write(uint16_t session, uint32_t offset,
     {
         return handler->write(session, offset, data);
     }
-    return {};
+    return false;
 }
 
 bool BlobManager::deleteBlob(const std::string& path)

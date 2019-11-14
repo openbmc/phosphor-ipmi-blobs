@@ -256,16 +256,7 @@ class BlobManager : public ManagerInterface
      */
     GenericBlobInterface* getActionHandle(
         uint16_t session,
-        uint16_t requiredFlags = std::numeric_limits<uint16_t>::max())
-    {
-        if (auto item = sessions.find(session);
-            item != sessions.end() && (item->second.flags & requiredFlags))
-        {
-            item->second.lastActionTime = std::chrono::steady_clock::now();
-            return item->second.handler;
-        }
-        return nullptr;
-    }
+        uint16_t requiredFlags = std::numeric_limits<uint16_t>::max());
 
     /**
      * Given a session id will return associated path.
