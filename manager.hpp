@@ -276,10 +276,6 @@ class BlobManager : public ManagerInterface
     std::string getPath(uint16_t session) const;
 
   private:
-    void incrementOpen(const std::string& path);
-    void decrementOpen(const std::string& path);
-    int getOpen(const std::string& path) const;
-
     /* Helper method to erase a session from all maps */
     void eraseSession(GenericBlobInterface* handler, uint16_t session);
     /* For each session owned by this handler, call expire if it is stale */
