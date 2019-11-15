@@ -249,6 +249,23 @@ class BlobManager : public ManagerInterface
     GenericBlobInterface* getHandler(uint16_t session);
 
     /**
+     * Given a session id, update session time and return a handle to take
+     * action
+     *
+     * @param[in] session - session ID
+     * @return session handler, nullptr if cannot get handler
+     */
+    GenericBlobInterface* getActionHandle(uint16_t session)
+    {
+        if (auto item = sessions.find(session); item != sessions.end())
+        {
+            item->second.lastActionTime = std::chrono::steady_clock::now();
+            return item->second.handler;
+        }
+        return nullptr;
+    }
+
+    /**
      * Given a session id will return associated metadata, including
      * the handler and the flags passed into open.
      *
@@ -269,8 +286,6 @@ class BlobManager : public ManagerInterface
     void incrementOpen(const std::string& path);
     void decrementOpen(const std::string& path);
     int getOpen(const std::string& path) const;
-
-    void updateSessionTime(uint16_t sessionId);
 
     /* The next session ID to use */
     uint16_t next;
