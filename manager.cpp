@@ -155,31 +155,6 @@ GenericBlobInterface* BlobManager::getHandler(const std::string& path)
     return nullptr;
 }
 
-GenericBlobInterface* BlobManager::getHandler(uint16_t session)
-{
-    auto item = sessions.find(session);
-    if (item == sessions.end())
-    {
-        return nullptr;
-    }
-
-    return item->second.handler;
-}
-
-SessionInfo* BlobManager::getSessionInfo(uint16_t session)
-{
-    auto item = sessions.find(session);
-    if (item == sessions.end())
-    {
-        return nullptr;
-    }
-
-    /* If we go to multi-threaded, this pointer can be invalidated and this
-     * method will need to change.
-     */
-    return &item->second;
-}
-
 std::string BlobManager::getPath(uint16_t session) const
 {
     auto item = sessions.find(session);
@@ -207,69 +182,40 @@ bool BlobManager::stat(const std::string& path, BlobMeta* meta)
 
 bool BlobManager::stat(uint16_t session, BlobMeta* meta)
 {
-    /* meta should never be NULL. */
-    GenericBlobInterface* handler = getHandler(session);
-
-    /* No handler found. */
-    if (!handler)
+    if (auto handler = getActionHandle(session))
     {
-        return false;
+        return handler->stat(session, meta);
     }
-
-    return handler->stat(session, meta);
+    return false;
 }
 
 bool BlobManager::commit(uint16_t session, const std::vector<uint8_t>& data)
 {
-    GenericBlobInterface* handler = getHandler(session);
-
-    /* No handler found. */
-    if (!handler)
+    if (auto handler = getActionHandle(session))
     {
-        return false;
+        return handler->commit(session, data);
     }
-
-    return handler->commit(session, data);
+    return false;
 }
 
 bool BlobManager::close(uint16_t session)
 {
-    GenericBlobInterface* handler = getHandler(session);
-
-    /* No handler found. */
-    if (!handler)
+    if (auto handler = getActionHandle(session))
     {
-        return false;
+        if (!handler->close(session))
+        {
+            return false;
+        }
+        sessions.erase(session);
+        decrementOpen(getPath(session));
+        return true;
     }
-
-    /* Handler returns failure */
-    if (!handler->close(session))
-    {
-        return false;
-    }
-
-    sessions.erase(session);
-    decrementOpen(getPath(session));
-    return true;
+    return false;
 }
 
 std::vector<uint8_t> BlobManager::read(uint16_t session, uint32_t offset,
                                        uint32_t requestedSize)
 {
-    SessionInfo* info = getSessionInfo(session);
-
-    /* No session found. */
-    if (!info)
-    {
-        return std::vector<uint8_t>();
-    }
-
-    /* Check flags. */
-    if (!(info->flags & OpenFlags::read))
-    {
-        return std::vector<uint8_t>();
-    }
-
     /* TODO: Currently, configure_ac isn't finding libuserlayer, w.r.t the
      * symbols I need.
      */
@@ -284,30 +230,22 @@ std::vector<uint8_t> BlobManager::read(uint16_t session, uint32_t offset,
      */
     // uint32_t maxTransportSize = ipmi::getChannelMaxTransferSize(ipmiChannel);
 
-    /* Try reading from it. */
-    return info->handler->read(session, offset,
-                               std::min(maximumReadSize, requestedSize));
+    if (auto handler = getActionHandle(session, OpenFlags::read))
+    {
+        return handler->read(session, offset,
+                             std::min(maximumReadSize, requestedSize));
+    }
+    return {};
 }
 
 bool BlobManager::write(uint16_t session, uint32_t offset,
                         const std::vector<uint8_t>& data)
 {
-    SessionInfo* info = getSessionInfo(session);
-
-    /* No session found. */
-    if (!info)
+    if (auto handler = getActionHandle(session, OpenFlags::write))
     {
-        return false;
+        return handler->write(session, offset, data);
     }
-
-    /* Check flags. */
-    if (!(info->flags & OpenFlags::write))
-    {
-        return false;
-    }
-
-    /* Try writing to it. */
-    return info->handler->write(session, offset, data);
+    return {};
 }
 
 bool BlobManager::deleteBlob(const std::string& path)
@@ -333,16 +271,11 @@ bool BlobManager::deleteBlob(const std::string& path)
 bool BlobManager::writeMeta(uint16_t session, uint32_t offset,
                             const std::vector<uint8_t>& data)
 {
-    SessionInfo* info = getSessionInfo(session);
-
-    /* No session found. */
-    if (!info)
+    if (auto handler = getActionHandle(session))
     {
-        return false;
+        return handler->writeMeta(session, offset, data);
     }
-
-    /* Try writing metadata to it. */
-    return info->handler->writeMeta(session, offset, data);
+    return false;
 }
 
 bool BlobManager::getSession(uint16_t* sess)

@@ -234,21 +234,25 @@ class BlobManager : public ManagerInterface
     GenericBlobInterface* getHandler(const std::string& path);
 
     /**
-     * Given a session id will return associated handler.
+     * Given a session id, update session time and return a handle to take
+     * action
      *
-     * @param[in] session - the session.
-     * @return pointer to the handler or nullptr if not found.
+     * @param[in] session - session ID
+     * @param[in] requiredFlags - only return handle if the flags for this
+     *            session contain these flags; defaults to any flag
+     * @return session handler, nullptr if cannot get handler
      */
-    GenericBlobInterface* getHandler(uint16_t session);
-
-    /**
-     * Given a session id will return associated metadata, including
-     * the handler and the flags passed into open.
-     *
-     * @param[in] session - the session.
-     * @return pointer to the information or nullptr if not found.
-     */
-    SessionInfo* getSessionInfo(uint16_t session);
+    GenericBlobInterface* getActionHandle(
+        uint16_t session,
+        uint16_t requiredFlags = std::numeric_limits<uint16_t>::max())
+    {
+        if (auto item = sessions.find(session);
+            item != sessions.end() && (item->second.flags & requiredFlags))
+        {
+            return item->second.handler;
+        }
+        return nullptr;
+    }
 
     /**
      * Given a session id will return associated path.
