@@ -84,4 +84,28 @@ TEST(ManagerDeleteTest, FileIsNotOpenAndHandlerSucceeds)
     // Try to delete the file.
     EXPECT_TRUE(mgr.deleteBlob(path));
 }
+
+TEST(ManagerDeleteTest, DeleteWorksAfterOpenClose)
+{
+    // The Blob manager is able to decrement the ref count and delete.
+
+    BlobManager mgr;
+    std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
+    auto m1ptr = m1.get();
+    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+
+    uint16_t flags = OpenFlags::read, sess;
+    std::string path = "/asdf/asdf";
+
+    EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m1ptr, open(_, flags, path)).WillOnce(Return(true));
+    EXPECT_CALL(*m1ptr, close(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m1ptr, deleteBlob(path)).WillOnce(Return(true));
+
+    EXPECT_TRUE(mgr.open(flags, path, &sess));
+    EXPECT_TRUE(mgr.close(sess));
+
+    // Try to delete the file.
+    EXPECT_TRUE(mgr.deleteBlob(path));
+}
 } // namespace blobs
