@@ -236,6 +236,7 @@ class BlobManager : public ManagerInterface
      */
     bool getSession(uint16_t* session);
 
+  private:
     /**
      * Given a file path will return first handler to answer that it owns
      * it.
@@ -246,23 +247,34 @@ class BlobManager : public ManagerInterface
     GenericBlobInterface* getHandler(const std::string& path);
 
     /**
-     * Given a session id, update session time and return a handle to take
+     * Given a session id, update session time and return a handler to take
      * action
      *
      * @param[in] session - session ID
-     * @param[in] requiredFlags - only return handle if the flags for this
+     * @param[in] requiredFlags - only return handler if the flags for this
      *            session contain these flags; defaults to any flag
      * @return session handler, nullptr if cannot get handler
      */
-    GenericBlobInterface* getActionHandle(
+    GenericBlobInterface* getActionHandler(
         uint16_t session,
         uint16_t requiredFlags = std::numeric_limits<uint16_t>::max());
 
-  private:
-    /* Helper method to erase a session from all maps */
-    void eraseSession(GenericBlobInterface* handler, uint16_t session);
-    /* For each session owned by this handler, call expire if it is stale */
-    void cleanUpStaleSessions(GenericBlobInterface* handler);
+    /**
+     * Helper method to erase a session from all maps
+     *
+     * @param[in] handler - handler pointer for lookup
+     * @param[in] session - session ID for lookup
+     * @return None
+     */
+    void eraseSession(GenericBlobInterface* const handler, uint16_t session);
+
+    /**
+     * For each session owned by this handler, call expire if it is stale
+     *
+     * @param[in] handler - handler pointer for lookup
+     * @return None
+     */
+    void cleanUpStaleSessions(GenericBlobInterface* const handler);
 
     /* How long a session has to be inactive to be considered stale */
     std::chrono::seconds sessionTimeout;
