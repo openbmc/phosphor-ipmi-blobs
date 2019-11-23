@@ -258,14 +258,6 @@ class BlobManager : public ManagerInterface
         uint16_t session,
         uint16_t requiredFlags = std::numeric_limits<uint16_t>::max());
 
-    /**
-     * Given a session id will return associated path.
-     *
-     * @param[in] session - the session.
-     * @return the path or "" on failure.
-     */
-    std::string getPath(uint16_t session) const;
-
   private:
     /* Helper method to erase a session from all maps */
     void eraseSession(GenericBlobInterface* handler, uint16_t session);
