@@ -25,63 +25,6 @@
 namespace blobs
 {
 
-void BlobManager::eraseSession(GenericBlobInterface* handler, uint16_t session)
-{
-    if (auto item = sessions.find(session); item != sessions.end())
-    {
-        const auto& blobId = item->second.blobId;
-
-        /* Ok for openSessions[handler] to be an empty set */
-        openSessions[handler].erase(session);
-        openFiles[blobId]--;
-        if (openFiles[blobId] == 0)
-        {
-            openFiles.erase(blobId);
-        }
-
-        /* Erase at the end after using the session info */
-        sessions.erase(session);
-    }
-}
-
-void BlobManager::cleanUpStaleSessions(GenericBlobInterface* handler)
-{
-    if (openSessions.count(handler) == 0)
-    {
-        return;
-    }
-
-    auto timeNow = std::chrono::steady_clock::now();
-    std::set<uint16_t> expiredSet;
-
-    for (auto sessionId : openSessions[handler])
-    {
-        if (timeNow - sessions[sessionId].lastActionTime >= sessionTimeout)
-        {
-            expiredSet.insert(sessionId);
-        }
-    }
-
-    for (auto sessionId : expiredSet)
-    {
-        std::cerr << "phosphor-ipmi-blobs: expiring stale session " << sessionId
-                  << std::endl;
-
-        /* We do a best case recovery by issuing an expire call. If it fails
-         * don't erase sessions since the handler side might be still tracking
-         * it as open. */
-        if (handler->expire(sessionId))
-        {
-            eraseSession(handler, sessionId);
-        }
-        else
-        {
-            std::cerr << "phosphor-ipmi-blobs: failed to expire session "
-                      << sessionId << std::endl;
-        }
-    }
-}
-
 bool BlobManager::registerHandler(std::unique_ptr<GenericBlobInterface> handler)
 {
     if (!handler)
@@ -161,32 +104,6 @@ bool BlobManager::open(uint16_t flags, const std::string& path,
     return true;
 }
 
-GenericBlobInterface* BlobManager::getHandler(const std::string& path)
-{
-    /* Find a handler. */
-    auto h = std::find_if(
-        handlers.begin(), handlers.end(),
-        [&path](const auto& iter) { return (iter->canHandleBlob(path)); });
-    if (h != handlers.end())
-    {
-        return h->get();
-    }
-
-    return nullptr;
-}
-
-GenericBlobInterface* BlobManager::getActionHandle(uint16_t session,
-                                                   uint16_t requiredFlags)
-{
-    if (auto item = sessions.find(session);
-        item != sessions.end() && (item->second.flags & requiredFlags))
-    {
-        item->second.lastActionTime = std::chrono::steady_clock::now();
-        return item->second.handler;
-    }
-    return nullptr;
-}
-
 bool BlobManager::stat(const std::string& path, BlobMeta* meta)
 {
     /* meta should never be NULL. */
@@ -203,7 +120,7 @@ bool BlobManager::stat(const std::string& path, BlobMeta* meta)
 
 bool BlobManager::stat(uint16_t session, BlobMeta* meta)
 {
-    if (auto handler = getActionHandle(session))
+    if (auto handler = getActionHandler(session))
     {
         return handler->stat(session, meta);
     }
@@ -212,7 +129,7 @@ bool BlobManager::stat(uint16_t session, BlobMeta* meta)
 
 bool BlobManager::commit(uint16_t session, const std::vector<uint8_t>& data)
 {
-    if (auto handler = getActionHandle(session))
+    if (auto handler = getActionHandler(session))
     {
         return handler->commit(session, data);
     }
@@ -221,7 +138,7 @@ bool BlobManager::commit(uint16_t session, const std::vector<uint8_t>& data)
 
 bool BlobManager::close(uint16_t session)
 {
-    if (auto handler = getActionHandle(session))
+    if (auto handler = getActionHandler(session))
     {
         if (!handler->close(session))
         {
@@ -250,7 +167,7 @@ std::vector<uint8_t> BlobManager::read(uint16_t session, uint32_t offset,
      */
     // uint32_t maxTransportSize = ipmi::getChannelMaxTransferSize(ipmiChannel);
 
-    if (auto handler = getActionHandle(session, OpenFlags::read))
+    if (auto handler = getActionHandler(session, OpenFlags::read))
     {
         return handler->read(session, offset,
                              std::min(maximumReadSize, requestedSize));
@@ -261,7 +178,7 @@ std::vector<uint8_t> BlobManager::read(uint16_t session, uint32_t offset,
 bool BlobManager::write(uint16_t session, uint32_t offset,
                         const std::vector<uint8_t>& data)
 {
-    if (auto handler = getActionHandle(session, OpenFlags::write))
+    if (auto handler = getActionHandler(session, OpenFlags::write))
     {
         return handler->write(session, offset, data);
     }
@@ -291,7 +208,7 @@ bool BlobManager::deleteBlob(const std::string& path)
 bool BlobManager::writeMeta(uint16_t session, uint32_t offset,
                             const std::vector<uint8_t>& data)
 {
-    if (auto handler = getActionHandle(session))
+    if (auto handler = getActionHandler(session))
     {
         return handler->writeMeta(session, offset, data);
     }
@@ -324,6 +241,91 @@ bool BlobManager::getSession(uint16_t* sess)
     } while (++tries < 0xffff);
 
     return false;
+}
+
+GenericBlobInterface* BlobManager::getHandler(const std::string& path)
+{
+    /* Find a handler. */
+    auto h = std::find_if(
+        handlers.begin(), handlers.end(),
+        [&path](const auto& iter) { return (iter->canHandleBlob(path)); });
+    if (h != handlers.end())
+    {
+        return h->get();
+    }
+
+    return nullptr;
+}
+
+GenericBlobInterface* BlobManager::getActionHandler(uint16_t session,
+                                                    uint16_t requiredFlags)
+{
+    if (auto item = sessions.find(session);
+        item != sessions.end() && (item->second.flags & requiredFlags))
+    {
+        item->second.lastActionTime = std::chrono::steady_clock::now();
+        return item->second.handler;
+    }
+    return nullptr;
+}
+
+void BlobManager::eraseSession(const GenericBlobInterface* const handler,
+                               uint16_t session)
+{
+    if (auto item = sessions.find(session); item != sessions.end())
+    {
+        const auto& blobId = item->second.blobId;
+
+        /* Ok for openSessions[handler] to be an empty set */
+        openSessions[handler].erase(session);
+        openFiles[blobId]--;
+        if (openFiles[blobId] == 0)
+        {
+            openFiles.erase(blobId);
+        }
+
+        /* Erase at the end after using the session info */
+        sessions.erase(session);
+    }
+}
+
+void BlobManager::cleanUpStaleSessions(
+    const GenericBlobInterface* const handler)
+{
+    if (openSessions.count(handler) == 0)
+    {
+        return;
+    }
+
+    auto timeNow = std::chrono::steady_clock::now();
+    std::set<uint16_t> expiredSet;
+
+    for (auto sessionId : openSessions[handler])
+    {
+        if (timeNow - sessions[sessionId].lastActionTime >= sessionTimeout)
+        {
+            expiredSet.insert(sessionId);
+        }
+    }
+
+    for (auto sessionId : expiredSet)
+    {
+        std::cerr << "phosphor-ipmi-blobs: expiring stale session " << sessionId
+                  << std::endl;
+
+        /* We do a best case recovery by issuing an expire call. If it fails
+         * don't erase sessions since the handler side might be still tracking
+         * it as open. */
+        if (handler->expire(sessionId))
+        {
+            eraseSession(handler, sessionId);
+        }
+        else
+        {
+            std::cerr << "phosphor-ipmi-blobs: failed to expire session "
+                      << sessionId << std::endl;
+        }
+    }
 }
 
 static std::unique_ptr<BlobManager> manager;
