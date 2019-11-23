@@ -27,7 +27,6 @@ namespace blobs
 
 void BlobManager::eraseSession(GenericBlobInterface* handler, uint16_t session)
 {
-    sessions.erase(session);
     /* Ok for openSessions[handler] to be an empty set */
     openSessions[handler].erase(session);
 
@@ -37,6 +36,8 @@ void BlobManager::eraseSession(GenericBlobInterface* handler, uint16_t session)
     {
         openFiles.erase(path);
     }
+    /* Cannot erase before getPath() is called */
+    sessions.erase(session);
 }
 
 void BlobManager::cleanUpStaleSessions(GenericBlobInterface* handler)
@@ -180,16 +181,6 @@ GenericBlobInterface* BlobManager::getActionHandle(uint16_t session,
         return item->second.handler;
     }
     return nullptr;
-}
-
-std::string BlobManager::getPath(uint16_t session) const
-{
-    if (auto item = sessions.find(session); item != sessions.end())
-    {
-        return item->second.blobId;
-    }
-
-    return "";
 }
 
 bool BlobManager::stat(const std::string& path, BlobMeta* meta)
