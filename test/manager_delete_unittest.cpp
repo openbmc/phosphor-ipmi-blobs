@@ -97,7 +97,7 @@ TEST(ManagerDeleteTest, DeleteWorksAfterOpenClose)
     uint16_t flags = OpenFlags::read, sess;
     std::string path = "/asdf/asdf";
 
-    EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillOnce(Return(true));
+    EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillRepeatedly(Return(true));
     EXPECT_CALL(*m1ptr, open(_, flags, path)).WillOnce(Return(true));
     EXPECT_CALL(*m1ptr, close(_)).WillOnce(Return(true));
     EXPECT_CALL(*m1ptr, deleteBlob(path)).WillOnce(Return(true));
