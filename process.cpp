@@ -142,4 +142,30 @@ ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
 
     return result;
 }
+
+ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
+                             uint8_t* replyCmdBuf, size_t* dataLen)
+{
+    /* It's holding at least a sub-command.  The OEN is trimmed from the bytes
+     * before this is called.
+     */
+    if ((*dataLen) < 1)
+    {
+        return IPMI_CC_REQ_DATA_LEN_INVALID;
+    }
+
+    /* on failure rc is set to the corresponding IPMI error. */
+    ipmi_ret_t rc = IPMI_CC_OK;
+    IpmiBlobHandler command =
+        validateBlobCommand(reqBuf, replyCmdBuf, dataLen, &rc);
+    if (command == nullptr)
+    {
+        (*dataLen) = 0;
+        return rc;
+    }
+
+    return processBlobCommand(command, getBlobManager(), reqBuf, replyCmdBuf,
+                              dataLen);
+}
+
 } // namespace blobs

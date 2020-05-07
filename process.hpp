@@ -41,4 +41,11 @@ IpmiBlobHandler validateBlobCommand(const uint8_t* reqBuf, uint8_t* replyCmdBuf,
 ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
                               const uint8_t* reqBuf, uint8_t* replyCmdBuf,
                               size_t* dataLen);
+
+/**
+ * Given an IPMI command, request buffer, and reply buffer, validate the request
+ * and call processBlobCommand.
+ */
+ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
+                             uint8_t* replyCmdBuf, size_t* dataLen);
 } // namespace blobs
