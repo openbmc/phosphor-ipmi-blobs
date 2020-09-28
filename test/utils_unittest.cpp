@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 namespace fs = std::filesystem;
@@ -20,12 +21,12 @@ using ::testing::Return;
 using ::testing::StrEq;
 using ::testing::StrictMock;
 
-std::vector<std::string>* returnList = nullptr;
+std::vector<std::string> returnList;
 
 std::vector<std::string> getLibraryList(const std::string& path,
                                         PathMatcher check)
 {
-    return (returnList) ? *returnList : std::vector<std::string>();
+    return returnList;
 }
 
 std::unique_ptr<GenericBlobInterface> factoryReturn;
@@ -35,7 +36,16 @@ std::unique_ptr<GenericBlobInterface> fakeFactory()
     return std::move(factoryReturn);
 }
 
-TEST(UtilLoadLibraryTest, NoFilesFound)
+class UtilLoadLibraryTest : public ::testing::Test
+{
+  protected:
+    UtilLoadLibraryTest()
+    {
+        returnList = {};
+    }
+};
+
+TEST_F(UtilLoadLibraryTest, NoFilesFound)
 {
     /* Verify nothing special happens when there are no files found. */
 
@@ -45,13 +55,12 @@ TEST(UtilLoadLibraryTest, NoFilesFound)
     loadLibraries(&manager, "", &dlsys);
 }
 
-TEST(UtilLoadLibraryTest, OneFileFoundIsLibrary)
+TEST_F(UtilLoadLibraryTest, OneFileFoundIsLibrary)
 {
     /* Verify if it finds a library, and everything works, it'll regsiter it.
      */
 
-    std::vector<std::string> files = {"this.fake"};
-    returnList = &files;
+    returnList = {"this.fake"};
 
     StrictMock<internal::InternalDlSysMock> dlsys;
     StrictMock<ManagerMock> manager;
