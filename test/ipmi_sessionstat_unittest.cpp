@@ -62,11 +62,14 @@ TEST(BlobSessionStatTest, RequestSucceedsNoMetadata)
     rep.size = 0x100;
     rep.metadataLen = 0x00;
 
+    uint16_t blobState = rep.blobState;
+    uint32_t size = rep.size;
+
     EXPECT_CALL(mgr, stat(Matcher<uint16_t>(req->sessionId),
                           Matcher<BlobMeta*>(NotNull())))
         .WillOnce(Invoke([&](uint16_t session, BlobMeta* meta) {
-            meta->blobState = rep.blobState;
-            meta->size = rep.size;
+            meta->blobState = blobState;
+            meta->size = size;
             return true;
         }));
 

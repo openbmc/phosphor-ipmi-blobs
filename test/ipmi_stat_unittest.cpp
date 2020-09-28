@@ -95,11 +95,14 @@ TEST(BlobStatTest, RequestSucceedsNoMetadata)
     rep.size = 0x100;
     rep.metadataLen = 0x00;
 
+    uint16_t blobState = rep.blobState;
+    uint32_t size = rep.size;
+
     EXPECT_CALL(mgr, stat(Matcher<const std::string&>(StrEq(blobId)),
                           Matcher<BlobMeta*>(NotNull())))
         .WillOnce(Invoke([&](const std::string& path, BlobMeta* meta) {
-            meta->blobState = rep.blobState;
-            meta->size = rep.size;
+            meta->blobState = blobState;
+            meta->size = size;
             return true;
         }));
 
