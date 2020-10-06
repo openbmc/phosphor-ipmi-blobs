@@ -170,6 +170,8 @@ AC_ARG_VAR(BLOB_LIB_PATH, [The file path to search for libraries.])
 AS_IF([test "x$BLOB_LIB_PATH" == "x"], [BLOB_LIB_PATH="/usr/lib/blob-ipmid"])
 AC_DEFINE_UNQUOTED([BLOB_LIB_PATH], ["$BLOB_LIB_PATH"], [The file path to search for libraries.])
 
+AC_CONFIG_FILES([phosphor-ipmi-blobs.pc])
+
 # Create configured output
 AC_CONFIG_FILES([Makefile test/Makefile])
 AC_OUTPUT

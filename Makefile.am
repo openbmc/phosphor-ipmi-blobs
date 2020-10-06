@@ -86,6 +86,9 @@ libblobcmds_la_CXXFLAGS = \
 nobase_include_HEADERS = \
 	blobs-ipmid/blobs.hpp
 
+pkgconfiglibdir = ${libdir}/pkgconfig
+pkgconfiglib_DATA = phosphor-ipmi-blobs.pc
+
 # Install the blob handlers in ipmid-providers so you can leverage
 # meta-phosphor/blob/master/classes/obmc-phosphor-ipmiprovider-symlink.bbclass
 # Which will create a symlink in ${D}/${libdir}/blob-ipmid/ pointing to the
