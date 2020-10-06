@@ -106,3 +106,5 @@ libblobexample_la_CXXFLAGS = \
 	-flto
 
 SUBDIRS = . test
+
+pkgconfig_DATA = phosphor-ipmi-blobs.pc
