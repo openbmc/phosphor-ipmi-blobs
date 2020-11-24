@@ -1,3 +1,5 @@
+prefix=@prefix@
+
 Name: phosphor-ipmi-blobs
 Description: Phosphor Blob Transfer Interface
 URL: https://github.com/openbmc/phosphor-ipmi-blobs
