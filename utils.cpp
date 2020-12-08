@@ -69,15 +69,24 @@ void loadLibraries(ManagerInterface* manager, const std::string& path,
             continue;
         }
 
-        std::unique_ptr<GenericBlobInterface> result = factory();
-        if (!result)
+        try
         {
-            log<level::ERR>("Unable to create handler",
-                            entry("HANDLER=%s", p.c_str()));
-            continue;
-        }
+            std::unique_ptr<GenericBlobInterface> result = factory();
+            if (!result)
+            {
+                log<level::ERR>("Unable to create handler",
+                                entry("HANDLER=%s", p.c_str()));
+                continue;
+            }
 
-        manager->registerHandler(std::move(result));
+            manager->registerHandler(std::move(result));
+        }
+        catch (const std::exception& e)
+        {
+            log<level::ERR>("Received exception loading handler",
+                            entry("HANDLER=%s", p.c_str()),
+                            entry("EXCEPTION=%s", e.what()));
+        }
     }
 }
 
