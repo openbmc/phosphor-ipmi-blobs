@@ -1,0 +1,9 @@
+Ok-To-Test+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Code-Review+1: William A. Kennington III <wak@google.com>
+Code-Review+2: Kun Yi <kunyi731@gmail.com>
+Submitted-by: Kun Yi <kunyi731@gmail.com>
+Submitted-at: Tue, 15 Dec 2020 00:59:47 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/c/openbmc/phosphor-ipmi-blobs/+/38556
+Project: openbmc/phosphor-ipmi-blobs
+Branch: refs/heads/master
