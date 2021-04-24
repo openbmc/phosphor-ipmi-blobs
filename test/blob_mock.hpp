@@ -12,18 +12,22 @@ class BlobMock : public GenericBlobInterface
   public:
     virtual ~BlobMock() = default;
 
-    MOCK_METHOD1(canHandleBlob, bool(const std::string&));
-    MOCK_METHOD0(getBlobIds, std::vector<std::string>());
-    MOCK_METHOD1(deleteBlob, bool(const std::string&));
-    MOCK_METHOD2(stat, bool(const std::string&, BlobMeta*));
-    MOCK_METHOD3(open, bool(uint16_t, uint16_t, const std::string&));
-    MOCK_METHOD3(read, std::vector<uint8_t>(uint16_t, uint32_t, uint32_t));
-    MOCK_METHOD3(write, bool(uint16_t, uint32_t, const std::vector<uint8_t>&));
-    MOCK_METHOD3(writeMeta,
-                 bool(uint16_t, uint32_t, const std::vector<uint8_t>&));
-    MOCK_METHOD2(commit, bool(uint16_t, const std::vector<uint8_t>&));
-    MOCK_METHOD1(close, bool(uint16_t));
-    MOCK_METHOD2(stat, bool(uint16_t, BlobMeta*));
-    MOCK_METHOD1(expire, bool(uint16_t));
+    MOCK_METHOD(bool, canHandleBlob, (const std::string&), (override));
+    MOCK_METHOD(std::vector<std::string>, getBlobIds, (), (override));
+    MOCK_METHOD(bool, deleteBlob, (const std::string&), (override));
+    MOCK_METHOD(bool, stat, (const std::string&, BlobMeta*), (override));
+    MOCK_METHOD(bool, open, (uint16_t, uint16_t, const std::string&),
+                (override));
+    MOCK_METHOD(std::vector<uint8_t>, read, (uint16_t, uint32_t, uint32_t),
+                (override));
+    MOCK_METHOD(bool, write, (uint16_t, uint32_t, const std::vector<uint8_t>&),
+                (override));
+    MOCK_METHOD(bool, writeMeta,
+                (uint16_t, uint32_t, const std::vector<uint8_t>&), (override));
+    MOCK_METHOD(bool, commit, (uint16_t, const std::vector<uint8_t>&),
+                (override));
+    MOCK_METHOD(bool, close, (uint16_t), (override));
+    MOCK_METHOD(bool, stat, (uint16_t, BlobMeta*), (override));
+    MOCK_METHOD(bool, expire, (uint16_t), (override));
 };
 } // namespace blobs

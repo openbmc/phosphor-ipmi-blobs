@@ -14,9 +14,9 @@ class InternalDlSysMock : public DlSysInterface
   public:
     virtual ~InternalDlSysMock() = default;
 
-    MOCK_CONST_METHOD0(dlerror, const char*());
-    MOCK_CONST_METHOD2(dlopen, void*(const char*, int));
-    MOCK_CONST_METHOD2(dlsym, void*(void*, const char*));
+    MOCK_METHOD(const char*, dlerror, (), (const, override));
+    MOCK_METHOD(void*, dlopen, (const char*, int), (const, override));
+    MOCK_METHOD(void*, dlsym, (void*, const char*), (const, override));
 };
 
 } // namespace internal
