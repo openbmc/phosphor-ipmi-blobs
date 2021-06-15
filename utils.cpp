@@ -35,7 +35,7 @@ using namespace phosphor::logging;
 
 bool matchBlobHandler(const std::string& filename)
 {
-    return std::regex_match(filename, std::regex(".+\\.so\\.\\d+$"));
+    return filename.find(".so") != std::string::npos;
 }
 
 void loadLibraries(ManagerInterface* manager, const std::string& path,
