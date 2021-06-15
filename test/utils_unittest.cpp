@@ -93,8 +93,8 @@ TEST(UtilLibraryMatchTest, TestAll)
         {"libblobcmds.0.0.1", false}, {"libblobcmds.0.0", false},
         {"libblobcmds.0", false},     {"libblobcmds.10", false},
         {"libblobcmds.a", false},     {"libcmds.so.so.0", true},
-        {"libcmds.so.0", true},       {"libcmds.so.0.0", false},
-        {"libcmds.so.0.0.10", false}, {"libblobs.so.1000", true}};
+        {"libcmds.so.0", true},       {"libcmds.so", true},
+        {"libcmds.so.0.0.10", true}, {"libblobs.so.1000", true}};
 
     for (const auto& test : tests)
     {
