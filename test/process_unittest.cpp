@@ -197,9 +197,8 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsNotOk)
     uint8_t request[MAX_IPMI_BUFFER] = {0};
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
 
-    IpmiBlobHandler h = [](ManagerInterface* mgr, const uint8_t* reqBuf,
-                           uint8_t* replyCmdBuf,
-                           size_t* dataLen) { return IPMI_CC_INVALID; };
+    IpmiBlobHandler h = [](ManagerInterface*, const uint8_t*, uint8_t*,
+                           size_t*) { return IPMI_CC_INVALID; };
 
     dataLen = sizeof(request);
 
@@ -217,8 +216,8 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithNoPayload)
     uint8_t request[MAX_IPMI_BUFFER] = {0};
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
 
-    IpmiBlobHandler h = [](ManagerInterface* mgr, const uint8_t* reqBuf,
-                           uint8_t* replyCmdBuf, size_t* dataLen) {
+    IpmiBlobHandler h = [](ManagerInterface*, const uint8_t*, uint8_t*,
+                           size_t* dataLen) {
         (*dataLen) = 0;
         return IPMI_CC_OK;
     };
@@ -239,8 +238,8 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithInvalidPayloadLength)
     uint8_t request[MAX_IPMI_BUFFER] = {0};
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
 
-    IpmiBlobHandler h = [](ManagerInterface* mgr, const uint8_t* reqBuf,
-                           uint8_t* replyCmdBuf, size_t* dataLen) {
+    IpmiBlobHandler h = [](ManagerInterface*, const uint8_t*, uint8_t*,
+                           size_t* dataLen) {
         (*dataLen) = sizeof(uint8_t);
         return IPMI_CC_OK;
     };
@@ -262,8 +261,7 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithValidPayloadLength)
     uint8_t reply[MAX_IPMI_BUFFER] = {0};
     uint32_t payloadLen = sizeof(uint16_t) + sizeof(uint8_t);
 
-    IpmiBlobHandler h = [payloadLen](ManagerInterface* mgr,
-                                     const uint8_t* reqBuf,
+    IpmiBlobHandler h = [payloadLen](ManagerInterface*, const uint8_t*,
                                      uint8_t* replyCmdBuf, size_t* dataLen) {
         (*dataLen) = payloadLen;
         replyCmdBuf[2] = 0x56;

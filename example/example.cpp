@@ -36,12 +36,12 @@ std::vector<std::string> ExampleBlobHandler::getBlobIds()
     return {supportedPath};
 }
 
-bool ExampleBlobHandler::deleteBlob(const std::string& path)
+bool ExampleBlobHandler::deleteBlob(const std::string&)
 {
     return false;
 }
 
-bool ExampleBlobHandler::stat(const std::string& path, BlobMeta* meta)
+bool ExampleBlobHandler::stat(const std::string&, BlobMeta*)
 {
     return false;
 }
@@ -116,15 +116,14 @@ bool ExampleBlobHandler::write(uint16_t session, uint32_t offset,
     return true;
 }
 
-bool ExampleBlobHandler::writeMeta(uint16_t session, uint32_t offset,
-                                   const std::vector<uint8_t>& data)
+bool ExampleBlobHandler::writeMeta(uint16_t, uint32_t,
+                                   const std::vector<uint8_t>&)
 {
     /* Not supported. */
     return false;
 }
 
-bool ExampleBlobHandler::commit(uint16_t session,
-                                const std::vector<uint8_t>& data)
+bool ExampleBlobHandler::commit(uint16_t session, const std::vector<uint8_t>&)
 {
     ExampleBlob* sess = getSession(session);
     if (!sess)

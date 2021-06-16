@@ -79,7 +79,7 @@ std::string stringFromBuffer(const char* start, size_t length)
     return (end == nullptr) ? std::string() : std::string(start, end);
 }
 
-ipmi_ret_t getBlobCount(ManagerInterface* mgr, const uint8_t* reqBuf,
+ipmi_ret_t getBlobCount(ManagerInterface* mgr, const uint8_t*,
                         uint8_t* replyCmdBuf, size_t* dataLen)
 {
     struct BmcBlobCountRx resp;
@@ -151,8 +151,8 @@ ipmi_ret_t openBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     return IPMI_CC_OK;
 }
 
-ipmi_ret_t closeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                     uint8_t* replyCmdBuf, size_t* dataLen)
+ipmi_ret_t closeBlob(ManagerInterface* mgr, const uint8_t* reqBuf, uint8_t*,
+                     size_t* dataLen)
 {
     struct BmcBlobCloseTx request;
     std::memcpy(&request, reqBuf, sizeof(request));
@@ -167,8 +167,8 @@ ipmi_ret_t closeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     return IPMI_CC_OK;
 }
 
-ipmi_ret_t deleteBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                      uint8_t* replyCmdBuf, size_t* dataLen)
+ipmi_ret_t deleteBlob(ManagerInterface* mgr, const uint8_t* reqBuf, uint8_t*,
+                      size_t* dataLen)
 {
     size_t requestLen = (*dataLen);
     auto request = reinterpret_cast<const struct BmcBlobDeleteTx*>(reqBuf);
@@ -254,8 +254,8 @@ ipmi_ret_t sessionStatBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     return returnStatBlob(&meta, replyCmdBuf, dataLen);
 }
 
-ipmi_ret_t commitBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                      uint8_t* replyCmdBuf, size_t* dataLen)
+ipmi_ret_t commitBlob(ManagerInterface* mgr, const uint8_t* reqBuf, uint8_t*,
+                      size_t* dataLen)
 {
     size_t requestLen = (*dataLen);
     auto request = reinterpret_cast<const struct BmcBlobCommitTx*>(reqBuf);
@@ -307,8 +307,8 @@ ipmi_ret_t readBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     return IPMI_CC_OK;
 }
 
-ipmi_ret_t writeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                     uint8_t* replyCmdBuf, size_t* dataLen)
+ipmi_ret_t writeBlob(ManagerInterface* mgr, const uint8_t* reqBuf, uint8_t*,
+                     size_t* dataLen)
 {
     size_t requestLen = (*dataLen);
     auto request = reinterpret_cast<const struct BmcBlobWriteTx*>(reqBuf);
@@ -328,8 +328,8 @@ ipmi_ret_t writeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     return IPMI_CC_OK;
 }
 
-ipmi_ret_t writeMeta(ManagerInterface* mgr, const uint8_t* reqBuf,
-                     uint8_t* replyCmdBuf, size_t* dataLen)
+ipmi_ret_t writeMeta(ManagerInterface* mgr, const uint8_t* reqBuf, uint8_t*,
+                     size_t* dataLen)
 {
     size_t requestLen = (*dataLen);
     struct BmcBlobWriteMetaTx request;

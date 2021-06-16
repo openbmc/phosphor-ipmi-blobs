@@ -48,8 +48,9 @@ static const std::unordered_map<BlobOEMCommands, IpmiBlobHandler> handlers = {
     {BlobOEMCommands::bmcBlobWriteMeta, writeMeta},
 };
 
-IpmiBlobHandler validateBlobCommand(const uint8_t* reqBuf, uint8_t* replyCmdBuf,
-                                    size_t* dataLen, ipmi_ret_t* code)
+IpmiBlobHandler validateBlobCommand(const uint8_t* reqBuf,
+                                    uint8_t* /*replyCmdBuf*/, size_t* dataLen,
+                                    ipmi_ret_t* code)
 {
     size_t requestLength = (*dataLen);
     /* We know dataLen is at least 1 already */
@@ -143,7 +144,7 @@ ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
     return result;
 }
 
-ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
+ipmi_ret_t handleBlobCommand(ipmi_cmd_t, const uint8_t* reqBuf,
                              uint8_t* replyCmdBuf, size_t* dataLen)
 {
     /* It's holding at least a sub-command.  The OEN is trimmed from the bytes
