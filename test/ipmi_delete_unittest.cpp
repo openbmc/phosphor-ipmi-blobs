@@ -32,7 +32,7 @@ TEST(BlobDeleteTest, InvalidRequestLengthReturnsFailure)
     req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobDelete);
     req->crc = 0;
     // length() doesn't include the nul-terminator.
-    std::memcpy(req->blobId, blobId.c_str(), blobId.length());
+    std::memcpy(req + 1, blobId.c_str(), blobId.length());
 
     dataLen = sizeof(struct BmcBlobDeleteTx) + blobId.length();
 
@@ -55,7 +55,7 @@ TEST(BlobDeleteTest, RequestRejectedReturnsFailure)
     req->crc = 0;
     // length() doesn't include the nul-terminator, request buff is initialized
     // to 0s
-    std::memcpy(req->blobId, blobId.c_str(), blobId.length());
+    std::memcpy(req + 1, blobId.c_str(), blobId.length());
 
     dataLen = sizeof(struct BmcBlobDeleteTx) + blobId.length() + 1;
 
@@ -80,7 +80,7 @@ TEST(BlobDeleteTest, BlobDeleteReturnsOk)
     req->crc = 0;
     // length() doesn't include the nul-terminator, request buff is initialized
     // to 0s
-    std::memcpy(req->blobId, blobId.c_str(), blobId.length());
+    std::memcpy(req + 1, blobId.c_str(), blobId.length());
 
     dataLen = sizeof(struct BmcBlobDeleteTx) + blobId.length() + 1;
 

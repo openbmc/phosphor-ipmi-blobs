@@ -113,7 +113,7 @@ ipmi_ret_t enumerateBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
      * reply buffer size. */
     reply->crc = 0;
     /* Explicilty copies the NUL-terminator. */
-    std::memcpy(&reply->blobId, blobId.c_str(), blobId.length() + 1);
+    std::memcpy(reply + 1, blobId.c_str(), blobId.length() + 1);
 
     (*dataLen) = sizeof(reply->crc) + blobId.length() + 1;
 
@@ -128,8 +128,9 @@ ipmi_ret_t openBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     uint16_t session;
     (*dataLen) = 0;
 
-    std::string path = stringFromBuffer(
-        request->blobId, (requestLen - sizeof(struct BmcBlobOpenTx)));
+    std::string path =
+        stringFromBuffer(reinterpret_cast<const char*>(request + 1),
+                         requestLen - sizeof(*request));
     if (path.empty())
     {
         return IPMI_CC_REQ_DATA_LEN_INVALID;
@@ -174,8 +175,9 @@ ipmi_ret_t deleteBlob(ManagerInterface* mgr, const uint8_t* reqBuf, uint8_t*,
     auto request = reinterpret_cast<const struct BmcBlobDeleteTx*>(reqBuf);
     (*dataLen) = 0;
 
-    std::string path = stringFromBuffer(
-        request->blobId, (requestLen - sizeof(struct BmcBlobDeleteTx)));
+    std::string path =
+        stringFromBuffer(reinterpret_cast<const char*>(request + 1),
+                         requestLen - sizeof(*request));
     if (path.empty())
     {
         return IPMI_CC_REQ_DATA_LEN_INVALID;
@@ -219,8 +221,9 @@ ipmi_ret_t statBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     auto request = reinterpret_cast<const struct BmcBlobStatTx*>(reqBuf);
     (*dataLen) = 0;
 
-    std::string path = stringFromBuffer(
-        request->blobId, (requestLen - sizeof(struct BmcBlobStatTx)));
+    std::string path =
+        stringFromBuffer(reinterpret_cast<const char*>(request + 1),
+                         requestLen - sizeof(*request));
     if (path.empty())
     {
         return IPMI_CC_REQ_DATA_LEN_INVALID;
@@ -268,7 +271,7 @@ ipmi_ret_t commitBlob(ManagerInterface* mgr, const uint8_t* reqBuf, uint8_t*,
     }
 
     std::vector<uint8_t> data(request->commitDataLen);
-    std::memcpy(data.data(), request->commitData, request->commitDataLen);
+    std::memcpy(data.data(), request + 1, request->commitDataLen);
 
     if (!mgr->commit(request->sessionId, data))
     {
@@ -317,7 +320,7 @@ ipmi_ret_t writeBlob(ManagerInterface* mgr, const uint8_t* reqBuf, uint8_t*,
     uint32_t size = requestLen - sizeof(struct BmcBlobWriteTx);
     std::vector<uint8_t> data(size);
 
-    std::memcpy(data.data(), request->data, size);
+    std::memcpy(data.data(), request + 1, size);
 
     /* Attempt to write the bytes. */
     if (!mgr->write(request->sessionId, request->offset, data))

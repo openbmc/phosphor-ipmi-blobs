@@ -35,7 +35,7 @@ TEST(BlobOpenTest, InvalidRequestLengthReturnsFailure)
     req->crc = 0;
     req->flags = 0;
     // length() doesn't include the nul-terminator.
-    std::memcpy(req->blobId, blobId.c_str(), blobId.length());
+    std::memcpy(req + 1, blobId.c_str(), blobId.length());
 
     dataLen = sizeof(struct BmcBlobOpenTx) + blobId.length();
 
@@ -59,7 +59,7 @@ TEST(BlobOpenTest, RequestRejectedReturnsFailure)
     req->flags = 0;
     // length() doesn't include the nul-terminator, request buff is initialized
     // to 0s
-    std::memcpy(req->blobId, blobId.c_str(), blobId.length());
+    std::memcpy(req + 1, blobId.c_str(), blobId.length());
 
     dataLen = sizeof(struct BmcBlobOpenTx) + blobId.length() + 1;
 
@@ -87,7 +87,7 @@ TEST(BlobOpenTest, BlobOpenReturnsOk)
     req->flags = 0;
     // length() doesn't include the nul-terminator, request buff is initialized
     // to 0s
-    std::memcpy(req->blobId, blobId.c_str(), blobId.length());
+    std::memcpy(req + 1, blobId.c_str(), blobId.length());
 
     dataLen = sizeof(struct BmcBlobOpenTx) + blobId.length() + 1;
     uint16_t returnedSession = 0x54;

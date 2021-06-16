@@ -100,7 +100,7 @@ TEST(BlobCommitTest, ValidCommitWithDataHandlerAcceptsReturnsSuccess)
     req->crc = 0;
     req->sessionId = 0x54;
     req->commitDataLen = sizeof(expectedBlob);
-    std::memcpy(req->commitData, &expectedBlob[0], sizeof(expectedBlob));
+    std::memcpy(req + 1, &expectedBlob[0], sizeof(expectedBlob));
 
     dataLen = sizeof(struct BmcBlobCommitTx) + sizeof(expectedBlob);
 

@@ -30,7 +30,7 @@ TEST(BlobWriteMetaTest, ManagerReturnsFailureReturnsFailure)
     req->offset = 0x100;
 
     uint8_t expectedBytes[2] = {0x66, 0x67};
-    std::memcpy(req->data, &expectedBytes[0], sizeof(expectedBytes));
+    std::memcpy(req + 1, &expectedBytes[0], sizeof(expectedBytes));
 
     dataLen = sizeof(struct BmcBlobWriteMetaTx) + sizeof(expectedBytes);
 
@@ -59,7 +59,7 @@ TEST(BlobWriteMetaTest, ManagerReturnsTrueWriteSucceeds)
     req->offset = 0x100;
 
     uint8_t expectedBytes[2] = {0x66, 0x67};
-    std::memcpy(req->data, &expectedBytes[0], sizeof(expectedBytes));
+    std::memcpy(req + 1, &expectedBytes[0], sizeof(expectedBytes));
 
     dataLen = sizeof(struct BmcBlobWriteMetaTx) + sizeof(expectedBytes);
 
