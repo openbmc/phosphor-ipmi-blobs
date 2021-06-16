@@ -25,6 +25,7 @@
 #include <phosphor-logging/log.hpp>
 #include <regex>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace blobs
@@ -40,6 +41,7 @@ bool matchBlobHandler(const std::string& filename)
 void loadLibraries(ManagerInterface* manager, const std::string& path,
                    const internal::DlSysInterface* sys)
 {
+    std::unordered_set<HandlerFactory> seen;
     void* libHandle = NULL;
     HandlerFactory factory;
 
@@ -68,6 +70,14 @@ void loadLibraries(ManagerInterface* manager, const std::string& path,
                             entry("ERROR=%s", error));
             continue;
         }
+
+        // We may have duplicate libraries in the blobs directory that we only
+        // want to initialize once.
+        if (seen.count(factory) > 0)
+        {
+            continue;
+        }
+        seen.emplace(factory);
 
         try
         {
