@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8704267d_6337e7a4",
+        "filename": "process.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1000100
+      },
+      "writtenOn": "2021-06-16T15:26:26Z",
+      "side": 0,
+      "message": "Other places it\u0027s fine to clear, but here, it might be clearer to the reader to know what is being ingored, via /*replyCmdBuf*/",
+      "revId": "5d81f30a55781f9100e7f6f8eabdaa7db067e0ba",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    }
+  ]
+}
