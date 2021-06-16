@@ -67,7 +67,7 @@ TEST(BlobSessionStatTest, RequestSucceedsNoMetadata)
 
     EXPECT_CALL(mgr, stat(Matcher<uint16_t>(req->sessionId),
                           Matcher<BlobMeta*>(NotNull())))
-        .WillOnce(Invoke([&](uint16_t session, BlobMeta* meta) {
+        .WillOnce(Invoke([&](uint16_t, BlobMeta* meta) {
             meta->blobState = blobState;
             meta->size = size;
             return true;
@@ -110,7 +110,7 @@ TEST(BlobSessionStatTest, RequestSucceedsWithMetadata)
 
     EXPECT_CALL(mgr, stat(Matcher<uint16_t>(req->sessionId),
                           Matcher<BlobMeta*>(NotNull())))
-        .WillOnce(Invoke([&](uint16_t session, BlobMeta* meta) {
+        .WillOnce(Invoke([&](uint16_t, BlobMeta* meta) {
             (*meta) = lmeta;
             return true;
         }));

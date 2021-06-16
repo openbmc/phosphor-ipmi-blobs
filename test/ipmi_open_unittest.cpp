@@ -93,11 +93,10 @@ TEST(BlobOpenTest, BlobOpenReturnsOk)
     uint16_t returnedSession = 0x54;
 
     EXPECT_CALL(mgr, open(req->flags, StrEq(blobId), NotNull()))
-        .WillOnce(Invoke(
-            [&](uint16_t flags, const std::string& path, uint16_t* session) {
-                (*session) = returnedSession;
-                return true;
-            }));
+        .WillOnce(Invoke([&](uint16_t, const std::string&, uint16_t* session) {
+            (*session) = returnedSession;
+            return true;
+        }));
 
     EXPECT_EQ(IPMI_CC_OK, openBlob(&mgr, request, reply, &dataLen));
 

@@ -23,8 +23,7 @@ using ::testing::StrictMock;
 
 std::vector<std::string> returnList;
 
-std::vector<std::string> getLibraryList(const std::string& path,
-                                        PathMatcher check)
+std::vector<std::string> getLibraryList(const std::string&, PathMatcher)
 {
     return returnList;
 }
