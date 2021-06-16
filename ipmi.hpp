@@ -33,7 +33,6 @@ struct BmcBlobEnumerateTx
 struct BmcBlobEnumerateRx
 {
     uint16_t crc;
-    char blobId[];
 } __attribute__((packed));
 
 /* Used by bmcBlobOpen */
@@ -42,7 +41,6 @@ struct BmcBlobOpenTx
     uint8_t cmd; /* bmcBlobOpen */
     uint16_t crc;
     uint16_t flags;
-    char blobId[]; /* Must correspond to a valid blob. */
 } __attribute__((packed));
 
 struct BmcBlobOpenRx
@@ -64,7 +62,6 @@ struct BmcBlobDeleteTx
 {
     uint8_t cmd; /* bmcBlobDelete */
     uint16_t crc;
-    char blobId[];
 } __attribute__((packed));
 
 /* Used by bmcBlobStat */
@@ -72,7 +69,6 @@ struct BmcBlobStatTx
 {
     uint8_t cmd; /* bmcBlobStat */
     uint16_t crc;
-    char blobId[];
 } __attribute__((packed));
 
 struct BmcBlobStatRx
@@ -81,7 +77,6 @@ struct BmcBlobStatRx
     uint16_t blobState;
     uint32_t size; /* Size in bytes of the blob. */
     uint8_t metadataLen;
-    uint8_t metadata[]; /* Optional blob-specific metadata. */
 } __attribute__((packed));
 
 /* Used by bmcBlobSessionStat */
@@ -99,7 +94,6 @@ struct BmcBlobCommitTx
     uint16_t crc;
     uint16_t sessionId;
     uint8_t commitDataLen;
-    uint8_t commitData[]; /* Optional blob-specific commit data. */
 } __attribute__((packed));
 
 /* Used by bmcBlobRead */
@@ -115,7 +109,6 @@ struct BmcBlobReadTx
 struct BmcBlobReadRx
 {
     uint16_t crc;
-    uint8_t data[];
 } __attribute__((packed));
 
 /* Used by bmcBlobWrite */
@@ -125,7 +118,6 @@ struct BmcBlobWriteTx
     uint16_t crc;
     uint16_t sessionId;
     uint32_t offset; /* The byte sequence start, 0-based. */
-    uint8_t data[];
 } __attribute__((packed));
 
 /* Used by bmcBlobWriteMeta */
@@ -135,7 +127,6 @@ struct BmcBlobWriteMetaTx
     uint16_t crc;
     uint16_t sessionId; /* Returned from BmcBlobOpen. */
     uint32_t offset;    /* The byte sequence start, 0-based. */
-    uint8_t data[];
 } __attribute__((packed));
 
 /**

@@ -61,6 +61,6 @@ TEST(BlobEnumerateTest, BoringRequestByIdAndReceive)
     EXPECT_EQ(blobId.length() + 1 + sizeof(uint16_t), dataLen);
 
     rep = reinterpret_cast<struct BmcBlobEnumerateRx*>(reply);
-    EXPECT_EQ(0, std::memcmp(rep->blobId, blobId.c_str(), blobId.length() + 1));
+    EXPECT_EQ(0, std::memcmp(rep + 1, blobId.c_str(), blobId.length() + 1));
 }
 } // namespace blobs
