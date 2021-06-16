@@ -12,6 +12,10 @@ project(
 ipmi_blob_dep = declare_dependency(
   include_directories: include_directories('.'))
 
+install_headers(
+  'blobs-ipmid/blobs.hpp',
+  subdir: 'blobs-ipmid')
+
 import('pkgconfig').generate(
   name: 'phosphor-ipmi-blobs',
   description: 'Phosphor Blob Transfer Interface',
