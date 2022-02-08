@@ -37,8 +37,6 @@ owners:
 - wak@google.com
 
 reviewers:
-- kunyi731@gmail.com
-- venture@google.com
 
 matches:
 
@@ -49,12 +47,6 @@ openbmc:
 - name: Brandon Kim
   email: brandonkim@google.com
   discord: brandonk
-- name: Kun Yi
-  email: kunyi731@gmail.com
-  discord: NA
-- name: Patrick Venture
-  email: venture@google.com
-  discord: Venture
 - name: William Kennington
   email: wak@google.com
   discord: wak
