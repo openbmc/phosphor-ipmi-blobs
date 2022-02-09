@@ -104,7 +104,7 @@ ipmi_ret_t enumerateBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
     std::memcpy(&request, reqBuf, sizeof(request));
 
     std::string blobId = mgr->getBlobId(request.blobIdx);
-    if (blobId == "")
+    if (blobId.empty())
     {
         return IPMI_CC_INVALID_FIELD_REQUEST;
     }
@@ -204,7 +204,7 @@ static ipmi_ret_t returnStatBlob(BlobMeta* meta, uint8_t* replyCmdBuf,
     std::memcpy(replyCmdBuf, &reply, sizeof(reply));
 
     /* If there is metadata, copy it over. */
-    if (meta->metadata.size())
+    if (!meta->metadata.empty())
     {
         uint8_t* metadata = &replyCmdBuf[sizeof(reply)];
         std::memcpy(metadata, meta->metadata.data(), reply.metadataLen);
@@ -299,7 +299,7 @@ ipmi_ret_t readBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
      */
     (*dataLen) = sizeof(struct BmcBlobReadRx);
 
-    if (result.size())
+    if (!result.empty())
     {
         uint8_t* output = &replyCmdBuf[sizeof(struct BmcBlobReadRx)];
         std::memcpy(output, result.data(), result.size());
