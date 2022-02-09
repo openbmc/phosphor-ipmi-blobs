@@ -13,7 +13,6 @@
 
 using ::testing::_;
 using ::testing::Eq;
-using ::testing::Invoke;
 using ::testing::Return;
 using ::testing::StrictMock;
 
@@ -50,7 +49,6 @@ void EqualFunctions(IpmiBlobHandler lhs, IpmiBlobHandler rhs)
     EXPECT_TRUE(lPtr);
     EXPECT_TRUE(rPtr);
     EXPECT_EQ(*lPtr, *rPtr);
-    return;
 }
 
 } // namespace
