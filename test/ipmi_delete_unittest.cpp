@@ -9,7 +9,6 @@
 namespace blobs
 {
 
-using ::testing::_;
 using ::testing::Return;
 using ::testing::StrEq;
 

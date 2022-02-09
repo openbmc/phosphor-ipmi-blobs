@@ -9,10 +9,7 @@
 namespace blobs
 {
 
-using ::testing::Invoke;
-using ::testing::NotNull;
 using ::testing::Return;
-using ::testing::StrEq;
 
 // ipmid.hpp isn't installed where we can grab it and this value is per BMC
 // SoC.

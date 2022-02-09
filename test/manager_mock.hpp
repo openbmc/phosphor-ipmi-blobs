@@ -36,15 +36,4 @@ class ManagerMock : public ManagerInterface
                 (uint16_t, uint32_t, const std::vector<uint8_t>&), (override));
 };
 
-/*
- * Provide a one-off implementation for now.
- * To test this, set managerReturned as you need.
- */
-ManagerInterface* managerReturned;
-
-ManagerInterface* getBlobManager()
-{
-    return managerReturned;
-}
-
 } // namespace blobs
