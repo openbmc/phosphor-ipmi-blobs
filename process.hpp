@@ -36,16 +36,18 @@ IpmiBlobHandler validateBlobCommand(const uint8_t* reqBuf, uint8_t* replyCmdBuf,
  * @param[in,out] replyCmdBuf - a pointer to the ipmi reply packet buffer.
  * @param[in,out] dataLen - initially the request length, set to reply length
  *                          on return.
+ * @param[in,out] maxSize - Maximum ipmi reply size
  * @return the ipmi command result.
  */
 ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
                               const uint8_t* reqBuf, uint8_t* replyCmdBuf,
-                              size_t* dataLen);
+                              size_t* dataLen, size_t maxSize);
 
 /**
  * Given an IPMI command, request buffer, and reply buffer, validate the request
  * and call processBlobCommand.
  */
-ipmi_ret_t handleBlobCommand(ipmi_cmd_t cmd, const uint8_t* reqBuf,
-                             uint8_t* replyCmdBuf, size_t* dataLen);
+ipmi_ret_t handleBlobCommand(size_t maxSize, ipmi_cmd_t cmd,
+                             const uint8_t* reqBuf, uint8_t* replyCmdBuf,
+                             size_t* dataLen);
 } // namespace blobs

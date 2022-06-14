@@ -200,8 +200,8 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsNotOk)
 
     dataLen = sizeof(request);
 
-    EXPECT_EQ(IPMI_CC_INVALID,
-              processBlobCommand(h, &manager, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_INVALID, processBlobCommand(h, &manager, request, reply,
+                                                  &dataLen, MAX_IPMI_BUFFER));
 }
 
 TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithNoPayload)
@@ -222,8 +222,8 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithNoPayload)
 
     dataLen = sizeof(request);
 
-    EXPECT_EQ(IPMI_CC_OK,
-              processBlobCommand(h, &manager, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_OK, processBlobCommand(h, &manager, request, reply,
+                                             &dataLen, MAX_IPMI_BUFFER));
 }
 
 TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithInvalidPayloadLength)
@@ -245,7 +245,8 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithInvalidPayloadLength)
     dataLen = sizeof(request);
 
     EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
-              processBlobCommand(h, &manager, request, reply, &dataLen));
+              processBlobCommand(h, &manager, request, reply, &dataLen,
+                                 MAX_IPMI_BUFFER));
 }
 
 TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithValidPayloadLength)
@@ -270,11 +271,36 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithValidPayloadLength)
 
     EXPECT_CALL(crcMock, generateCrc(_)).WillOnce(Return(0x3412));
 
-    EXPECT_EQ(IPMI_CC_OK,
-              processBlobCommand(h, &manager, request, reply, &dataLen));
+    EXPECT_EQ(IPMI_CC_OK, processBlobCommand(h, &manager, request, reply,
+                                             &dataLen, MAX_IPMI_BUFFER));
     EXPECT_EQ(dataLen, payloadLen);
 
     uint8_t expectedBytes[3] = {0x12, 0x34, 0x56};
     EXPECT_EQ(0, std::memcmp(expectedBytes, reply, sizeof(expectedBytes)));
+}
+
+TEST_F(ProcessBlobCommandTest,
+       CommandReturnsErrorWithReplyExceededMaxTransferSize)
+{
+    // There is a minimum payload length of 3 bytes, this command returns a
+    // payload of 3 bytes and the crc code is called to process the payload.
+
+    StrictMock<ManagerMock> manager;
+    size_t dataLen;
+    uint8_t request[MAX_IPMI_BUFFER] = {0};
+    uint8_t reply[MAX_IPMI_BUFFER] = {0};
+    uint32_t payloadLen = sizeof(uint16_t) + sizeof(uint8_t);
+
+    IpmiBlobHandler h = [payloadLen](ManagerInterface*, const uint8_t*,
+                                     uint8_t* replyCmdBuf, size_t* dataLen) {
+        (*dataLen) = payloadLen;
+        replyCmdBuf[2] = 0x56;
+        return IPMI_CC_OK;
+    };
+
+    dataLen = sizeof(request);
+
+    EXPECT_EQ(IPMI_CC_RESPONSE_ERROR,
+              processBlobCommand(h, &manager, request, reply, &dataLen, 0));
 }
 } // namespace blobs
