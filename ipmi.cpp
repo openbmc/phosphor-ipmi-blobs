@@ -109,8 +109,6 @@ ipmi_ret_t enumerateBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
         return IPMI_CC_INVALID_FIELD_REQUEST;
     }
 
-    /* TODO(venture): Need to do a hard-code check against the maximum
-     * reply buffer size. */
     reply->crc = 0;
     /* Explicilty copies the NUL-terminator. */
     std::memcpy(reply + 1, blobId.c_str(), blobId.length() + 1);
@@ -286,9 +284,6 @@ ipmi_ret_t readBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
 {
     struct BmcBlobReadTx request;
     std::memcpy(&request, reqBuf, sizeof(request));
-
-    /* TODO(venture): Verify requestedSize can fit in a returned IPMI packet.
-     */
 
     std::vector<uint8_t> result =
         mgr->read(request.sessionId, request.offset, request.requestedSize);
