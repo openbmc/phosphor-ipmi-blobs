@@ -5,15 +5,19 @@
 #include <ipmid/api.h>
 
 #include <blobs-ipmid/blobs.hpp>
+#include <ipmid/api-types.hpp>
+#include <span>
 #include <string>
+#include <vector>
 
 namespace blobs
 {
 
+using Resp = ipmi::RspType<std::vector<uint8_t>>;
+
 /* Used by bmcBlobGetCount */
 struct BmcBlobCountTx
 {
-    uint8_t cmd; /* bmcBlobGetCount */
 } __attribute__((packed));
 
 struct BmcBlobCountRx
@@ -25,7 +29,6 @@ struct BmcBlobCountRx
 /* Used by bmcBlobEnumerate */
 struct BmcBlobEnumerateTx
 {
-    uint8_t cmd; /* bmcBlobEnumerate */
     uint16_t crc;
     uint32_t blobIdx;
 } __attribute__((packed));
@@ -38,7 +41,6 @@ struct BmcBlobEnumerateRx
 /* Used by bmcBlobOpen */
 struct BmcBlobOpenTx
 {
-    uint8_t cmd; /* bmcBlobOpen */
     uint16_t crc;
     uint16_t flags;
 } __attribute__((packed));
@@ -52,7 +54,6 @@ struct BmcBlobOpenRx
 /* Used by bmcBlobClose */
 struct BmcBlobCloseTx
 {
-    uint8_t cmd; /* bmcBlobClose */
     uint16_t crc;
     uint16_t sessionId; /* Returned from BmcBlobOpen. */
 } __attribute__((packed));
@@ -60,14 +61,12 @@ struct BmcBlobCloseTx
 /* Used by bmcBlobDelete */
 struct BmcBlobDeleteTx
 {
-    uint8_t cmd; /* bmcBlobDelete */
     uint16_t crc;
 } __attribute__((packed));
 
 /* Used by bmcBlobStat */
 struct BmcBlobStatTx
 {
-    uint8_t cmd; /* bmcBlobStat */
     uint16_t crc;
 } __attribute__((packed));
 
@@ -82,7 +81,6 @@ struct BmcBlobStatRx
 /* Used by bmcBlobSessionStat */
 struct BmcBlobSessionStatTx
 {
-    uint8_t cmd; /* bmcBlobSessionStat */
     uint16_t crc;
     uint16_t sessionId;
 } __attribute__((packed));
@@ -90,7 +88,6 @@ struct BmcBlobSessionStatTx
 /* Used by bmcBlobCommit */
 struct BmcBlobCommitTx
 {
-    uint8_t cmd; /* bmcBlobCommit */
     uint16_t crc;
     uint16_t sessionId;
     uint8_t commitDataLen;
@@ -99,7 +96,6 @@ struct BmcBlobCommitTx
 /* Used by bmcBlobRead */
 struct BmcBlobReadTx
 {
-    uint8_t cmd; /* bmcBlobRead */
     uint16_t crc;
     uint16_t sessionId;
     uint32_t offset;        /* The byte sequence start, 0-based. */
@@ -114,7 +110,6 @@ struct BmcBlobReadRx
 /* Used by bmcBlobWrite */
 struct BmcBlobWriteTx
 {
-    uint8_t cmd; /* bmcBlobWrite */
     uint16_t crc;
     uint16_t sessionId;
     uint32_t offset; /* The byte sequence start, 0-based. */
@@ -123,7 +118,6 @@ struct BmcBlobWriteTx
 /* Used by bmcBlobWriteMeta */
 struct BmcBlobWriteMetaTx
 {
-    uint8_t cmd; /* bmcBlobWriteMeta */
     uint16_t crc;
     uint16_t sessionId; /* Returned from BmcBlobOpen. */
     uint32_t offset;    /* The byte sequence start, 0-based. */
@@ -142,17 +136,15 @@ bool validateRequestLength(BlobOEMCommands command, size_t requestLen);
  * Given a pointer into an IPMI request buffer and the length of the remaining
  * buffer, builds a string.  This does no string validation w.r.t content.
  *
- * @param[in] start - the start of the expected string.
- * @param[in] length - the number of bytes remaining in the buffer.
+ * @param[in] data - Buffer containing the string.
  * @return the string if valid otherwise an empty string.
  */
-std::string stringFromBuffer(const char* start, size_t length);
+std::string stringFromBuffer(std::span<const uint8_t> data);
 
 /**
  * Writes out a BmcBlobCountRx structure and returns IPMI_OK.
  */
-ipmi_ret_t getBlobCount(ManagerInterface* mgr, const uint8_t* reqBuf,
-                        uint8_t* replyCmdBuf, size_t* dataLen);
+Resp getBlobCount(ManagerInterface* mgr, std::span<const uint8_t> data);
 
 /**
  * Writes out a BmcBlobEnumerateRx in response to a BmcBlobEnumerateTx
@@ -162,61 +154,51 @@ ipmi_ret_t getBlobCount(ManagerInterface* mgr, const uint8_t* reqBuf,
  * It will also return failure if the response buffer is of an invalid
  * length.
  */
-ipmi_ret_t enumerateBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                         uint8_t* replyCmdBuf, size_t* dataLen);
+Resp enumerateBlob(ManagerInterface* mgr, std::span<const uint8_t> data);
 
 /**
  * Attempts to open the blobId specified and associate with a session id.
  */
-ipmi_ret_t openBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                    uint8_t* replyCmdBuf, size_t* dataLen);
+Resp openBlob(ManagerInterface* mgr, std::span<const uint8_t> data);
 
 /**
  * Attempts to close the session specified.
  */
-ipmi_ret_t closeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                     uint8_t* replyCmdBuf, size_t* dataLen);
+Resp closeBlob(ManagerInterface* mgr, std::span<const uint8_t> data);
 
 /**
  * Attempts to delete the blobId specified.
  */
-ipmi_ret_t deleteBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                      uint8_t* replyCmdBuf, size_t* dataLen);
+Resp deleteBlob(ManagerInterface* mgr, std::span<const uint8_t> data);
 
 /**
  * Attempts to retrieve the Stat for the blobId specified.
  */
-ipmi_ret_t statBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                    uint8_t* replyCmdBuf, size_t* dataLen);
+Resp statBlob(ManagerInterface* mgr, std::span<const uint8_t> data);
 
 /**
  * Attempts to retrieve the Stat for the session specified.
  */
-ipmi_ret_t sessionStatBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                           uint8_t* replyCmdBuf, size_t* dataLen);
+Resp sessionStatBlob(ManagerInterface* mgr, std::span<const uint8_t> data);
 
 /**
  * Attempts to commit the data in the blob.
  */
-ipmi_ret_t commitBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                      uint8_t* replyCmdBuf, size_t* dataLen);
+Resp commitBlob(ManagerInterface* mgr, std::span<const uint8_t> data);
 
 /**
  * Attempt to read data from the blob.
  */
-ipmi_ret_t readBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                    uint8_t* replyCmdBuf, size_t* dataLen);
+Resp readBlob(ManagerInterface* mgr, std::span<const uint8_t> data);
 
 /**
  * Attempt to write data to the blob.
  */
-ipmi_ret_t writeBlob(ManagerInterface* mgr, const uint8_t* reqBuf,
-                     uint8_t* replyCmdBuf, size_t* dataLen);
+Resp writeBlob(ManagerInterface* mgr, std::span<const uint8_t> data);
 
 /**
  * Attempt to write metadata to the blob.
  */
-ipmi_ret_t writeMeta(ManagerInterface* mgr, const uint8_t* reqBuf,
-                     uint8_t* replyCmdBuf, size_t* dataLen);
+Resp writeMeta(ManagerInterface* mgr, std::span<const uint8_t> data);
 
 } // namespace blobs

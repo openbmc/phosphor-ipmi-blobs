@@ -17,57 +17,48 @@ using ::testing::Return;
 TEST(BlobWriteMetaTest, ManagerReturnsFailureReturnsFailure)
 {
     // This verifies a failure from the manager is passed back.
-
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobWriteMetaTx*>(request);
+    std::vector<uint8_t> request;
+    struct BmcBlobWriteMetaTx req;
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite);
-    req->crc = 0;
-    req->sessionId = 0x54;
-    req->offset = 0x100;
+    req.crc = 0;
+    req.sessionId = 0x54;
+    req.offset = 0x100;
 
-    uint8_t expectedBytes[2] = {0x66, 0x67};
-    std::memcpy(req + 1, &expectedBytes[0], sizeof(expectedBytes));
+    request.resize(sizeof(struct BmcBlobWriteMetaTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobWriteMetaTx));
 
-    dataLen = sizeof(struct BmcBlobWriteMetaTx) + sizeof(expectedBytes);
+    std::array<uint8_t, 2> expectedBytes = {0x66, 0x67};
+    request.insert(request.end(), expectedBytes.begin(), expectedBytes.end());
 
-    EXPECT_CALL(
-        mgr, writeMeta(req->sessionId, req->offset,
-                       ElementsAreArray(expectedBytes, sizeof(expectedBytes))))
+    EXPECT_CALL(mgr, writeMeta(req.sessionId, req.offset,
+                               ElementsAreArray(expectedBytes)))
         .WillOnce(Return(false));
 
-    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
-              writeMeta(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseUnspecifiedError(), writeMeta(&mgr, request));
 }
 
 TEST(BlobWriteMetaTest, ManagerReturnsTrueWriteSucceeds)
 {
     // The case where everything works.
-
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobWriteMetaTx*>(request);
+    std::vector<uint8_t> request;
+    struct BmcBlobWriteMetaTx req;
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite);
-    req->crc = 0;
-    req->sessionId = 0x54;
-    req->offset = 0x100;
+    req.crc = 0;
+    req.sessionId = 0x54;
+    req.offset = 0x100;
 
-    uint8_t expectedBytes[2] = {0x66, 0x67};
-    std::memcpy(req + 1, &expectedBytes[0], sizeof(expectedBytes));
+    request.resize(sizeof(struct BmcBlobWriteMetaTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobWriteMetaTx));
 
-    dataLen = sizeof(struct BmcBlobWriteMetaTx) + sizeof(expectedBytes);
+    std::array<uint8_t, 2> expectedBytes = {0x66, 0x67};
+    request.insert(request.end(), expectedBytes.begin(), expectedBytes.end());
 
-    EXPECT_CALL(
-        mgr, writeMeta(req->sessionId, req->offset,
-                       ElementsAreArray(expectedBytes, sizeof(expectedBytes))))
+    EXPECT_CALL(mgr, writeMeta(req.sessionId, req.offset,
+                               ElementsAreArray(expectedBytes)))
         .WillOnce(Return(true));
 
-    EXPECT_EQ(IPMI_CC_OK, writeMeta(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseSuccess(), writeMeta(&mgr, request));
 }
 } // namespace blobs

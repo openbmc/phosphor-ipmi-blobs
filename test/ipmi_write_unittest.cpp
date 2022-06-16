@@ -1,47 +1,38 @@
+#include "helper.hpp"
 #include "ipmi.hpp"
 #include "manager_mock.hpp"
 
 #include <cstring>
 
 #include <gtest/gtest.h>
-
 namespace blobs
 {
 
 using ::testing::ElementsAreArray;
 using ::testing::Return;
 
-// ipmid.hpp isn't installed where we can grab it and this value is per BMC
-// SoC.
-#define MAX_IPMI_BUFFER 64
-
 TEST(BlobWriteTest, ManagerReturnsFailureReturnsFailure)
 {
     // This verifies a failure from the manager is passed back.
-
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobWriteTx*>(request);
+    std::vector<uint8_t> request;
+    struct BmcBlobWriteTx req;
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite);
-    req->crc = 0;
-    req->sessionId = 0x54;
-    req->offset = 0x100;
+    req.crc = 0;
+    req.sessionId = 0x54;
+    req.offset = 0x100;
 
-    uint8_t expectedBytes[2] = {0x66, 0x67};
-    std::memcpy(req + 1, &expectedBytes[0], sizeof(expectedBytes));
+    request.resize(sizeof(struct BmcBlobWriteTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobWriteTx));
 
-    dataLen = sizeof(struct BmcBlobWriteTx) + sizeof(expectedBytes);
+    std::array<uint8_t, 2> expectedBytes = {0x66, 0x67};
+    request.insert(request.end(), expectedBytes.begin(), expectedBytes.end());
 
-    EXPECT_CALL(mgr,
-                write(req->sessionId, req->offset,
-                      ElementsAreArray(expectedBytes, sizeof(expectedBytes))))
+    EXPECT_CALL(
+        mgr, write(req.sessionId, req.offset, ElementsAreArray(expectedBytes)))
         .WillOnce(Return(false));
 
-    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
-              writeBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseUnspecifiedError(), writeBlob(&mgr, request));
 }
 
 TEST(BlobWriteTest, ManagerReturnsTrueWriteSucceeds)
@@ -49,26 +40,23 @@ TEST(BlobWriteTest, ManagerReturnsTrueWriteSucceeds)
     // The case where everything works.
 
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobWriteTx*>(request);
+    std::vector<uint8_t> request;
+    struct BmcBlobWriteTx req;
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite);
-    req->crc = 0;
-    req->sessionId = 0x54;
-    req->offset = 0x100;
+    req.crc = 0;
+    req.sessionId = 0x54;
+    req.offset = 0x100;
 
-    uint8_t expectedBytes[2] = {0x66, 0x67};
-    std::memcpy(req + 1, &expectedBytes[0], sizeof(expectedBytes));
+    request.resize(sizeof(struct BmcBlobWriteTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobWriteTx));
 
-    dataLen = sizeof(struct BmcBlobWriteTx) + sizeof(expectedBytes);
+    std::array<uint8_t, 2> expectedBytes = {0x66, 0x67};
+    request.insert(request.end(), expectedBytes.begin(), expectedBytes.end());
 
-    EXPECT_CALL(mgr,
-                write(req->sessionId, req->offset,
-                      ElementsAreArray(expectedBytes, sizeof(expectedBytes))))
+    EXPECT_CALL(
+        mgr, write(req.sessionId, req.offset, ElementsAreArray(expectedBytes)))
         .WillOnce(Return(true));
 
-    EXPECT_EQ(IPMI_CC_OK, writeBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseSuccess(), writeBlob(&mgr, request));
 }
 } // namespace blobs
