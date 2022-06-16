@@ -1,3 +1,4 @@
+#include "helper.hpp"
 #include "ipmi.hpp"
 #include "manager_mock.hpp"
 
@@ -24,23 +25,18 @@ TEST(BlobStatTest, InvalidRequestLengthReturnsFailure)
 {
     // There is a minimum blobId length of one character, this test verifies
     // we check that.
-
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobStatTx*>(request);
+    std::vector<uint8_t> request;
+    struct BmcBlobStatTx req;
     std::string blobId = "abc";
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobStat);
-    req->crc = 0;
-    // length() doesn't include the nul-terminator.
-    std::memcpy(req + 1, blobId.c_str(), blobId.length());
+    req.crc = 0;
+    request.resize(sizeof(struct BmcBlobStatTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobStatTx));
+    // Do not include the nul-terminator
+    request.insert(request.end(), blobId.begin(), blobId.end());
 
-    dataLen = sizeof(struct BmcBlobStatTx) + blobId.length();
-
-    EXPECT_EQ(IPMI_CC_REQ_DATA_LEN_INVALID,
-              statBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseReqDataLenInvalid(), statBlob(&mgr, request));
 }
 
 TEST(BlobStatTest, RequestRejectedReturnsFailure)
@@ -48,26 +44,21 @@ TEST(BlobStatTest, RequestRejectedReturnsFailure)
     // The blobId is rejected for any reason.
 
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobStatTx*>(request);
+    std::vector<uint8_t> request;
+    struct BmcBlobStatTx req;
     std::string blobId = "a";
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobStat);
-    req->crc = 0;
-    // length() doesn't include the nul-terminator, request buff is initialized
-    // to 0s
-    std::memcpy(req + 1, blobId.c_str(), blobId.length());
-
-    dataLen = sizeof(struct BmcBlobStatTx) + blobId.length() + 1;
+    req.crc = 0;
+    request.resize(sizeof(struct BmcBlobStatTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobStatTx));
+    request.insert(request.end(), blobId.begin(), blobId.end());
+    request.emplace_back('\0');
 
     EXPECT_CALL(mgr, stat(Matcher<const std::string&>(StrEq(blobId)),
                           Matcher<BlobMeta*>(_)))
         .WillOnce(Return(false));
 
-    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
-              statBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseUnspecifiedError(), statBlob(&mgr, request));
 }
 
 TEST(BlobStatTest, RequestSucceedsNoMetadata)
@@ -75,19 +66,15 @@ TEST(BlobStatTest, RequestSucceedsNoMetadata)
     // Stat request succeeeds but there were no metadata bytes.
 
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobStatTx*>(request);
+    std::vector<uint8_t> request;
+    struct BmcBlobStatTx req;
     std::string blobId = "a";
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobStat);
-    req->crc = 0;
-    // length() doesn't include the nul-terminator, request buff is initialized
-    // to 0s
-    std::memcpy(req + 1, blobId.c_str(), blobId.length());
-
-    dataLen = sizeof(struct BmcBlobStatTx) + blobId.length() + 1;
+    req.crc = 0;
+    request.resize(sizeof(struct BmcBlobStatTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobStatTx));
+    request.insert(request.end(), blobId.begin(), blobId.end());
+    request.emplace_back('\0');
 
     struct BmcBlobStatRx rep;
     rep.crc = 0x00;
@@ -106,10 +93,10 @@ TEST(BlobStatTest, RequestSucceedsNoMetadata)
             return true;
         }));
 
-    EXPECT_EQ(IPMI_CC_OK, statBlob(&mgr, request, reply, &dataLen));
+    auto result = validateReply(statBlob(&mgr, request));
 
-    EXPECT_EQ(sizeof(rep), dataLen);
-    EXPECT_EQ(0, std::memcmp(reply, &rep, sizeof(rep)));
+    EXPECT_EQ(sizeof(rep), result.size());
+    EXPECT_EQ(0, std::memcmp(result.data(), &rep, sizeof(rep)));
 }
 
 TEST(BlobStatTest, RequestSucceedsWithMetadata)
@@ -117,19 +104,15 @@ TEST(BlobStatTest, RequestSucceedsWithMetadata)
     // Stat request succeeds and there were metadata bytes.
 
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobStatTx*>(request);
+    std::vector<uint8_t> request;
+    struct BmcBlobStatTx req;
     std::string blobId = "a";
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobStat);
-    req->crc = 0;
-    // length() doesn't include the nul-terminator, request buff is initialized
-    // to 0s
-    std::memcpy(req + 1, blobId.c_str(), blobId.length());
-
-    dataLen = sizeof(struct BmcBlobStatTx) + blobId.length() + 1;
+    req.crc = 0;
+    request.resize(sizeof(struct BmcBlobStatTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobStatTx));
+    request.insert(request.end(), blobId.begin(), blobId.end());
+    request.emplace_back('\0');
 
     BlobMeta lmeta;
     lmeta.blobState = 0x01;
@@ -152,11 +135,11 @@ TEST(BlobStatTest, RequestSucceedsWithMetadata)
             return true;
         }));
 
-    EXPECT_EQ(IPMI_CC_OK, statBlob(&mgr, request, reply, &dataLen));
+    auto result = validateReply(statBlob(&mgr, request));
 
-    EXPECT_EQ(sizeof(rep) + lmeta.metadata.size(), dataLen);
-    EXPECT_EQ(0, std::memcmp(reply, &rep, sizeof(rep)));
-    EXPECT_EQ(0, std::memcmp(reply + sizeof(rep), lmeta.metadata.data(),
+    EXPECT_EQ(sizeof(rep) + lmeta.metadata.size(), result.size());
+    EXPECT_EQ(0, std::memcmp(result.data(), &rep, sizeof(rep)));
+    EXPECT_EQ(0, std::memcmp(result.data() + sizeof(rep), lmeta.metadata.data(),
                              lmeta.metadata.size()));
 }
 } // namespace blobs
