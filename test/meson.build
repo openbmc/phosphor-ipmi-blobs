@@ -37,6 +37,7 @@ foreach t : tests
     executable(
       t.underscorify(),
       t + '.cpp',
+      'helper.cpp',
       implicit_include_directories: false,
       dependencies: [blob_manager_dep, gtest, gmock]))
 endforeach
