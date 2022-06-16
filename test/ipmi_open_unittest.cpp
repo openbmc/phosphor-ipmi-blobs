@@ -1,3 +1,4 @@
+#include "helper.hpp"
 #include "ipmi.hpp"
 #include "manager_mock.hpp"
 
@@ -15,59 +16,44 @@ using ::testing::NotNull;
 using ::testing::Return;
 using ::testing::StrEq;
 
-// ipmid.hpp isn't installed where we can grab it and this value is per BMC
-// SoC.
-#define MAX_IPMI_BUFFER 64
-
 TEST(BlobOpenTest, InvalidRequestLengthReturnsFailure)
 {
     // There is a minimum blobId length of one character, this test verifies
     // we check that.
-
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobOpenTx*>(request);
+    std::vector<uint8_t> request;
+    BmcBlobOpenTx req;
     std::string blobId = "abc";
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobOpen);
-    req->crc = 0;
-    req->flags = 0;
-    // length() doesn't include the nul-terminator.
-    std::memcpy(req + 1, blobId.c_str(), blobId.length());
+    req.crc = 0;
+    req.flags = 0;
 
-    dataLen = sizeof(struct BmcBlobOpenTx) + blobId.length();
+    // Missintg the nul-terminator.
+    request.resize(sizeof(struct BmcBlobOpenTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobOpenTx));
+    request.insert(request.end(), blobId.begin(), blobId.end());
 
-    EXPECT_EQ(IPMI_CC_REQ_DATA_LEN_INVALID,
-              openBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseReqDataLenInvalid(), openBlob(&mgr, request));
 }
 
 TEST(BlobOpenTest, RequestRejectedReturnsFailure)
 {
     // The blobId is rejected for any reason.
-
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobOpenTx*>(request);
+    std::vector<uint8_t> request;
+    BmcBlobOpenTx req;
     std::string blobId = "a";
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobOpen);
-    req->crc = 0;
-    req->flags = 0;
-    // length() doesn't include the nul-terminator, request buff is initialized
-    // to 0s
-    std::memcpy(req + 1, blobId.c_str(), blobId.length());
+    req.crc = 0;
+    req.flags = 0;
+    request.resize(sizeof(struct BmcBlobOpenTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobOpenTx));
+    request.insert(request.end(), blobId.begin(), blobId.end());
+    request.emplace_back('\0');
 
-    dataLen = sizeof(struct BmcBlobOpenTx) + blobId.length() + 1;
+    EXPECT_CALL(mgr, open(req.flags, StrEq(blobId), _)).WillOnce(Return(false));
 
-    EXPECT_CALL(mgr, open(req->flags, StrEq(blobId), _))
-        .WillOnce(Return(false));
-
-    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
-              openBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseUnspecifiedError(), openBlob(&mgr, request));
 }
 
 TEST(BlobOpenTest, BlobOpenReturnsOk)
@@ -75,35 +61,32 @@ TEST(BlobOpenTest, BlobOpenReturnsOk)
     // The boring case where the blobId opens.
 
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobOpenTx*>(request);
+    std::vector<uint8_t> request;
+    BmcBlobOpenTx req;
     struct BmcBlobOpenRx rep;
     std::string blobId = "a";
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobOpen);
-    req->crc = 0;
-    req->flags = 0;
-    // length() doesn't include the nul-terminator, request buff is initialized
-    // to 0s
-    std::memcpy(req + 1, blobId.c_str(), blobId.length());
+    req.crc = 0;
+    req.flags = 0;
+    request.resize(sizeof(struct BmcBlobOpenTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobOpenTx));
+    request.insert(request.end(), blobId.begin(), blobId.end());
+    request.emplace_back('\0');
 
-    dataLen = sizeof(struct BmcBlobOpenTx) + blobId.length() + 1;
     uint16_t returnedSession = 0x54;
 
-    EXPECT_CALL(mgr, open(req->flags, StrEq(blobId), NotNull()))
+    EXPECT_CALL(mgr, open(req.flags, StrEq(blobId), NotNull()))
         .WillOnce(Invoke([&](uint16_t, const std::string&, uint16_t* session) {
             (*session) = returnedSession;
             return true;
         }));
 
-    EXPECT_EQ(IPMI_CC_OK, openBlob(&mgr, request, reply, &dataLen));
+    auto result = validateReply(openBlob(&mgr, request));
 
     rep.crc = 0;
     rep.sessionId = returnedSession;
 
-    EXPECT_EQ(sizeof(rep), dataLen);
-    EXPECT_EQ(0, std::memcmp(reply, &rep, sizeof(rep)));
+    EXPECT_EQ(sizeof(rep), result.size());
+    EXPECT_EQ(0, std::memcmp(result.data(), &rep, sizeof(rep)));
 }
 } // namespace blobs

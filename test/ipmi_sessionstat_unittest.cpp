@@ -1,3 +1,4 @@
+#include "helper.hpp"
 #include "ipmi.hpp"
 #include "manager_mock.hpp"
 
@@ -23,22 +24,19 @@ TEST(BlobSessionStatTest, RequestRejectedByManagerReturnsFailure)
     // If the session ID is invalid, the request must fail.
 
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobSessionStatTx*>(request);
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobSessionStat);
-    req->crc = 0;
-    req->sessionId = 0x54;
+    std::vector<uint8_t> request;
+    struct BmcBlobSessionStatTx req;
+    req.crc = 0;
+    req.sessionId = 0x54;
 
-    dataLen = sizeof(struct BmcBlobSessionStatTx);
+    request.resize(sizeof(struct BmcBlobSessionStatTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobSessionStatTx));
 
     EXPECT_CALL(mgr,
-                stat(Matcher<uint16_t>(req->sessionId), Matcher<BlobMeta*>(_)))
+                stat(Matcher<uint16_t>(req.sessionId), Matcher<BlobMeta*>(_)))
         .WillOnce(Return(false));
 
-    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
-              sessionStatBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseUnspecifiedError(), sessionStatBlob(&mgr, request));
 }
 
 TEST(BlobSessionStatTest, RequestSucceedsNoMetadata)
@@ -46,15 +44,13 @@ TEST(BlobSessionStatTest, RequestSucceedsNoMetadata)
     // Stat request succeeeds but there were no metadata bytes.
 
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobSessionStatTx*>(request);
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobSessionStat);
-    req->crc = 0;
-    req->sessionId = 0x54;
+    std::vector<uint8_t> request;
+    struct BmcBlobSessionStatTx req;
+    req.crc = 0;
+    req.sessionId = 0x54;
 
-    dataLen = sizeof(struct BmcBlobSessionStatTx);
+    request.resize(sizeof(struct BmcBlobSessionStatTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobSessionStatTx));
 
     struct BmcBlobStatRx rep;
     rep.crc = 0x00;
@@ -65,7 +61,7 @@ TEST(BlobSessionStatTest, RequestSucceedsNoMetadata)
     uint16_t blobState = rep.blobState;
     uint32_t size = rep.size;
 
-    EXPECT_CALL(mgr, stat(Matcher<uint16_t>(req->sessionId),
+    EXPECT_CALL(mgr, stat(Matcher<uint16_t>(req.sessionId),
                           Matcher<BlobMeta*>(NotNull())))
         .WillOnce(Invoke([&](uint16_t, BlobMeta* meta) {
             meta->blobState = blobState;
@@ -73,10 +69,10 @@ TEST(BlobSessionStatTest, RequestSucceedsNoMetadata)
             return true;
         }));
 
-    EXPECT_EQ(IPMI_CC_OK, sessionStatBlob(&mgr, request, reply, &dataLen));
+    auto result = validateReply(sessionStatBlob(&mgr, request));
 
-    EXPECT_EQ(sizeof(rep), dataLen);
-    EXPECT_EQ(0, std::memcmp(reply, &rep, sizeof(rep)));
+    EXPECT_EQ(sizeof(rep), result.size());
+    EXPECT_EQ(0, std::memcmp(result.data(), &rep, sizeof(rep)));
 }
 
 TEST(BlobSessionStatTest, RequestSucceedsWithMetadata)
@@ -84,15 +80,13 @@ TEST(BlobSessionStatTest, RequestSucceedsWithMetadata)
     // Stat request succeeds and there were metadata bytes.
 
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobSessionStatTx*>(request);
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobSessionStat);
-    req->crc = 0;
-    req->sessionId = 0x54;
+    std::vector<uint8_t> request;
+    struct BmcBlobSessionStatTx req;
+    req.crc = 0;
+    req.sessionId = 0x54;
 
-    dataLen = sizeof(struct BmcBlobSessionStatTx);
+    request.resize(sizeof(struct BmcBlobSessionStatTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobSessionStatTx));
 
     BlobMeta lmeta;
     lmeta.blobState = 0x01;
@@ -108,18 +102,18 @@ TEST(BlobSessionStatTest, RequestSucceedsWithMetadata)
     rep.size = lmeta.size;
     rep.metadataLen = lmeta.metadata.size();
 
-    EXPECT_CALL(mgr, stat(Matcher<uint16_t>(req->sessionId),
+    EXPECT_CALL(mgr, stat(Matcher<uint16_t>(req.sessionId),
                           Matcher<BlobMeta*>(NotNull())))
         .WillOnce(Invoke([&](uint16_t, BlobMeta* meta) {
             (*meta) = lmeta;
             return true;
         }));
 
-    EXPECT_EQ(IPMI_CC_OK, sessionStatBlob(&mgr, request, reply, &dataLen));
+    auto result = validateReply(sessionStatBlob(&mgr, request));
 
-    EXPECT_EQ(sizeof(rep) + lmeta.metadata.size(), dataLen);
-    EXPECT_EQ(0, std::memcmp(reply, &rep, sizeof(rep)));
-    EXPECT_EQ(0, std::memcmp(reply + sizeof(rep), lmeta.metadata.data(),
+    EXPECT_EQ(sizeof(rep) + lmeta.metadata.size(), result.size());
+    EXPECT_EQ(0, std::memcmp(result.data(), &rep, sizeof(rep)));
+    EXPECT_EQ(0, std::memcmp(result.data() + sizeof(rep), lmeta.metadata.data(),
                              lmeta.metadata.size()));
 }
 } // namespace blobs
