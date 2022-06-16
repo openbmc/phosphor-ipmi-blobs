@@ -1,9 +1,11 @@
+#include "helper.hpp"
 #include "ipmi.hpp"
 #include "manager_mock.hpp"
 #include "process.hpp"
 
 #include <cstring>
 #include <ipmiblob/test/crc_mock.hpp>
+#include <span>
 
 #include <gtest/gtest.h>
 
@@ -12,6 +14,7 @@
 #define MAX_IPMI_BUFFER 64
 
 using ::testing::_;
+using ::testing::ElementsAre;
 using ::testing::Eq;
 using ::testing::Return;
 using ::testing::StrictMock;
@@ -36,15 +39,11 @@ void EqualFunctions(IpmiBlobHandler lhs, IpmiBlobHandler rhs)
     EXPECT_FALSE(lhs == nullptr);
     EXPECT_FALSE(rhs == nullptr);
 
-    ipmi_ret_t (*const* lPtr)(ManagerInterface*, const uint8_t*, uint8_t*,
-                              size_t*) =
-        lhs.target<ipmi_ret_t (*)(ManagerInterface*, const uint8_t*, uint8_t*,
-                                  size_t*)>();
+    Resp (*const* lPtr)(ManagerInterface*, std::span<const uint8_t>) =
+        lhs.target<Resp (*)(ManagerInterface*, std::span<const uint8_t>)>();
 
-    ipmi_ret_t (*const* rPtr)(ManagerInterface*, const uint8_t*, uint8_t*,
-                              size_t*) =
-        rhs.target<ipmi_ret_t (*)(ManagerInterface*, const uint8_t*, uint8_t*,
-                                  size_t*)>();
+    Resp (*const* rPtr)(ManagerInterface*, std::span<const uint8_t>) =
+        rhs.target<Resp (*)(ManagerInterface*, std::span<const uint8_t>)>();
 
     EXPECT_TRUE(lPtr);
     EXPECT_TRUE(rPtr);
@@ -67,34 +66,20 @@ class ValidateBlobCommandTest : public ::testing::Test
 TEST_F(ValidateBlobCommandTest, InvalidCommandReturnsFailure)
 {
     // Verify we handle an invalid command.
-
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-
-    request[0] = 0xff;         // There is no command 0xff.
-    dataLen = sizeof(uint8_t); // There is no payload for CRC.
-    ipmi_ret_t rc;
-
-    EXPECT_EQ(nullptr, validateBlobCommand(request, reply, &dataLen, &rc));
-    EXPECT_EQ(IPMI_CC_INVALID_FIELD_REQUEST, rc);
+    std::vector<uint8_t> request(MAX_IPMI_BUFFER - 1);
+    // There is no command 0xff.
+    IpmiBlobHandler handler = validateBlobCommand(0xff, request);
+    EXPECT_EQ(ipmi::responseInvalidFieldRequest(), handler(nullptr, {}));
 }
 
 TEST_F(ValidateBlobCommandTest, ValidCommandWithoutPayload)
 {
     // Verify we handle a valid command that doesn't have a payload.
-
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-
-    request[0] = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobGetCount);
-    dataLen = sizeof(uint8_t); // There is no payload for CRC.
-    ipmi_ret_t rc;
-
-    IpmiBlobHandler res = validateBlobCommand(request, reply, &dataLen, &rc);
-    EXPECT_FALSE(res == nullptr);
-    EqualFunctions(getBlobCount, res);
+    std::vector<uint8_t> request(MAX_IPMI_BUFFER - 1);
+    IpmiBlobHandler handler = validateBlobCommand(
+        static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobGetCount), request);
+    EXPECT_FALSE(handler == nullptr);
+    EqualFunctions(getBlobCount, handler);
 }
 
 TEST_F(ValidateBlobCommandTest, WithPayloadMinimumLengthIs3VerifyChecks)
@@ -102,76 +87,62 @@ TEST_F(ValidateBlobCommandTest, WithPayloadMinimumLengthIs3VerifyChecks)
     // Verify that if there's a payload, it's at least one command byte and
     // two bytes for the crc16 and then one data byte.
 
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-
-    request[0] = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobGetCount);
-    dataLen = sizeof(uint8_t) + sizeof(uint16_t);
+    std::vector<uint8_t> request(sizeof(uint16_t));
     // There is a payload, but there are insufficient bytes.
-    ipmi_ret_t rc;
 
-    EXPECT_EQ(nullptr, validateBlobCommand(request, reply, &dataLen, &rc));
-    EXPECT_EQ(IPMI_CC_REQ_DATA_LEN_INVALID, rc);
+    IpmiBlobHandler handler = validateBlobCommand(
+        static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobGetCount), request);
+    EXPECT_EQ(ipmi::responseReqDataLenInvalid(), handler(nullptr, {}));
 }
 
 TEST_F(ValidateBlobCommandTest, WithPayloadAndInvalidCrc)
 {
     // Verify that the CRC is checked, and failure is reported.
+    std::vector<uint8_t> request;
+    BmcBlobWriteTx req;
+    req.crc = 0x34;
+    req.sessionId = 0x54;
+    req.offset = 0x100;
 
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-
-    auto req = reinterpret_cast<struct BmcBlobWriteTx*>(request);
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite);
-    req->crc = 0x34;
-    req->sessionId = 0x54;
-    req->offset = 0x100;
-
-    uint8_t expectedBytes[2] = {0x66, 0x67};
-    std::memcpy(req + 1, &expectedBytes[0], sizeof(expectedBytes));
-
-    dataLen = sizeof(struct BmcBlobWriteTx) + sizeof(expectedBytes);
+    std::array<uint8_t, 2> expectedBytes = {0x66, 0x67};
+    request.resize(sizeof(struct BmcBlobWriteTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobWriteTx));
+    request.insert(request.end(), expectedBytes.begin(), expectedBytes.end());
 
     // skip over cmd and crc.
-    std::vector<std::uint8_t> bytes(&request[3], request + dataLen);
+    std::vector<uint8_t> bytes(request.begin() + sizeof(req.crc),
+                               request.end());
     EXPECT_CALL(crcMock, generateCrc(Eq(bytes))).WillOnce(Return(0x1234));
 
-    ipmi_ret_t rc;
-
-    EXPECT_EQ(nullptr, validateBlobCommand(request, reply, &dataLen, &rc));
-    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR, rc);
+    IpmiBlobHandler handler = validateBlobCommand(
+        static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite), request);
+    EXPECT_EQ(ipmi::responseUnspecifiedError(), handler(nullptr, {}));
 }
 
 TEST_F(ValidateBlobCommandTest, WithPayloadAndValidCrc)
 {
     // Verify the CRC is checked and if it matches, return the handler.
+    std::vector<uint8_t> request;
+    BmcBlobWriteTx req;
+    // req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite);
+    req.crc = 0x3412;
+    req.sessionId = 0x54;
+    req.offset = 0x100;
 
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-
-    auto req = reinterpret_cast<struct BmcBlobWriteTx*>(request);
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite);
-    req->crc = 0x3412;
-    req->sessionId = 0x54;
-    req->offset = 0x100;
-
-    uint8_t expectedBytes[2] = {0x66, 0x67};
-    std::memcpy(req + 1, &expectedBytes[0], sizeof(expectedBytes));
-
-    dataLen = sizeof(struct BmcBlobWriteTx) + sizeof(expectedBytes);
+    std::array<uint8_t, 2> expectedBytes = {0x66, 0x67};
+    request.resize(sizeof(struct BmcBlobWriteTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobWriteTx));
+    request.insert(request.end(), expectedBytes.begin(), expectedBytes.end());
 
     // skip over cmd and crc.
-    std::vector<std::uint8_t> bytes(&request[3], request + dataLen);
+    std::vector<uint8_t> bytes(request.begin() + sizeof(req.crc),
+                               request.end());
     EXPECT_CALL(crcMock, generateCrc(Eq(bytes))).WillOnce(Return(0x3412));
 
-    ipmi_ret_t rc;
-
-    IpmiBlobHandler res = validateBlobCommand(request, reply, &dataLen, &rc);
-    EXPECT_FALSE(res == nullptr);
-    EqualFunctions(writeBlob, res);
+    IpmiBlobHandler handler = validateBlobCommand(
+        static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobWrite), request);
+    EXPECT_FALSE(handler == nullptr);
+    EqualFunctions(writeBlob, handler);
 }
 
 class ProcessBlobCommandTest : public ::testing::Test
@@ -191,17 +162,14 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsNotOk)
     // noticed and returned.
 
     StrictMock<ManagerMock> manager;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
+    std::vector<uint8_t> request(MAX_IPMI_BUFFER - 1);
 
-    IpmiBlobHandler h = [](ManagerInterface*, const uint8_t*, uint8_t*,
-                           size_t*) { return IPMI_CC_INVALID; };
+    IpmiBlobHandler h = [](ManagerInterface*, std::span<const uint8_t>) {
+        return ipmi::responseInvalidCommand();
+    };
 
-    dataLen = sizeof(request);
-
-    EXPECT_EQ(IPMI_CC_INVALID, processBlobCommand(h, &manager, request, reply,
-                                                  &dataLen, MAX_IPMI_BUFFER));
+    EXPECT_EQ(ipmi::responseInvalidCommand(),
+              processBlobCommand(h, &manager, request, MAX_IPMI_BUFFER));
 }
 
 TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithNoPayload)
@@ -210,20 +178,14 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithNoPayload)
     // it doesn't try to compute a CRC.
 
     StrictMock<ManagerMock> manager;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
+    std::vector<uint8_t> request(MAX_IPMI_BUFFER - 1);
 
-    IpmiBlobHandler h = [](ManagerInterface*, const uint8_t*, uint8_t*,
-                           size_t* dataLen) {
-        (*dataLen) = 0;
-        return IPMI_CC_OK;
+    IpmiBlobHandler h = [](ManagerInterface*, std::span<const uint8_t>) {
+        return ipmi::responseSuccess(std::vector<uint8_t>());
     };
 
-    dataLen = sizeof(request);
-
-    EXPECT_EQ(IPMI_CC_OK, processBlobCommand(h, &manager, request, reply,
-                                             &dataLen, MAX_IPMI_BUFFER));
+    EXPECT_EQ(ipmi::responseSuccess(std::vector<uint8_t>()),
+              processBlobCommand(h, &manager, request, MAX_IPMI_BUFFER));
 }
 
 TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithInvalidPayloadLength)
@@ -232,21 +194,14 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithInvalidPayloadLength)
     // read), this returns 1.
 
     StrictMock<ManagerMock> manager;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
+    std::vector<uint8_t> request(MAX_IPMI_BUFFER - 1);
 
-    IpmiBlobHandler h = [](ManagerInterface*, const uint8_t*, uint8_t*,
-                           size_t* dataLen) {
-        (*dataLen) = sizeof(uint8_t);
-        return IPMI_CC_OK;
+    IpmiBlobHandler h = [](ManagerInterface*, std::span<const uint8_t>) {
+        return ipmi::responseSuccess(std::vector<uint8_t>(1));
     };
 
-    dataLen = sizeof(request);
-
-    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
-              processBlobCommand(h, &manager, request, reply, &dataLen,
-                                 MAX_IPMI_BUFFER));
+    EXPECT_EQ(ipmi::responseUnspecifiedError(),
+              processBlobCommand(h, &manager, request, MAX_IPMI_BUFFER));
 }
 
 TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithValidPayloadLength)
@@ -255,28 +210,23 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithValidPayloadLength)
     // payload of 3 bytes and the crc code is called to process the payload.
 
     StrictMock<ManagerMock> manager;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
+    std::vector<uint8_t> request(MAX_IPMI_BUFFER - 1);
     uint32_t payloadLen = sizeof(uint16_t) + sizeof(uint8_t);
 
-    IpmiBlobHandler h = [payloadLen](ManagerInterface*, const uint8_t*,
-                                     uint8_t* replyCmdBuf, size_t* dataLen) {
-        (*dataLen) = payloadLen;
-        replyCmdBuf[2] = 0x56;
-        return IPMI_CC_OK;
+    IpmiBlobHandler h = [payloadLen](ManagerInterface*,
+                                     std::span<const uint8_t>) {
+        std::vector<uint8_t> output(payloadLen, 0);
+        output[2] = 0x56;
+        return ipmi::responseSuccess(output);
     };
-
-    dataLen = sizeof(request);
 
     EXPECT_CALL(crcMock, generateCrc(_)).WillOnce(Return(0x3412));
 
-    EXPECT_EQ(IPMI_CC_OK, processBlobCommand(h, &manager, request, reply,
-                                             &dataLen, MAX_IPMI_BUFFER));
-    EXPECT_EQ(dataLen, payloadLen);
+    auto result = validateReply(
+        processBlobCommand(h, &manager, request, MAX_IPMI_BUFFER));
 
-    uint8_t expectedBytes[3] = {0x12, 0x34, 0x56};
-    EXPECT_EQ(0, std::memcmp(expectedBytes, reply, sizeof(expectedBytes)));
+    EXPECT_EQ(result.size(), payloadLen);
+    EXPECT_THAT(result, ElementsAre(0x12, 0x34, 0x56));
 }
 
 TEST_F(ProcessBlobCommandTest,
@@ -286,21 +236,17 @@ TEST_F(ProcessBlobCommandTest,
     // payload of 3 bytes and the crc code is called to process the payload.
 
     StrictMock<ManagerMock> manager;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
+    std::vector<uint8_t> request(MAX_IPMI_BUFFER - 1);
     uint32_t payloadLen = sizeof(uint16_t) + sizeof(uint8_t);
 
-    IpmiBlobHandler h = [payloadLen](ManagerInterface*, const uint8_t*,
-                                     uint8_t* replyCmdBuf, size_t* dataLen) {
-        (*dataLen) = payloadLen;
-        replyCmdBuf[2] = 0x56;
-        return IPMI_CC_OK;
+    IpmiBlobHandler h = [payloadLen](ManagerInterface*,
+                                     std::span<const uint8_t>) {
+        std::vector<uint8_t> output(payloadLen, 0);
+        output[2] = 0x56;
+        return ipmi::responseSuccess(output);
     };
 
-    dataLen = sizeof(request);
-
-    EXPECT_EQ(IPMI_CC_RESPONSE_ERROR,
-              processBlobCommand(h, &manager, request, reply, &dataLen, 0));
+    EXPECT_EQ(ipmi::responseResponseError(),
+              processBlobCommand(h, &manager, request, 0));
 }
 } // namespace blobs
