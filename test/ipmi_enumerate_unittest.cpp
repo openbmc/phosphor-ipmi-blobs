@@ -1,3 +1,4 @@
+#include "helper.hpp"
 #include "ipmi.hpp"
 #include "manager_mock.hpp"
 
@@ -11,28 +12,21 @@ namespace blobs
 
 using ::testing::Return;
 
-// ipmid.hpp isn't installed where we can grab it and this value is per BMC
-// SoC.
-#define MAX_IPMI_BUFFER 64
-
 TEST(BlobEnumerateTest, VerifyIfRequestByIdInvalidReturnsFailure)
 {
     // This tests to verify that if the index is invalid, it'll return failure.
 
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
+    std::vector<uint8_t> request;
     struct BmcBlobEnumerateTx req;
-    uint8_t* request = reinterpret_cast<uint8_t*>(&req);
-
-    req.cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobEnumerate);
     req.blobIdx = 0;
-    dataLen = sizeof(struct BmcBlobEnumerateTx);
+
+    request.resize(sizeof(struct BmcBlobEnumerateTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobEnumerateTx));
 
     EXPECT_CALL(mgr, getBlobId(req.blobIdx)).WillOnce(Return(""));
-
-    EXPECT_EQ(IPMI_CC_INVALID_FIELD_REQUEST,
-              enumerateBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseInvalidFieldRequest(),
+              enumerateBlob(&mgr, request));
 }
 
 TEST(BlobEnumerateTest, BoringRequestByIdAndReceive)
@@ -41,26 +35,23 @@ TEST(BlobEnumerateTest, BoringRequestByIdAndReceive)
     // will return the blobId.
 
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
+    std::vector<uint8_t> request;
     struct BmcBlobEnumerateTx req;
-    struct BmcBlobEnumerateRx* rep;
-    uint8_t* request = reinterpret_cast<uint8_t*>(&req);
+    req.blobIdx = 0;
     std::string blobId = "/asdf";
 
-    req.cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobEnumerate);
-    req.blobIdx = 0;
-    dataLen = sizeof(struct BmcBlobEnumerateTx);
+    request.resize(sizeof(struct BmcBlobEnumerateTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobEnumerateTx));
 
     EXPECT_CALL(mgr, getBlobId(req.blobIdx)).WillOnce(Return(blobId));
 
-    EXPECT_EQ(IPMI_CC_OK, enumerateBlob(&mgr, request, reply, &dataLen));
+    auto result = validateReply(enumerateBlob(&mgr, request));
 
     // We're expecting this as a response.
     // blobId.length + 1 + sizeof(uint16_t);
-    EXPECT_EQ(blobId.length() + 1 + sizeof(uint16_t), dataLen);
-
-    rep = reinterpret_cast<struct BmcBlobEnumerateRx*>(reply);
-    EXPECT_EQ(0, std::memcmp(rep + 1, blobId.c_str(), blobId.length() + 1));
+    EXPECT_EQ(blobId.length() + 1 + sizeof(uint16_t), result.size());
+    EXPECT_EQ(blobId,
+              // Remove crc and nul-terminator.
+              std::string(result.begin() + sizeof(uint16_t), result.end() - 1));
 }
 } // namespace blobs
