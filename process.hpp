@@ -1,30 +1,31 @@
 #pragma once
 
+#include "ipmi.hpp"
 #include "manager.hpp"
 
 #include <ipmid/api.h>
 
 #include <functional>
+#include <ipmid/api-types.hpp>
+#include <span>
+#include <utility>
+#include <vector>
 
 namespace blobs
 {
 
 using IpmiBlobHandler =
-    std::function<ipmi_ret_t(ManagerInterface* mgr, const uint8_t* reqBuf,
-                             uint8_t* replyCmdBuf, size_t* dataLen)>;
+    std::function<Resp(ManagerInterface* mgr, std::span<const uint8_t> data)>;
 
 /**
  * Validate the IPMI request and determine routing.
  *
- * @param[in] reqBuf - a pointer to the ipmi request packet buffer.
- * @param[in,out] replyCmdBuf - a pointer to the ipmi reply packet buffer.
- * @param[in,out] dataLen - initially the request length, set to reply length
- *                          on return.
- * @param[out] code - set to the IPMI error on failure, otherwise unset.
- * @return the ipmi command handler, or nullptr on failure.
+ * @param[in] cmd  Requested command
+ * @param[in] data Requested data
+ * @return the ipmi command handler, or nullopt on failure.
  */
-IpmiBlobHandler validateBlobCommand(const uint8_t* reqBuf, uint8_t* replyCmdBuf,
-                                    size_t* dataLen, ipmi_ret_t* code);
+
+IpmiBlobHandler validateBlobCommand(uint8_t cmd, std::span<const uint8_t> data);
 
 /**
  * Call the IPMI command and process the result, including running the CRC
@@ -32,22 +33,16 @@ IpmiBlobHandler validateBlobCommand(const uint8_t* reqBuf, uint8_t* replyCmdBuf,
  *
  * @param[in] cmd - a funtion pointer to the ipmi command to process.
  * @param[in] mgr - a pointer to the manager interface.
- * @param[in] reqBuf - a pointer to the ipmi request packet buffer.
- * @param[in,out] replyCmdBuf - a pointer to the ipmi reply packet buffer.
- * @param[in,out] dataLen - initially the request length, set to reply length
- *                          on return.
+ * @param[in] data - Requested data.
  * @param[in,out] maxSize - Maximum ipmi reply size
  * @return the ipmi command result.
  */
-ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
-                              const uint8_t* reqBuf, uint8_t* replyCmdBuf,
-                              size_t* dataLen, size_t maxSize);
+Resp processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
+                        std::span<const uint8_t> data, size_t maxSize);
 
 /**
  * Given an IPMI command, request buffer, and reply buffer, validate the request
  * and call processBlobCommand.
  */
-ipmi_ret_t handleBlobCommand(size_t maxSize, ipmi_cmd_t cmd,
-                             const uint8_t* reqBuf, uint8_t* replyCmdBuf,
-                             size_t* dataLen);
+Resp handleBlobCommand(size_t maxSize, uint8_t cmd, std::vector<uint8_t> data);
 } // namespace blobs
