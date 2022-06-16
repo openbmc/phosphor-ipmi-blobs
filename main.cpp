@@ -24,11 +24,14 @@
 #include <ipmid/api.h>
 
 #include <cstdio>
+#include <ipmid/api-types.hpp>
+#include <ipmid/handler.hpp>
 #include <ipmid/iana.hpp>
 #include <ipmid/oemopenbmc.hpp>
 #include <ipmid/oemrouter.hpp>
 #include <memory>
 #include <phosphor-logging/log.hpp>
+#include <span>
 
 namespace blobs
 {
@@ -39,13 +42,16 @@ void setupBlobGlobalHandler() __attribute__((constructor));
 
 void setupBlobGlobalHandler()
 {
-    oem::Router* oemRouter = oem::mutableRouter();
     std::fprintf(stderr,
                  "Registering OEM:[%#08X], Cmd:[%#04X] for Blob Commands\n",
                  oem::obmcOemNumber, oem::Cmd::blobTransferCmd);
 
-    oemRouter->registerHandler(oem::obmcOemNumber, oem::Cmd::blobTransferCmd,
-                               handleBlobCommand);
+    ipmi::registerOemHandler(
+        ipmi::prioOemBase, oem::obmcOemNumber, oem::Cmd::blobTransferCmd,
+        ::ipmi::Privilege::User,
+        [](ipmi::Context::ptr, uint8_t cmd, const std::vector<uint8_t>& data) {
+            return handleBlobCommand(cmd, data);
+        });
 
     /* Install handlers. */
     try
