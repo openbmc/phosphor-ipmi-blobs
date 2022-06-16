@@ -11,10 +11,6 @@ namespace blobs
 
 using ::testing::Return;
 
-// ipmid.hpp isn't installed where we can grab it and this value is per BMC
-// SoC.
-#define MAX_IPMI_BUFFER 64
-
 TEST(BlobCloseTest, ManagerRejectsCloseReturnsFailure)
 {
     // The session manager returned failure to close, which we need to pass on.
@@ -22,21 +18,18 @@ TEST(BlobCloseTest, ManagerRejectsCloseReturnsFailure)
     ManagerMock mgr;
     uint16_t sessionId = 0x54;
     size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
+    std::vector<uint8_t> request;
     struct BmcBlobCloseTx req;
 
-    req.cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobClose);
     req.crc = 0;
     req.sessionId = sessionId;
 
     dataLen = sizeof(req);
-
-    std::memcpy(request, &req, sizeof(req));
+    request.resize(dataLen);
+    std::memcpy(request.data(), &req, dataLen);
 
     EXPECT_CALL(mgr, close(sessionId)).WillOnce(Return(false));
-    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
-              closeBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseUnspecifiedError(), closeBlob(&mgr, request));
 }
 
 TEST(BlobCloseTest, BlobClosedReturnsSuccess)
@@ -46,19 +39,18 @@ TEST(BlobCloseTest, BlobClosedReturnsSuccess)
     ManagerMock mgr;
     uint16_t sessionId = 0x54;
     size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
+    std::vector<uint8_t> request;
     struct BmcBlobCloseTx req;
 
-    req.cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobClose);
     req.crc = 0;
     req.sessionId = sessionId;
 
     dataLen = sizeof(req);
-
-    std::memcpy(request, &req, sizeof(req));
+    request.resize(dataLen);
+    std::memcpy(request.data(), &req, dataLen);
 
     EXPECT_CALL(mgr, close(sessionId)).WillOnce(Return(true));
-    EXPECT_EQ(IPMI_CC_OK, closeBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseSuccess(std::vector<uint8_t>{}),
+              closeBlob(&mgr, request));
 }
 } // namespace blobs
