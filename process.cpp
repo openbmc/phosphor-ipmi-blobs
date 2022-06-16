@@ -20,7 +20,10 @@
 
 #include <cstring>
 #include <ipmiblob/crc.hpp>
+#include <ipmid/api-types.hpp>
+#include <span>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace blobs
@@ -29,7 +32,6 @@ namespace blobs
 /* Used by all commands with data. */
 struct BmcRx
 {
-    uint8_t cmd;
     uint16_t crc;
     uint8_t data; /* one byte minimum of data. */
 } __attribute__((packed));
@@ -48,29 +50,29 @@ static const std::unordered_map<BlobOEMCommands, IpmiBlobHandler> handlers = {
     {BlobOEMCommands::bmcBlobWriteMeta, writeMeta},
 };
 
-IpmiBlobHandler validateBlobCommand(const uint8_t* reqBuf,
-                                    uint8_t* /*replyCmdBuf*/, size_t* dataLen,
-                                    ipmi_ret_t* code)
+IpmiBlobHandler validateBlobCommand(uint8_t cmd, std::span<const uint8_t> data)
 {
-    size_t requestLength = (*dataLen);
+    size_t requestLength = data.size();
     /* We know dataLen is at least 1 already */
-    auto command = static_cast<BlobOEMCommands>(reqBuf[0]);
+    auto command = static_cast<BlobOEMCommands>(cmd);
 
     /* Validate it's at least well-formed. */
     if (!validateRequestLength(command, requestLength))
     {
-        *code = IPMI_CC_REQ_DATA_LEN_INVALID;
-        return nullptr;
+        return [](ManagerInterface*, std::span<const uint8_t>) {
+            return ipmi::responseReqDataLenInvalid();
+        };
     }
 
     /* If there is a payload. */
-    if (requestLength > sizeof(uint8_t))
+    if (requestLength > sizeof(cmd))
     {
         /* Verify the request includes: command, crc16, data */
         if (requestLength < sizeof(struct BmcRx))
         {
-            *code = IPMI_CC_REQ_DATA_LEN_INVALID;
-            return nullptr;
+            return [](ManagerInterface*, std::span<const uint8_t>) {
+                return ipmi::responseReqDataLenInvalid();
+            };
         }
 
         /* We don't include the command byte at offset 0 as part of the crc
@@ -81,44 +83,58 @@ IpmiBlobHandler validateBlobCommand(const uint8_t* reqBuf,
         /* We start after the command byte. */
         std::vector<uint8_t> bytes(requestBodyLen);
 
-        /* It likely has a well-formed payload. */
-        struct BmcRx request;
-        std::memcpy(&request, reqBuf, sizeof(request));
-        uint16_t crcValue = request.crc;
+        /* It likely has a well-formed payload.
+         * Get the first two bytes of the request for crc.
+         */
+        uint16_t crc;
+        if (data.size() < sizeof(crc))
+        {
+            return [](ManagerInterface*, std::span<const uint8_t>) {
+                return ipmi::responseReqDataLenInvalid();
+            };
+        }
+        std::memcpy(&crc, data.data(), sizeof(crc));
 
-        /* Set the in-place CRC to zero. */
-        std::memcpy(bytes.data(), &reqBuf[3], requestBodyLen);
+        /* Set the in-place CRC to zero.
+         * Remove the first two bytes for crc and get the reset of the request.
+         */
+        data = data.subspan(sizeof(crc));
 
         /* Crc expected but didn't match. */
-        if (crcValue != ipmiblob::generateCrc(bytes))
+        if (crc != ipmiblob::generateCrc(
+                       std::vector<uint8_t>(data.begin(), data.end())))
         {
-            *code = IPMI_CC_UNSPECIFIED_ERROR;
-            return nullptr;
-        }
+            return [](ManagerInterface*, std::span<const uint8_t>) {
+                return ipmi::responseUnspecifiedError();
+            };
+        };
     }
 
     /* Grab the corresponding handler for the command. */
     auto found = handlers.find(command);
     if (found == handlers.end())
     {
-        *code = IPMI_CC_INVALID_FIELD_REQUEST;
-        return nullptr;
+        return [](ManagerInterface*, std::span<const uint8_t>) {
+            return ipmi::responseInvalidFieldRequest();
+        };
     }
 
     return found->second;
 }
 
-ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
-                              const uint8_t* reqBuf, uint8_t* replyCmdBuf,
-                              size_t* dataLen)
+Resp processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
+                        std::span<const uint8_t> data)
 {
-    ipmi_ret_t result = cmd(mgr, reqBuf, replyCmdBuf, dataLen);
-    if (result != IPMI_CC_OK)
+    Resp result = cmd(mgr, data);
+    if (std::get<0>(result) != ipmi::ccSuccess)
     {
         return result;
     }
 
-    size_t replyLength = (*dataLen);
+    std::vector<uint8_t>& response = std::get<0>(
+        // std::variant<std::vector<uint8_t>>
+        *std::get<1>(result));
+    size_t replyLength = response.size();
 
     /* The command, whatever it was, returned success. */
     if (replyLength == 0)
@@ -131,42 +147,30 @@ ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
      */
     if (replyLength < (sizeof(uint16_t)))
     {
-        return IPMI_CC_UNSPECIFIED_ERROR;
+        return ipmi::responseUnspecifiedError();
     }
 
     /* The command, whatever it was, replied, so let's set the CRC. */
-    std::vector<std::uint8_t> crcBuffer(replyCmdBuf + sizeof(uint16_t),
-                                        replyCmdBuf + replyLength);
+    std::span<const uint8_t> responseView = response;
+    responseView = responseView.subspan(sizeof(uint16_t));
+    std::vector<std::uint8_t> crcBuffer(responseView.begin(),
+                                        responseView.end());
     /* Copy the CRC into place. */
     uint16_t crcValue = ipmiblob::generateCrc(crcBuffer);
-    std::memcpy(replyCmdBuf, &crcValue, sizeof(crcValue));
+    if (response.size() < sizeof(crcValue))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
+    std::memcpy(response.data(), &crcValue, sizeof(crcValue));
 
     return result;
 }
 
-ipmi_ret_t handleBlobCommand(ipmi_cmd_t, const uint8_t* reqBuf,
-                             uint8_t* replyCmdBuf, size_t* dataLen)
+Resp handleBlobCommand(uint8_t cmd, std::vector<uint8_t> data)
 {
-    /* It's holding at least a sub-command.  The OEN is trimmed from the bytes
-     * before this is called.
-     */
-    if ((*dataLen) < 1)
-    {
-        return IPMI_CC_REQ_DATA_LEN_INVALID;
-    }
-
     /* on failure rc is set to the corresponding IPMI error. */
-    ipmi_ret_t rc = IPMI_CC_OK;
-    IpmiBlobHandler command =
-        validateBlobCommand(reqBuf, replyCmdBuf, dataLen, &rc);
-    if (command == nullptr)
-    {
-        (*dataLen) = 0;
-        return rc;
-    }
-
-    return processBlobCommand(command, getBlobManager(), reqBuf, replyCmdBuf,
-                              dataLen);
+    return processBlobCommand(validateBlobCommand(cmd, data), getBlobManager(),
+                              data);
 }
 
 } // namespace blobs

@@ -12,79 +12,58 @@ namespace blobs
 using ::testing::Return;
 using ::testing::StrEq;
 
-// ipmid.hpp isn't installed where we can grab it and this value is per BMC
-// SoC.
-#define MAX_IPMI_BUFFER 64
-
 TEST(BlobDeleteTest, InvalidRequestLengthReturnsFailure)
 {
     // There is a minimum blobId length of one character, this test verifies
     // we check that.
-
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobDeleteTx*>(request);
+    std::vector<uint8_t> request;
+    struct BmcBlobDeleteTx req;
+    req.crc = 0;
     std::string blobId = "abc";
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobDelete);
-    req->crc = 0;
-    // length() doesn't include the nul-terminator.
-    std::memcpy(req + 1, blobId.c_str(), blobId.length());
+    request.resize(sizeof(struct BmcBlobDeleteTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobDeleteTx));
+    request.insert(request.end(), blobId.begin(), blobId.end());
 
-    dataLen = sizeof(struct BmcBlobDeleteTx) + blobId.length();
-
-    EXPECT_EQ(IPMI_CC_REQ_DATA_LEN_INVALID,
-              deleteBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseReqDataLenInvalid(), deleteBlob(&mgr, request));
 }
 
 TEST(BlobDeleteTest, RequestRejectedReturnsFailure)
 {
     // The blobId is rejected for any reason.
-
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobDeleteTx*>(request);
+    std::vector<uint8_t> request;
+    struct BmcBlobDeleteTx req;
+    req.crc = 0;
     std::string blobId = "a";
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobDelete);
-    req->crc = 0;
-    // length() doesn't include the nul-terminator, request buff is initialized
-    // to 0s
-    std::memcpy(req + 1, blobId.c_str(), blobId.length());
-
-    dataLen = sizeof(struct BmcBlobDeleteTx) + blobId.length() + 1;
+    request.resize(sizeof(struct BmcBlobDeleteTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobDeleteTx));
+    request.insert(request.end(), blobId.begin(), blobId.end());
+    request.emplace_back('\0');
 
     EXPECT_CALL(mgr, deleteBlob(StrEq(blobId))).WillOnce(Return(false));
-
-    EXPECT_EQ(IPMI_CC_UNSPECIFIED_ERROR,
-              deleteBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseUnspecifiedError(), deleteBlob(&mgr, request));
 }
 
 TEST(BlobDeleteTest, BlobDeleteReturnsOk)
 {
     // The boring case where the blobId is deleted.
-
     ManagerMock mgr;
-    size_t dataLen;
-    uint8_t request[MAX_IPMI_BUFFER] = {0};
-    uint8_t reply[MAX_IPMI_BUFFER] = {0};
-    auto req = reinterpret_cast<struct BmcBlobDeleteTx*>(request);
+    std::vector<uint8_t> request;
+    struct BmcBlobDeleteTx req;
+    req.crc = 0;
     std::string blobId = "a";
 
-    req->cmd = static_cast<std::uint8_t>(BlobOEMCommands::bmcBlobDelete);
-    req->crc = 0;
-    // length() doesn't include the nul-terminator, request buff is initialized
-    // to 0s
-    std::memcpy(req + 1, blobId.c_str(), blobId.length());
-
-    dataLen = sizeof(struct BmcBlobDeleteTx) + blobId.length() + 1;
+    request.resize(sizeof(struct BmcBlobDeleteTx));
+    std::memcpy(request.data(), &req, sizeof(struct BmcBlobDeleteTx));
+    request.insert(request.end(), blobId.begin(), blobId.end());
+    request.emplace_back('\0');
 
     EXPECT_CALL(mgr, deleteBlob(StrEq(blobId))).WillOnce(Return(true));
 
-    EXPECT_EQ(IPMI_CC_OK, deleteBlob(&mgr, request, reply, &dataLen));
+    EXPECT_EQ(ipmi::responseSuccess(std::vector<uint8_t>{}),
+              deleteBlob(&mgr, request));
 }
 } // namespace blobs
