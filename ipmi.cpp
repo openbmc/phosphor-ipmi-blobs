@@ -256,9 +256,6 @@ Resp readBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
     }
     std::memcpy(&request, data.data(), sizeof(request));
 
-    /* TODO(venture): Verify requestedSize can fit in a returned IPMI packet.
-     */
-
     std::vector<uint8_t> result =
         mgr->read(request.sessionId, request.offset, request.requestedSize);
 
