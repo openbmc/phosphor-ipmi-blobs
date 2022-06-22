@@ -32,6 +32,7 @@
 #include <memory>
 #include <phosphor-logging/log.hpp>
 #include <span>
+#include <user_channel/channel_layer.hpp>
 
 namespace blobs
 {
@@ -49,8 +50,13 @@ void setupBlobGlobalHandler()
     ipmi::registerOemHandler(
         ipmi::prioOemBase, oem::obmcOemNumber, oem::Cmd::blobTransferCmd,
         ::ipmi::Privilege::User,
-        [](ipmi::Context::ptr, uint8_t cmd, const std::vector<uint8_t>& data) {
-            return handleBlobCommand(cmd, data);
+        [](ipmi::Context::ptr ctx, uint8_t cmd,
+           const std::vector<uint8_t>& data) {
+            // Get current IPMI channel and get the max
+            // transfer size (assuming that it does not
+            // change).
+            return handleBlobCommand(
+                cmd, data, ipmi::getChannelMaxTransferSize(ctx->channel));
         });
 
     /* Install handlers. */

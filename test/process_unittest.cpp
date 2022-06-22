@@ -168,7 +168,7 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsNotOk)
     };
 
     EXPECT_EQ(ipmi::responseInvalidCommand(),
-              processBlobCommand(h, &manager, request));
+              processBlobCommand(h, &manager, request, MAX_IPMI_BUFFER));
 }
 
 TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithNoPayload)
@@ -184,7 +184,7 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithNoPayload)
     };
 
     EXPECT_EQ(ipmi::responseSuccess(std::vector<uint8_t>()),
-              processBlobCommand(h, &manager, request));
+              processBlobCommand(h, &manager, request, MAX_IPMI_BUFFER));
 }
 
 TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithInvalidPayloadLength)
@@ -200,7 +200,7 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithInvalidPayloadLength)
     };
 
     EXPECT_EQ(ipmi::responseUnspecifiedError(),
-              processBlobCommand(h, &manager, request));
+              processBlobCommand(h, &manager, request, MAX_IPMI_BUFFER));
 }
 
 TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithValidPayloadLength)
@@ -221,10 +221,31 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithValidPayloadLength)
 
     EXPECT_CALL(crcMock, generateCrc(_)).WillOnce(Return(0x3412));
 
-    auto result = validateReply(processBlobCommand(h, &manager, request));
+    auto result = validateReply(
+        processBlobCommand(h, &manager, request, MAX_IPMI_BUFFER));
 
     EXPECT_EQ(result.size(), payloadLen);
     EXPECT_THAT(result, ElementsAre(0x12, 0x34, 0x56));
 }
 
+TEST_F(ProcessBlobCommandTest,
+       CommandReturnsErrorWithReplyExceededMaxTransferSize)
+{
+    // There is a minimum payload length of 3 bytes, this command returns a
+    // payload of 3 bytes and the crc code is called to process the payload.
+
+    StrictMock<ManagerMock> manager;
+    std::vector<uint8_t> request(MAX_IPMI_BUFFER - 1);
+    uint32_t payloadLen = sizeof(uint16_t) + sizeof(uint8_t);
+
+    IpmiBlobHandler h = [payloadLen](ManagerInterface*,
+                                     std::span<const uint8_t>) {
+        std::vector<uint8_t> output(payloadLen, 0);
+        output[2] = 0x56;
+        return ipmi::responseSuccess(output);
+    };
+
+    EXPECT_EQ(ipmi::responseResponseError(),
+              processBlobCommand(h, &manager, request, 0));
+}
 } // namespace blobs

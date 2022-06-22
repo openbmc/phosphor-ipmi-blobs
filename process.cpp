@@ -87,6 +87,12 @@ IpmiBlobHandler validateBlobCommand(uint8_t cmd, std::span<const uint8_t> data)
          * Get the first two bytes of the request for crc.
          */
         uint16_t crc;
+        if (data.size() < sizeof(crc))
+        {
+            return [](ManagerInterface*, std::span<const uint8_t>) {
+                return ipmi::responseReqDataLenInvalid();
+            };
+        }
         std::memcpy(&crc, data.data(), sizeof(crc));
 
         /* Set the in-place CRC to zero.
@@ -117,7 +123,7 @@ IpmiBlobHandler validateBlobCommand(uint8_t cmd, std::span<const uint8_t> data)
 }
 
 Resp processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
-                        std::span<const uint8_t> data)
+                        std::span<const uint8_t> data, size_t maxSize)
 {
     Resp result = cmd(mgr, data);
     if (std::get<0>(result) != ipmi::ccSuccess)
@@ -144,6 +150,12 @@ Resp processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
         return ipmi::responseUnspecifiedError();
     }
 
+    /* Make sure the reply size fits the ipmi buffer */
+    if (replyLength > maxSize)
+    {
+        return ipmi::responseResponseError();
+    }
+
     /* The command, whatever it was, replied, so let's set the CRC. */
     std::span<const uint8_t> responseView = response;
     responseView = responseView.subspan(sizeof(uint16_t));
@@ -151,16 +163,20 @@ Resp processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
                                         responseView.end());
     /* Copy the CRC into place. */
     uint16_t crcValue = ipmiblob::generateCrc(crcBuffer);
+    if (response.size() < sizeof(crcValue))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
     std::memcpy(response.data(), &crcValue, sizeof(crcValue));
 
     return result;
 }
 
-Resp handleBlobCommand(uint8_t cmd, std::vector<uint8_t> data)
+Resp handleBlobCommand(uint8_t cmd, std::vector<uint8_t> data, size_t maxSize)
 {
     /* on failure rc is set to the corresponding IPMI error. */
     return processBlobCommand(validateBlobCommand(cmd, data), getBlobManager(),
-                              data);
+                              data, maxSize);
 }
 
 } // namespace blobs

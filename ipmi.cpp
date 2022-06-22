@@ -136,6 +136,10 @@ Resp openBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 Resp closeBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 {
     struct BmcBlobCloseTx request;
+    if (data.size() < sizeof(request))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
     std::memcpy(&request, data.data(), sizeof(request));
 
     /* Attempt to close. */
@@ -205,6 +209,10 @@ Resp statBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 Resp sessionStatBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 {
     struct BmcBlobSessionStatTx request;
+    if (data.size() < sizeof(request))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
     std::memcpy(&request, data.data(), sizeof(request));
 
     /* Attempt to stat. */
@@ -242,10 +250,11 @@ Resp commitBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 Resp readBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 {
     struct BmcBlobReadTx request;
+    if (data.size() < sizeof(request))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
     std::memcpy(&request, data.data(), sizeof(request));
-
-    /* TODO(venture): Verify requestedSize can fit in a returned IPMI packet.
-     */
 
     std::vector<uint8_t> result =
         mgr->read(request.sessionId, request.offset, request.requestedSize);
@@ -283,6 +292,10 @@ Resp writeMeta(ManagerInterface* mgr, std::span<const uint8_t> data)
 {
     struct BmcBlobWriteMetaTx request;
 
+    if (data.size() < sizeof(request))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
     /* Copy over the request. */
     std::memcpy(&request, data.data(), sizeof(request));
 
