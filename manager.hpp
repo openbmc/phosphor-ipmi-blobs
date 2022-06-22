@@ -14,16 +14,6 @@ namespace blobs
 {
 
 using namespace std::chrono_literals;
-
-/* The maximum read size.
- * NOTE: Once this can be dynamically determined, we'll switch to that method.
- * Having this in a header allows it to used cleanly for now.
- */
-const int crcSize = sizeof(uint16_t);
-const int btReplyHdrLen = 5;
-const int btTransportLength = 64;
-const uint32_t maximumReadSize =
-    btTransportLength - (btReplyHdrLen + oem::groupMagicSize + crcSize);
 constexpr auto defaultSessionTimeout = 10min;
 
 struct SessionInfo
