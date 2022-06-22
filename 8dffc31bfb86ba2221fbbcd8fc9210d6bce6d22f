@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "227b33b8_ce8cfe6b",
+        "filename": "ipmi.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-06-22T18:32:58Z",
+      "side": 1,
+      "message": "oh yeah, doesn\u0027t look like std::memcpy_s is a thing. \n\nDo you just use https://www.cs.helsinki.fi/group/boi2016/doc/cppreference/reference/en.cppreference.com/w/c/string/byte/memcpy.html?",
+      "parentUuid": "a0847452_a1df1727",
+      "revId": "8dffc31bfb86ba2221fbbcd8fc9210d6bce6d22f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a5dbbe34_83258ecc",
         "filename": "ipmi.cpp",
         "patchSetId": 5
@@ -48,6 +66,30 @@
       "writtenOn": "2022-06-22T16:54:53Z",
       "side": 1,
       "message": "is this still true?",
+      "range": {
+        "startLine": 264,
+        "startChar": 0,
+        "endLine": 264,
+        "endChar": 32
+      },
+      "revId": "8dffc31bfb86ba2221fbbcd8fc9210d6bce6d22f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d06cb65_1a703fbd",
+        "filename": "ipmi.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-06-22T18:32:58Z",
+      "side": 1,
+      "message": "we good now.",
+      "parentUuid": "a5dbbe34_83258ecc",
       "range": {
         "startLine": 264,
         "startChar": 0,
@@ -81,6 +123,30 @@
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2205ddc_0c635aaa",
+        "filename": "process.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-06-22T18:32:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da229cfd_1769d3b3",
+      "range": {
+        "startLine": 86,
+        "startChar": 47,
+        "endLine": 86,
+        "endChar": 48
+      },
+      "revId": "8dffc31bfb86ba2221fbbcd8fc9210d6bce6d22f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "febcbcfe_8534fd68",
@@ -94,6 +160,30 @@
       "writtenOn": "2022-06-22T16:54:53Z",
       "side": 1,
       "message": "nit: take out?",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 75
+      },
+      "revId": "8dffc31bfb86ba2221fbbcd8fc9210d6bce6d22f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1b3fd51_43daa293",
+        "filename": "test/process_unittest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-06-22T18:32:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "febcbcfe_8534fd68",
       "range": {
         "startLine": 127,
         "startChar": 0,
