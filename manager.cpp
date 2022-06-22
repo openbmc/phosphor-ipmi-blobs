@@ -169,8 +169,7 @@ std::vector<uint8_t> BlobManager::read(uint16_t session, uint32_t offset,
 
     if (auto handler = getActionHandler(session, OpenFlags::read))
     {
-        return handler->read(session, offset,
-                             std::min(maximumReadSize, requestedSize));
+        return handler->read(session, offset, requestedSize);
     }
     return {};
 }
