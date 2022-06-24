@@ -73,6 +73,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7f825ada_32d7d48e",
+        "filename": "ipmi.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-06-24T15:38:33Z",
+      "side": 1,
+      "message": "I think I have done that. Use only the struct size for everything. I\u0027ll double check on that.",
+      "parentUuid": "af2746d5_97a6edc2",
+      "revId": "8dffc31bfb86ba2221fbbcd8fc9210d6bce6d22f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a5dbbe34_83258ecc",
         "filename": "ipmi.cpp",
         "patchSetId": 5
