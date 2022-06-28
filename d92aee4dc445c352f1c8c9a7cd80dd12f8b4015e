@@ -1,0 +1,7 @@
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Code-Review+2: Brandon Kim <brandonkim@google.com>
+Submitted-by: Willy Tu <wltu@google.com>
+Submitted-at: Tue, 28 Jun 2022 18:25:14 +0000
+Reviewed-on: https://gerrit.openbmc.org/c/openbmc/phosphor-ipmi-blobs/+/54405
+Project: openbmc/phosphor-ipmi-blobs
+Branch: refs/heads/master
