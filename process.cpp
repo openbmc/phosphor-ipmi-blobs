@@ -110,7 +110,7 @@ IpmiBlobHandler validateBlobCommand(const uint8_t* reqBuf,
 
 ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
                               const uint8_t* reqBuf, uint8_t* replyCmdBuf,
-                              size_t* dataLen, size_t maxSize)
+                              size_t* dataLen)
 {
     ipmi_ret_t result = cmd(mgr, reqBuf, replyCmdBuf, dataLen);
     if (result != IPMI_CC_OK)
@@ -134,12 +134,6 @@ ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
         return IPMI_CC_UNSPECIFIED_ERROR;
     }
 
-    /* Make sure the reply size fits the ipmi buffer */
-    if (replyLength > maxSize)
-    {
-        return IPMI_CC_RESPONSE_ERROR;
-    }
-
     /* The command, whatever it was, replied, so let's set the CRC. */
     std::vector<std::uint8_t> crcBuffer(replyCmdBuf + sizeof(uint16_t),
                                         replyCmdBuf + replyLength);
@@ -150,7 +144,7 @@ ipmi_ret_t processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
     return result;
 }
 
-ipmi_ret_t handleBlobCommand(size_t maxSize, ipmi_cmd_t, const uint8_t* reqBuf,
+ipmi_ret_t handleBlobCommand(ipmi_cmd_t, const uint8_t* reqBuf,
                              uint8_t* replyCmdBuf, size_t* dataLen)
 {
     /* It's holding at least a sub-command.  The OEN is trimmed from the bytes
@@ -172,7 +166,7 @@ ipmi_ret_t handleBlobCommand(size_t maxSize, ipmi_cmd_t, const uint8_t* reqBuf,
     }
 
     return processBlobCommand(command, getBlobManager(), reqBuf, replyCmdBuf,
-                              dataLen, maxSize);
+                              dataLen);
 }
 
 } // namespace blobs
