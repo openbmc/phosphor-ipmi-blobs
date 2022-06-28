@@ -21,11 +21,7 @@ import('pkgconfig').generate(
   description: 'Phosphor Blob Transfer Interface',
   version: meson.project_version())
 
-cpp = meson.get_compiler('cpp')
-
 phosphor_logging_dep = dependency('phosphor-logging')
-ipmid_dep = dependency('libipmid')
-channellayer_dep = cpp.find_library('channellayer', required: true)
 
 blob_manager_pre = declare_dependency(
   dependencies: [
@@ -64,8 +60,7 @@ shared_module(
   implicit_include_directories: false,
   dependencies: [
     blob_manager_dep,
-    ipmid_dep,
-    channellayer_dep,
+    dependency('libipmid'),
   ],
   install: true,
   install_dir: get_option('libdir') / 'ipmid-providers')
