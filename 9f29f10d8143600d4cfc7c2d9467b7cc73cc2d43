@@ -16,6 +16,24 @@
       "message": "Tested: ?\n\nWe should make sure this works on the main and tray BMCs this time since we know that this is the problem - is there a way to capture this in unit test?",
       "revId": "9f29f10d8143600d4cfc7c2d9467b7cc73cc2d43",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "389c9947_62d55236",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-06-29T15:58:58Z",
+      "side": 1,
+      "message": "Added the tests. There is no easy way to capture this in unit test. It is just based on the maxSize that we pass into the function and selecting the right Channel to use.",
+      "parentUuid": "77c0b992_2ac3d327",
+      "revId": "9f29f10d8143600d4cfc7c2d9467b7cc73cc2d43",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
