@@ -51,6 +51,24 @@
       "parentUuid": "c3c9c13c_c12ac25d",
       "revId": "067ece158062d32b5a8f266e96d9608908017b37",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b550fa92_71dab7b4",
+        "filename": "ipmi.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-08-23T22:14:03Z",
+      "side": 1,
+      "message": "ok, I think we are fine\n\n```\nipmi::registerOemHandler(\n        ipmi::prioOemBase, oem::obmcOemNumber, oem::Cmd::blobTransferCmd,\n        ::ipmi::Privilege::User,\n        [](ipmi::Context::ptr, uint8_t cmd, const std::vector\u003cuint8_t\u003e\u0026 data) {\n            return handleBlobCommand(cmd, data);\n        });\n```\n\nThe `cmd` is the one bye offset that is unpacked away from the data so it works out.\n\nThis should be fine.",
+      "parentUuid": "e54842cb_c7094936",
+      "revId": "067ece158062d32b5a8f266e96d9608908017b37",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
