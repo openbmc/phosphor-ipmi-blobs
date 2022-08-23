@@ -33,6 +33,24 @@
       "message": "So we have an empty `BmcBlobEnumerateRx` struct at the beginning?",
       "revId": "067ece158062d32b5a8f266e96d9608908017b37",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e54842cb_c7094936",
+        "filename": "ipmi.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-08-23T22:04:40Z",
+      "side": 1,
+      "message": "oh, are you seeing it as part of the `openBlob` function? It seems like Gerrit is doing weird stuff.\n\nIt is under the `enumerateBlob` function and yeah it has BmcBlobEnumerateRx in the beginning.\n\nBmcBlobEnumerateRx only have a `crc` within it.\n\nThis replaces the following\n```\nauto reply \u003d reinterpret_cast\u003cstruct BmcBlobEnumerateRx*\u003e(replyCmdBuf);\nreply-\u003ecrc \u003d 0;\n```\n\nNow I am wondering if I have an off by one error... since I inject data at the end instead of the beginning.",
+      "parentUuid": "c3c9c13c_c12ac25d",
+      "revId": "067ece158062d32b5a8f266e96d9608908017b37",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
