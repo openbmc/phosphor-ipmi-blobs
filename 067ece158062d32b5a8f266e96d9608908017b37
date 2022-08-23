@@ -16,6 +16,23 @@
       "message": "friendly ping.\n\nThis change support current existing use cases in gBMC.",
       "revId": "067ece158062d32b5a8f266e96d9608908017b37",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3c9c13c_c12ac25d",
+        "filename": "ipmi.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2022-08-23T21:44:02Z",
+      "side": 1,
+      "message": "So we have an empty `BmcBlobEnumerateRx` struct at the beginning?",
+      "revId": "067ece158062d32b5a8f266e96d9608908017b37",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
