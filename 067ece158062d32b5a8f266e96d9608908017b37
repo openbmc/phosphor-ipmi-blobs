@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "595670f7_e2a4b1cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-08-23T21:05:52Z",
+      "side": 1,
+      "message": "friendly ping.\n\nThis change support current existing use cases in gBMC.",
+      "revId": "067ece158062d32b5a8f266e96d9608908017b37",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
