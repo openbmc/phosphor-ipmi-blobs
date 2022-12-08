@@ -8,14 +8,14 @@ support firmware upgrades,
 
 The interface defined in this document supports:
 
-*   Enumerating blobs
-*   Opening a blob for reading or writing
-*   Writing blob content
-*   Committing a blob
-*   Polling until the blob has been committed
-*   Closing a blob
-*   Reading blob content
-*   Deleting a blob
+- Enumerating blobs
+- Opening a blob for reading or writing
+- Writing blob content
+- Committing a blob
+- Polling until the blob has been committed
+- Closing a blob
+- Reading blob content
+- Deleting a blob
 
 Some blobs will only support a subset of these operations. For example, firmware
 cannot generally be read, as the firmware file is not persisted on the BMC after
@@ -40,8 +40,7 @@ If an identifier is malformed, e.g. does not have a trailing NUL-byte or is
 otherwise unrecognizable by the BMC, an error is returned.
 
 The OEM Number to use with these commands is
-[openbmc oen](https://github.com/openbmc/phosphor-host-ipmid/blob/194375f2676715a0e0697bab63234a4efe39fb96/include/ipmid/iana.hpp#L12)
-49871.
+[openbmc oen](https://github.com/openbmc/phosphor-host-ipmid/blob/194375f2676715a0e0697bab63234a4efe39fb96/include/ipmid/iana.hpp#L12) 49871.
 
 ## Commands
 
@@ -374,11 +373,11 @@ command handler, though not more than once every minute.
 
 The blob manager provides the following calling contract guarantees:
 
-*   The blob manager will only call `open()` on your handler if the handler
-    responds that they can handle the path.
-*   The blob manager will only call a session-based command against your handler
-    if that session is already open (e.g. `stat()` or `commit()`).
-    *   The caveat is the open command where the session is provided to the
-        handler within the call.
-*   The blob manager will only call `delete()` on a blob if there are no open
-    sessions to that blob id.
+- The blob manager will only call `open()` on your handler if the handler
+  responds that they can handle the path.
+- The blob manager will only call a session-based command against your handler
+  if that session is already open (e.g. `stat()` or `commit()`).
+  - The caveat is the open command where the session is provided to the handler
+    within the call.
+- The blob manager will only call `delete()` on a blob if there are no open
+  sessions to that blob id.
