@@ -61,7 +61,7 @@ spec.
 The `BmcBlobGetCount` command expects to receive an empty body. The BMC will
 return the number of enumerable blobs:
 
-```
+```cpp
 struct BmcBlobCountRx {
     uint16_t crc16;
     uint32_t blob_count;
@@ -72,7 +72,7 @@ struct BmcBlobCountRx {
 
 The `BmcBlobEnumerate` command expects to receive a body of:
 
-```
+```cpp
 struct BmcBlobEnumerateTx {
     uint16_t crc16;
     uint32_t blob_idx; /* 0-based index of blob to retrieve. */
@@ -81,7 +81,7 @@ struct BmcBlobEnumerateTx {
 
 The BMC will return the corresponding blob identifier:
 
-```
+```cpp
 struct BmcBlobEnumerateRx {
     uint16_t crc16;
     char     blob_id[];
@@ -99,7 +99,7 @@ subject to concurrent modification issues.
 
 The BmcBlobOpen command expects to receive a body of:
 
-```
+```cpp
 struct BmcBlobOpenTx {
     uint16_t crc16;
     uint16_t flags;
@@ -110,7 +110,7 @@ struct BmcBlobOpenTx {
 The flags field allows the caller to specify whether the blob is being opened
 for reading or writing:
 
-```
+```cpp
 enum BmcBlobOpenFlagBits {
     READ = 0,
     WRITE = 1,
@@ -128,7 +128,7 @@ sessions to be active at once.
 The BMC allocates a unique session identifier, and internally maps it to the
 blob identifier.
 
-```
+```cpp
 struct BmcBlobOpenRx {
     uint16_t crc16;
     uint16_t session_id;
@@ -140,7 +140,7 @@ struct BmcBlobOpenRx {
 The BmcBlobRead command is used to read blob data. It expects to receive a body
 of:
 
-```
+```cpp
 struct BmcBlobReadTx {
     uint16_t crc16;
     uint16_t session_id; /* Returned from BmcBlobOpen. */
@@ -152,7 +152,7 @@ struct BmcBlobReadTx {
 Blob handlers may require the blob’s "state" to equal `OPEN_R` before reading is
 successful.
 
-```
+```cpp
 struct BmcBlobReadRx {
     uint16_t crc16;
     uint8_t  data[];
@@ -173,7 +173,7 @@ response is returned; e.g., data is empty.
 
 The `BmcBlobWrite` command expects to receive a body of:
 
-```
+```cpp
 struct BmcBlobWriteTx {
     uint16_t crc16;
     uint16_t session_id; /* Returned from BmcBlobOpen. */
@@ -194,7 +194,7 @@ On success it will return a success completion code.
 
 The `BmcBlobCommit` command expects to receive a body of:
 
-```
+```cpp
 struct BmcBlobCommitTx {
     uint16_t crc16;
     uint16_t session_id; /* Returned from BmcBlobOpen. */
@@ -219,7 +219,7 @@ On success, the BMC returns success completion code.
 The `BmcBlobClose` command must be called after commit-polling has finished,
 regardless of the result. It expects to receive a body of:
 
-```
+```cpp
 struct BmcBlobCloseTx {
     uint16_t crc16;
     uint16_t session_id; /* Returned from BmcBlobOpen. */
@@ -234,7 +234,7 @@ success completion code.
 The `BmcBlobDelete` command is used to delete a blob. Not all blobs will support
 deletion. This command expects to receive a body of:
 
-```
+```cpp
 struct BmcBlobDeleteTx {
     uint16_t crc16;
     char     blob_id[]; /* Must correspond to a valid blob. */
@@ -251,7 +251,7 @@ The `BmcBlobStat` command is used to retrieve statistics about a blob. Not all
 blobs must support this command; this is only useful when blob_id semantics are
 more useful than session IDs. This command expects to receive a body of:
 
-```
+```cpp
 struct BmcBlobStatTx {
     uint16_t crc16;
     char     blob_id[]; /* Must correspond to a valid blob. */
@@ -260,7 +260,7 @@ struct BmcBlobStatTx {
 
 The BMC returns the following data:
 
-```
+```cpp
 struct BmcBlobStatRx {
     uint16_t crc16;
     uint16_t blob_state;
@@ -272,7 +272,7 @@ struct BmcBlobStatRx {
 
 The blob_state field is a bit field with the following flags:
 
-```
+```cpp
 enum BmcBlobStateFlagBits {
     OPEN_R = 0,
     OPEN_W = 1,
@@ -306,14 +306,14 @@ However, this command operates on sessions, rather than blob IDs. Not all blobs
 must support this command; this is only useful when session semantics are more
 useful than raw blob IDs.
 
-```
+```cpp
 struct BmcBlobSessionStatTx {
     uint16_t crc16;
     uint16_t session_id; /* Returned from BmcBlobOpen. */
 };
 ```
 
-```
+```cpp
 struct BmcBlobSessionStatRx {
     uint16_t crc16;
     uint16_t blob_state;
@@ -330,7 +330,7 @@ blob-specific, and not all blobs must support it.
 
 The `BmcBlobWriteMeta` command expects to receive a body of:
 
-```
+```cpp
 struct BmcBlobWriteMetaTx
 {
     uint16_t crc16;
