@@ -1,7 +1,5 @@
 #include "helper.hpp"
 
-#include "ipmi.hpp"
-
 #include <ipmid/api-types.hpp>
 #include <optional>
 #include <span>
