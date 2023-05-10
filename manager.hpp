@@ -1,9 +1,10 @@
 #pragma once
 
 #include <blobs-ipmid/blobs.hpp>
+#include <ipmid/oemrouter.hpp>
+
 #include <chrono>
 #include <ctime>
-#include <ipmid/oemrouter.hpp>
 #include <memory>
 #include <set>
 #include <string>
@@ -23,8 +24,7 @@ struct SessionInfo
                 uint16_t flags) :
         blobId(path),
         handler(handler), flags(flags)
-    {
-    }
+    {}
     ~SessionInfo() = default;
 
     std::string blobId;

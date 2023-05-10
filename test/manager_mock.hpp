@@ -3,6 +3,7 @@
 #include "manager.hpp"
 
 #include <blobs-ipmid/blobs.hpp>
+
 #include <memory>
 #include <string>
 

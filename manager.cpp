@@ -245,9 +245,10 @@ bool BlobManager::getSession(uint16_t* sess)
 GenericBlobInterface* BlobManager::getHandler(const std::string& path)
 {
     /* Find a handler. */
-    auto h = std::find_if(
-        handlers.begin(), handlers.end(),
-        [&path](const auto& iter) { return (iter->canHandleBlob(path)); });
+    auto h = std::find_if(handlers.begin(), handlers.end(),
+                          [&path](const auto& iter) {
+        return (iter->canHandleBlob(path));
+    });
     if (h != handlers.end())
     {
         return h->get();

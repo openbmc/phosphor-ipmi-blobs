@@ -1,9 +1,10 @@
 #include "example/example.hpp"
 
+#include <phosphor-logging/log.hpp>
+
 #include <algorithm>
 #include <cstring>
 #include <memory>
-#include <phosphor-logging/log.hpp>
 #include <string>
 #include <vector>
 

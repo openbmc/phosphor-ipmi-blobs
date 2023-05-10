@@ -177,16 +177,17 @@ class GenericBlobInterface
 } // namespace blobs
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/**
- * All Blob handlers need to implement this method.  It is called after loading
- * the library to then get a handle to the blob handler.
- *
- * @return a unique pointer to your blob handler instance.
- */
-std::unique_ptr<blobs::GenericBlobInterface> createHandler();
+    /**
+     * All Blob handlers need to implement this method.  It is called after
+     * loading the library to then get a handle to the blob handler.
+     *
+     * @return a unique pointer to your blob handler instance.
+     */
+    std::unique_ptr<blobs::GenericBlobInterface> createHandler();
 
 #ifdef __cplusplus
 }

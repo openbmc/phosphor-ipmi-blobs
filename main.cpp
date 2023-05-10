@@ -23,16 +23,17 @@
 
 #include <ipmid/api.h>
 
-#include <cstdio>
 #include <ipmid/api-types.hpp>
 #include <ipmid/handler.hpp>
 #include <ipmid/iana.hpp>
 #include <ipmid/oemopenbmc.hpp>
 #include <ipmid/oemrouter.hpp>
-#include <memory>
 #include <phosphor-logging/log.hpp>
-#include <span>
 #include <user_channel/channel_layer.hpp>
+
+#include <cstdio>
+#include <memory>
+#include <span>
 
 namespace blobs
 {
@@ -47,16 +48,15 @@ void setupBlobGlobalHandler()
                  "Registering OEM:[%#08X], Cmd:[%#04X] for Blob Commands\n",
                  oem::obmcOemNumber, oem::Cmd::blobTransferCmd);
 
-    ipmi::registerOemHandler(
-        ipmi::prioOemBase, oem::obmcOemNumber, oem::Cmd::blobTransferCmd,
-        ::ipmi::Privilege::User,
-        [](ipmi::Context::ptr ctx, uint8_t cmd,
-           const std::vector<uint8_t>& data) {
-            // Get current IPMI channel and get the max transfer size
-            // (assuming that it does not change).
-            return handleBlobCommand(
-                cmd, data, ipmi::getChannelMaxTransferSize(ctx->channel));
-        });
+    ipmi::registerOemHandler(ipmi::prioOemBase, oem::obmcOemNumber,
+                             oem::Cmd::blobTransferCmd, ::ipmi::Privilege::User,
+                             [](ipmi::Context::ptr ctx, uint8_t cmd,
+                                const std::vector<uint8_t>& data) {
+        // Get current IPMI channel and get the max transfer size
+        // (assuming that it does not change).
+        return handleBlobCommand(cmd, data,
+                                 ipmi::getChannelMaxTransferSize(ctx->channel));
+    });
 
     /* Install handlers. */
     try

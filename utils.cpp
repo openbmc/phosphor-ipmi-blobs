@@ -21,8 +21,9 @@
 
 #include <dlfcn.h>
 
-#include <memory>
 #include <phosphor-logging/log.hpp>
+
+#include <memory>
 #include <regex>
 #include <string>
 #include <unordered_set>

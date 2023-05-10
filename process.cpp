@@ -18,9 +18,10 @@
 
 #include "ipmi.hpp"
 
-#include <cstring>
 #include <ipmiblob/crc.hpp>
 #include <ipmid/api-types.hpp>
+
+#include <cstring>
 #include <span>
 #include <unordered_map>
 #include <utility>

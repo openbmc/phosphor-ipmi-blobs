@@ -10,7 +10,6 @@ namespace blobs
 
 TEST(IpmiValidateTest, VerifyCommandMinimumLengths)
 {
-
     struct TestCase
     {
         BlobOEMCommands cmd;

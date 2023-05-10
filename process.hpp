@@ -5,8 +5,9 @@
 
 #include <ipmid/api.h>
 
-#include <functional>
 #include <ipmid/api-types.hpp>
+
+#include <functional>
 #include <span>
 #include <utility>
 #include <vector>

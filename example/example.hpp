@@ -1,20 +1,22 @@
 #pragma once
 
 #include <blobs-ipmid/blobs.hpp>
+
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/**
- * This method must be declared as extern C for blob manager to lookup the
- * symbol.
- */
-std::unique_ptr<blobs::GenericBlobInterface> createHandler();
+    /**
+     * This method must be declared as extern C for blob manager to lookup the
+     * symbol.
+     */
+    std::unique_ptr<blobs::GenericBlobInterface> createHandler();
 
 #ifdef __cplusplus
 }
@@ -31,8 +33,7 @@ struct ExampleBlob
     ExampleBlob(uint16_t id, uint16_t flags) :
         sessionId(id), flags(flags),
         state(StateFlags::open_read | StateFlags::open_write), length(0)
-    {
-    }
+    {}
 
     /* The blob handler session id. */
     uint16_t sessionId;
