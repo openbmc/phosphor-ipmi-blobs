@@ -1,0 +1,6 @@
+[wrap-git]
+url = https://github.com/openbmc/ipmi-blob-tool.git
+revision = HEAD
+
+[provide]
+ipmiblob = ipmiblob

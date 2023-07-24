@@ -25,12 +25,13 @@ cpp = meson.get_compiler('cpp')
 
 phosphor_logging_dep = dependency('phosphor-logging')
 ipmid_dep = dependency('libipmid')
-channellayer_dep = cpp.find_library('channellayer', required: true)
+channellayer_dep = dependency('libchannellayer')
 
 blob_manager_pre = declare_dependency(
   dependencies: [
     ipmi_blob_dep,
     dependency('ipmiblob'),
+    ipmid_dep,
     phosphor_logging_dep,
   ])
 
