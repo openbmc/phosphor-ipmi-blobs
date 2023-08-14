@@ -1,0 +1,9 @@
+Code-Review+1: Brandon Kim <brandonkim@google.com>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Code-Review+2: Benjamin Fair <benjaminfair@google.com>
+Code-Review+2: William A. Kennington III <wak@google.com>
+Submitted-by: Jonathan Doman <jonathan.doman@intel.com>
+Submitted-at: Mon, 14 Aug 2023 16:42:19 +0000
+Reviewed-on: https://gerrit.openbmc.org/c/openbmc/phosphor-ipmi-blobs/+/65367
+Project: openbmc/phosphor-ipmi-blobs
+Branch: refs/heads/master
