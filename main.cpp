@@ -42,6 +42,7 @@ using namespace phosphor::logging;
 
 void setupBlobGlobalHandler() __attribute__((constructor));
 
+// Hello World: Just a test to get Jenkins to run again
 void setupBlobGlobalHandler()
 {
     std::fprintf(stderr,
