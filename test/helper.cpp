@@ -21,6 +21,8 @@ std::vector<std::uint8_t>
 
     auto actualReply = std::get<1>(reply);
     EXPECT_TRUE(actualReply.has_value());
+    if (!actualReply.has_value())
+        return std::vector<uint8_t>{};
 
     auto data = std::get<0>(*actualReply);
     EXPECT_EQ(hasData, !data.empty());
