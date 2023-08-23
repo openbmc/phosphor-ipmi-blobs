@@ -50,6 +50,24 @@
       "message": "btw: you can drop the `value: auto` as this is the default meson uses.",
       "revId": "ac437fbc52fcc50365118022d53c8a029fd309cb",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b91961b_e04fd270",
+        "filename": "meson.options",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000520
+      },
+      "writtenOn": "2023-08-23T20:14:06Z",
+      "side": 1,
+      "message": "Done. Did not know that.",
+      "parentUuid": "16c9a950_a8291a3a",
+      "revId": "ac437fbc52fcc50365118022d53c8a029fd309cb",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
