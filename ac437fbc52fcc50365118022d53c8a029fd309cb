@@ -16,6 +16,23 @@
       "message": "Nice, now that the tests run at compile time, it revealed more compilation errors!",
       "revId": "ac437fbc52fcc50365118022d53c8a029fd309cb",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6831fd6c_a0cc3c4f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000520
+      },
+      "writtenOn": "2023-08-23T17:24:44Z",
+      "side": 1,
+      "message": "We need https://gerrit.openbmc.org/c/openbmc/phosphor-host-ipmid/+/66098 to be merged before we can continue here.",
+      "revId": "ac437fbc52fcc50365118022d53c8a029fd309cb",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
