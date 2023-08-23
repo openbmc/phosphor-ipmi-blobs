@@ -71,10 +71,10 @@ shared_module(
   install: true,
   install_dir: get_option('libdir') / 'ipmid-providers')
 
-if get_option('examples')
+if get_option('examples').enabled()
   subdir('example')
 endif
 
-if not get_option('tests').disabled()
+if get_option('tests').enabled()
   subdir('test')
 endif

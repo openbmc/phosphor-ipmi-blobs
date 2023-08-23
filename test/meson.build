@@ -1,5 +1,5 @@
-gtest = dependency('gtest', main: true, disabler: true, required: get_option('tests'))
-gmock = dependency('gmock', disabler: true, required: get_option('tests'))
+gtest = dependency('gtest', main: true, disabler: true, required: get_option('tests').enabled())
+gmock = dependency('gmock', disabler: true, required: get_option('tests').enabled())
 
 tests = [
   'ipmi_close_unittest',
