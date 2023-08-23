@@ -75,6 +75,6 @@ if get_option('examples')
   subdir('example')
 endif
 
-if not get_option('tests').disabled()
+if get_option('tests')
   subdir('test')
 endif
