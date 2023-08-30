@@ -122,6 +122,24 @@
       "parentUuid": "7bed1092_693f634f",
       "revId": "e5fb140bf205d7d826e8320155e589fd8327a7d9",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa71d4fd_7faa7ccb",
+        "filename": "test/meson.build",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000520
+      },
+      "writtenOn": "2023-08-30T22:16:09Z",
+      "side": 1,
+      "message": "If `required` is `false`, and the dependency is not found, will Meson still attempt to build the needer of the dependency, and thus error out? If so, that would somewhat defeat the point of being optional. Should the parts of the Meson file that use `gtest` and `gmock` be surrounded in appropriate `if` blocks, so that they will be excluded if not found?",
+      "parentUuid": "940c6053_3deb0dc0",
+      "revId": "e5fb140bf205d7d826e8320155e589fd8327a7d9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
