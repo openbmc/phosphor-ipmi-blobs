@@ -140,6 +140,24 @@
       "parentUuid": "940c6053_3deb0dc0",
       "revId": "e5fb140bf205d7d826e8320155e589fd8327a7d9",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8c028fc_0670846f",
+        "filename": "test/meson.build",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000233
+      },
+      "writtenOn": "2023-08-31T05:17:30Z",
+      "side": 1,
+      "message": "That\u0027s my understanding, and it matches the examples in the documentation: https://mesonbuild.com/Build-options.html#features",
+      "parentUuid": "aa71d4fd_7faa7ccb",
+      "revId": "e5fb140bf205d7d826e8320155e589fd8327a7d9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
