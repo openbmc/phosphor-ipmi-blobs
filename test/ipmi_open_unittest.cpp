@@ -77,9 +77,9 @@ TEST(BlobOpenTest, BlobOpenReturnsOk)
 
     EXPECT_CALL(mgr, open(req.flags, StrEq(blobId), NotNull()))
         .WillOnce(Invoke([&](uint16_t, const std::string&, uint16_t* session) {
-            (*session) = returnedSession;
-            return true;
-        }));
+        (*session) = returnedSession;
+        return true;
+    }));
 
     auto result = validateReply(openBlob(&mgr, request));
 

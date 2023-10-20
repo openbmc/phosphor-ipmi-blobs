@@ -213,8 +213,8 @@ TEST_F(ProcessBlobCommandTest, CommandReturnsOkWithValidPayloadLength)
     std::vector<uint8_t> request(MAX_IPMI_BUFFER - 1);
     uint32_t payloadLen = sizeof(uint16_t) + sizeof(uint8_t);
 
-    IpmiBlobHandler h =
-        [payloadLen](ManagerInterface*, std::span<const uint8_t>) {
+    IpmiBlobHandler h = [payloadLen](ManagerInterface*,
+                                     std::span<const uint8_t>) {
         std::vector<uint8_t> output(payloadLen, 0);
         output[2] = 0x56;
         return ipmi::responseSuccess(output);
@@ -239,8 +239,8 @@ TEST_F(ProcessBlobCommandTest,
     std::vector<uint8_t> request(MAX_IPMI_BUFFER - 1);
     uint32_t payloadLen = sizeof(uint16_t) + sizeof(uint8_t);
 
-    IpmiBlobHandler h =
-        [payloadLen](ManagerInterface*, std::span<const uint8_t>) {
+    IpmiBlobHandler h = [payloadLen](ManagerInterface*,
+                                     std::span<const uint8_t>) {
         std::vector<uint8_t> output(payloadLen, 0);
         output[2] = 0x56;
         return ipmi::responseSuccess(output);

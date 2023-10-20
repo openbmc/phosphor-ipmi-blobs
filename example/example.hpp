@@ -12,11 +12,11 @@ extern "C"
 {
 #endif
 
-    /**
-     * This method must be declared as extern C for blob manager to lookup the
-     * symbol.
-     */
-    std::unique_ptr<blobs::GenericBlobInterface> createHandler();
+/**
+ * This method must be declared as extern C for blob manager to lookup the
+ * symbol.
+ */
+std::unique_ptr<blobs::GenericBlobInterface> createHandler();
 
 #ifdef __cplusplus
 }
