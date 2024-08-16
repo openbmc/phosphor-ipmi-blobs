@@ -43,8 +43,9 @@ TEST(StringInputTest, NulTerminatorFound)
     // return it.
     std::string request = "asdf";
     request.push_back('\0');
-    EXPECT_STREQ("asdf", stringFromBuffer(std::vector<uint8_t>(request.begin(),
-                                                               request.end()))
-                             .c_str());
+    EXPECT_STREQ(
+        "asdf",
+        stringFromBuffer(std::vector<uint8_t>(request.begin(), request.end()))
+            .c_str());
 }
 } // namespace blobs

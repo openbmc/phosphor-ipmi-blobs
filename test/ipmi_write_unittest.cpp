@@ -28,8 +28,8 @@ TEST(BlobWriteTest, ManagerReturnsFailureReturnsFailure)
     std::array<uint8_t, 2> expectedBytes = {0x66, 0x67};
     request.insert(request.end(), expectedBytes.begin(), expectedBytes.end());
 
-    EXPECT_CALL(
-        mgr, write(req.sessionId, req.offset, ElementsAreArray(expectedBytes)))
+    EXPECT_CALL(mgr, write(req.sessionId, req.offset,
+                           ElementsAreArray(expectedBytes)))
         .WillOnce(Return(false));
 
     EXPECT_EQ(ipmi::responseUnspecifiedError(), writeBlob(&mgr, request));
@@ -53,8 +53,8 @@ TEST(BlobWriteTest, ManagerReturnsTrueWriteSucceeds)
     std::array<uint8_t, 2> expectedBytes = {0x66, 0x67};
     request.insert(request.end(), expectedBytes.begin(), expectedBytes.end());
 
-    EXPECT_CALL(
-        mgr, write(req.sessionId, req.offset, ElementsAreArray(expectedBytes)))
+    EXPECT_CALL(mgr, write(req.sessionId, req.offset,
+                           ElementsAreArray(expectedBytes)))
         .WillOnce(Return(true));
 
     EXPECT_EQ(ipmi::responseSuccess(std::vector<uint8_t>{}),

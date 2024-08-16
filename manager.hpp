@@ -21,9 +21,7 @@ struct SessionInfo
 {
     SessionInfo() = default;
     SessionInfo(const std::string& path, GenericBlobInterface* handler,
-                uint16_t flags) :
-        blobId(path),
-        handler(handler), flags(flags)
+                uint16_t flags) : blobId(path), handler(handler), flags(flags)
     {}
     ~SessionInfo() = default;
 

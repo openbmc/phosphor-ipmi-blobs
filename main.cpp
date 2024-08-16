@@ -48,15 +48,16 @@ void setupBlobGlobalHandler()
                  "Registering OEM:[%#08X], Cmd:[%#04X] for Blob Commands\n",
                  oem::obmcOemNumber, oem::Cmd::blobTransferCmd);
 
-    ipmi::registerOemHandler(ipmi::prioOemBase, oem::obmcOemNumber,
-                             oem::Cmd::blobTransferCmd, ::ipmi::Privilege::User,
-                             [](ipmi::Context::ptr ctx, uint8_t cmd,
-                                const std::vector<uint8_t>& data) {
-        // Get current IPMI channel and get the max transfer size
-        // (assuming that it does not change).
-        return handleBlobCommand(cmd, data,
-                                 ipmi::getChannelMaxTransferSize(ctx->channel));
-    });
+    ipmi::registerOemHandler(
+        ipmi::prioOemBase, oem::obmcOemNumber, oem::Cmd::blobTransferCmd,
+        ::ipmi::Privilege::User,
+        [](ipmi::Context::ptr ctx, uint8_t cmd,
+           const std::vector<uint8_t>& data) {
+            // Get current IPMI channel and get the max transfer size
+            // (assuming that it does not change).
+            return handleBlobCommand(
+                cmd, data, ipmi::getChannelMaxTransferSize(ctx->channel));
+        });
 
     /* Install handlers. */
     try

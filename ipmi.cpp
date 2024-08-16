@@ -256,8 +256,8 @@ Resp readBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
     }
     std::memcpy(&request, data.data(), sizeof(request));
 
-    std::vector<uint8_t> result = mgr->read(request.sessionId, request.offset,
-                                            request.requestedSize);
+    std::vector<uint8_t> result =
+        mgr->read(request.sessionId, request.offset, request.requestedSize);
 
     /* If the Read fails, it returns success but with only the crc and 0 bytes
      * of data.

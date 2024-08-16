@@ -10,7 +10,6 @@
 
 namespace blobs
 {
-std::vector<std::uint8_t>
-    validateReply(ipmi::RspType<std::vector<uint8_t>> reply,
-                  bool hasData = true);
+std::vector<std::uint8_t> validateReply(
+    ipmi::RspType<std::vector<uint8_t>> reply, bool hasData = true);
 } // namespace blobs
