@@ -1,0 +1,8 @@
+Code-Review+2: Benjamin Fair <benjaminfair@google.com>
+Code-Review+2: Brandon Kim <brandonkim@google.com>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Submitted-by: Patrick Williams <patrick@stwcx.xyz>
+Submitted-at: Wed, 18 Dec 2024 20:05:14 +0000
+Reviewed-on: https://gerrit.openbmc.org/c/openbmc/phosphor-ipmi-blobs/+/76792
+Project: openbmc/phosphor-ipmi-blobs
+Branch: refs/heads/master
