@@ -43,7 +43,7 @@ void loadLibraries(ManagerInterface* manager, const std::string& path,
                    const internal::DlSysInterface* sys)
 {
     std::unordered_set<HandlerFactory> seen;
-    void* libHandle = NULL;
+    void* libHandle = nullptr;
     HandlerFactory factory;
 
     std::vector<std::string> libs = getLibraryList(path, matchBlobHandler);
