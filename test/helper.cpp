@@ -12,8 +12,8 @@
 
 namespace blobs
 {
-std::vector<std::uint8_t>
-    validateReply(ipmi::RspType<std::vector<uint8_t>> reply, bool hasData)
+std::vector<std::uint8_t> validateReply(
+    ipmi::RspType<std::vector<uint8_t>> reply, bool hasData)
 {
     // Reply is in the form of
     // std::tuple<ipmi::Cc, std::optional<std::tuple<RetTypes...>>>

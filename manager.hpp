@@ -41,8 +41,8 @@ class ManagerInterface
   public:
     virtual ~ManagerInterface() = default;
 
-    virtual bool
-        registerHandler(std::unique_ptr<GenericBlobInterface> handler) = 0;
+    virtual bool registerHandler(
+        std::unique_ptr<GenericBlobInterface> handler) = 0;
 
     virtual uint32_t buildBlobList() = 0;
 
@@ -98,8 +98,8 @@ class BlobManager : public ManagerInterface
      * @param[in] handler - a pointer to a blob handler.
      * @return bool - true if registered.
      */
-    bool
-        registerHandler(std::unique_ptr<GenericBlobInterface> handler) override;
+    bool registerHandler(
+        std::unique_ptr<GenericBlobInterface> handler) override;
 
     /**
      * Builds the blobId list for enumeration.

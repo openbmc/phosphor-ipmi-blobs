@@ -256,8 +256,8 @@ GenericBlobInterface* BlobManager::getHandler(const std::string& path)
     return nullptr;
 }
 
-GenericBlobInterface*
-    BlobManager::getActionHandler(uint16_t session, uint16_t requiredFlags)
+GenericBlobInterface* BlobManager::getActionHandler(uint16_t session,
+                                                    uint16_t requiredFlags)
 {
     if (auto item = sessions.find(session);
         item != sessions.end() && (item->second.flags & requiredFlags))
