@@ -56,7 +56,7 @@ TEST_F(UtilLoadLibraryTest, NoFilesFound)
 
 TEST_F(UtilLoadLibraryTest, OneFileFoundIsLibrary)
 {
-    /* Verify if it finds a library, and everything works, it'll regsiter it.
+    /* Verify if it finds a library, and everything works, it'll register it.
      */
 
     returnList = {"this.fake"};

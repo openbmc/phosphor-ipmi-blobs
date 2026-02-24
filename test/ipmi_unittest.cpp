@@ -29,7 +29,7 @@ TEST(StringInputTest, ZeroBytesInput)
 TEST(StringInputTest, NulTerminatorNotFound)
 {
     // Verify that if there isn't a nul-terminator found in an otherwise valid
-    // string, it'll return the emptry string.
+    // string, it'll return the empty string.
     std::array<char, MAX_IPMI_BUFFER> request;
     std::memset(request.data(), 'a', sizeof(request));
     EXPECT_STREQ("", stringFromBuffer(

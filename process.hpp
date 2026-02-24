@@ -31,7 +31,7 @@ IpmiBlobHandler validateBlobCommand(uint8_t cmd, std::span<const uint8_t> data);
  * Call the IPMI command and process the result, including running the CRC
  * computation for the reply message if there is one.
  *
- * @param[in] cmd - a funtion pointer to the ipmi command to process.
+ * @param[in] cmd - a function pointer to the ipmi command to process.
  * @param[in] mgr - a pointer to the manager interface.
  * @param[in] data - Requested data.
  * @param[in,out] maxSize - Maximum ipmi reply size
