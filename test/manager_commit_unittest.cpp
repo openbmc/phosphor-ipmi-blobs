@@ -65,4 +65,29 @@ TEST(ManagerCommitTest, CommitSessionFoundAndHandlerReturnsSuccess)
 
     EXPECT_TRUE(mgr.commit(sess, data));
 }
+
+TEST(ManagerCommitTest, CommitFailsBecauseFileOpenedReadOnly)
+{
+    // The manager will not route a commit call to a file opened
+    // read-only: committing is a mutating operation like write.
+
+    BlobManager mgr;
+    std::unique_ptr<BlobMock> m1 = std::make_unique<BlobMock>();
+    auto m1ptr = m1.get();
+    EXPECT_TRUE(mgr.registerHandler(std::move(m1)));
+
+    uint16_t flags = OpenFlags::read, sess;
+    std::string path = "/asdf/asdf";
+    std::vector<uint8_t> data;
+
+    EXPECT_CALL(*m1ptr, canHandleBlob(path)).WillOnce(Return(true));
+    EXPECT_CALL(*m1ptr, open(_, flags, path)).WillOnce(Return(true));
+    EXPECT_TRUE(mgr.open(flags, path, &sess));
+
+    /* The handler must not even see the commit call. */
+    EXPECT_CALL(*m1ptr, commit(sess, data)).Times(0);
+
+    EXPECT_FALSE(mgr.commit(sess, data));
+}
+
 } // namespace blobs
