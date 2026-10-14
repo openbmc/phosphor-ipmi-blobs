@@ -89,4 +89,17 @@ TEST(BlobCommitTest, ValidCommitWithDataHandlerAcceptsReturnsSuccess)
     EXPECT_EQ(ipmi::responseSuccess(std::vector<uint8_t>{}),
               commitBlob(&mgr, request));
 }
+
+TEST(BlobCommitTest, CommitRequestShorterThanHeaderRejected)
+{
+    // The dispatcher's minimum-length table rejects this today, but the
+    // handler must not depend on it: a request shorter than the fixed
+    // header would wrap the size_t subtraction in the commitDataLen
+    // check.
+    ManagerMock mgr;
+    std::vector<uint8_t> request = {0x00, 0x11, 0x22, 0x33}; /* 4 < 5 */
+
+    EXPECT_EQ(ipmi::responseReqDataLenInvalid(), commitBlob(&mgr, request));
+}
+
 } // namespace blobs

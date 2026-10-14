@@ -92,6 +92,10 @@ Resp enumerateBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 {
     /* Verify datalen is >= sizeof(request) */
     struct BmcBlobEnumerateTx request;
+    if (data.size() < sizeof(request))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
 
     std::memcpy(&request, data.data(), sizeof(request));
 
@@ -109,6 +113,10 @@ Resp enumerateBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 
 Resp openBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 {
+    if (data.size() < sizeof(struct BmcBlobOpenTx))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
     auto request = reinterpret_cast<const struct BmcBlobOpenTx*>(data.data());
     uint16_t session;
 
@@ -153,6 +161,10 @@ Resp closeBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 
 Resp deleteBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 {
+    if (data.size() < sizeof(BmcBlobDeleteTx))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
     std::string path = stringFromBuffer(data.subspan(sizeof(BmcBlobDeleteTx)));
     if (path.empty())
     {
@@ -190,6 +202,10 @@ static Resp returnStatBlob(BlobMeta* meta)
 
 Resp statBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 {
+    if (data.size() < sizeof(BmcBlobStatTx))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
     std::string path = stringFromBuffer(data.subspan(sizeof(BmcBlobStatTx)));
     if (path.empty())
     {
@@ -228,6 +244,14 @@ Resp sessionStatBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 
 Resp commitBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 {
+    /* Validate the length locally: the dispatcher's minimum-length
+     * table covers this today, but this function must not depend on
+     * that (the size_t subtraction below wraps if the request is
+     * shorter than the fixed header). */
+    if (data.size() < sizeof(struct BmcBlobCommitTx))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
     auto request = reinterpret_cast<const struct BmcBlobCommitTx*>(data.data());
 
     /* Sanity check the commitDataLen */
@@ -275,6 +299,10 @@ Resp readBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 
 Resp writeBlob(ManagerInterface* mgr, std::span<const uint8_t> data)
 {
+    if (data.size() < sizeof(struct BmcBlobWriteTx))
+    {
+        return ipmi::responseReqDataLenInvalid();
+    }
     auto request = reinterpret_cast<const struct BmcBlobWriteTx*>(data.data());
     data = data.subspan(sizeof(struct BmcBlobWriteTx));
 
