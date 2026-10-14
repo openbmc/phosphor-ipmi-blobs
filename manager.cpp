@@ -129,7 +129,10 @@ bool BlobManager::stat(uint16_t session, BlobMeta* meta)
 
 bool BlobManager::commit(uint16_t session, const std::vector<uint8_t>& data)
 {
-    if (auto handler = getActionHandler(session))
+    /* Committing is a mutating operation: require the write flag, the
+     * same as BlobManager::write, so a read-only session cannot drive
+     * state changes through the generic dispatch. */
+    if (auto handler = getActionHandler(session, OpenFlags::write))
     {
         return handler->commit(session, data);
     }

@@ -54,4 +54,16 @@ TEST(BlobEnumerateTest, BoringRequestByIdAndReceive)
               // Remove crc and nul-terminator.
               std::string(result.begin() + sizeof(uint16_t), result.end() - 1));
 }
+
+TEST(BlobEnumerateTest, EnumerateRequestShorterThanHeaderRejected)
+{
+    // The dispatcher's minimum-length table rejects this today, but the
+    // handler must not depend on it: a request shorter than the fixed
+    // header would be read past its end.
+    ManagerMock mgr;
+    std::vector<uint8_t> request = {0x00}; /* 1 < sizeof(BmcBlobEnumerateTx) */
+
+    EXPECT_EQ(ipmi::responseReqDataLenInvalid(), enumerateBlob(&mgr, request));
+}
+
 } // namespace blobs
