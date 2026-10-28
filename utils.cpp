@@ -50,37 +50,40 @@ void loadLibraries(ManagerInterface* manager, const std::string& path,
 
     for (const auto& p : libs)
     {
-        libHandle = sys->dlopen(p.c_str(), RTLD_NOW | RTLD_GLOBAL);
-        if (!libHandle)
-        {
-            lg2::error("Error opening handler {HANDLER}: {ERROR}", "HANDLER", p,
-                       "ERROR", sys->dlerror());
-            continue;
-        }
-
-        sys->dlerror(); /* Clear any previous error. */
-
-        factory = reinterpret_cast<HandlerFactory>(
-            sys->dlsym(libHandle, "createHandler"));
-
-        const char* error = sys->dlerror();
-        if (error)
-        {
-            lg2::error("Error loading symbol from handler {HANDLER}: {ERROR}",
-                       "HANDLER", p, "ERROR", error);
-            continue;
-        }
-
-        // We may have duplicate libraries in the blobs directory that we only
-        // want to initialize once.
-        if (seen.count(factory) > 0)
-        {
-            continue;
-        }
-        seen.emplace(factory);
-
         try
         {
+            libHandle = sys->dlopen(p.c_str(), RTLD_NOW | RTLD_GLOBAL);
+            if (!libHandle)
+            {
+                const char* openError = sys->dlerror();
+                lg2::error("Error opening handler {HANDLER}: {ERROR}",
+                           "HANDLER", p, "ERROR",
+                           openError ? openError : "unknown error");
+                continue;
+            }
+
+            sys->dlerror(); /* Clear any previous error. */
+
+            factory = reinterpret_cast<HandlerFactory>(
+                sys->dlsym(libHandle, "createHandler"));
+
+            const char* error = sys->dlerror();
+            if (error || !factory)
+            {
+                lg2::error(
+                    "Error loading symbol from handler {HANDLER}: {ERROR}",
+                    "HANDLER", p, "ERROR", error ? error : "null symbol");
+                continue;
+            }
+
+            // We may have duplicate libraries in the blobs directory that we
+            // only want to initialize once.
+            if (seen.count(factory) > 0)
+            {
+                continue;
+            }
+            seen.emplace(factory);
+
             std::unique_ptr<GenericBlobInterface> result = factory();
             if (!result)
             {
@@ -95,6 +98,11 @@ void loadLibraries(ManagerInterface* manager, const std::string& path,
             lg2::error(
                 "Received exception loading handler {HANDLER}: {EXCEPTION}",
                 "HANDLER", p, "EXCEPTION", e.what());
+        }
+        catch (...)
+        {
+            lg2::error("Received unknown exception loading handler {HANDLER}",
+                       "HANDLER", p);
         }
     }
 }
