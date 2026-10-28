@@ -21,7 +21,7 @@
 
 #include <dlfcn.h>
 
-#include <phosphor-logging/log.hpp>
+#include <phosphor-logging/lg2.hpp>
 
 #include <memory>
 #include <regex>
@@ -29,10 +29,10 @@
 #include <unordered_set>
 #include <vector>
 
+PHOSPHOR_LOG2_USING;
+
 namespace blobs
 {
-
-using namespace phosphor::logging;
 
 bool matchBlobHandler(const std::string& filename)
 {
@@ -53,8 +53,8 @@ void loadLibraries(ManagerInterface* manager, const std::string& path,
         libHandle = sys->dlopen(p.c_str(), RTLD_NOW | RTLD_GLOBAL);
         if (!libHandle)
         {
-            log<level::ERR>("ERROR opening", entry("HANDLER=%s", p.c_str()),
-                            entry("ERROR=%s", sys->dlerror()));
+            lg2::error("Error opening handler {HANDLER}: {ERROR}", "HANDLER", p,
+                       "ERROR", sys->dlerror());
             continue;
         }
 
@@ -66,9 +66,8 @@ void loadLibraries(ManagerInterface* manager, const std::string& path,
         const char* error = sys->dlerror();
         if (error)
         {
-            log<level::ERR>("ERROR loading symbol",
-                            entry("HANDLER=%s", p.c_str()),
-                            entry("ERROR=%s", error));
+            lg2::error("Error loading symbol from handler {HANDLER}: {ERROR}",
+                       "HANDLER", p, "ERROR", error);
             continue;
         }
 
@@ -85,8 +84,7 @@ void loadLibraries(ManagerInterface* manager, const std::string& path,
             std::unique_ptr<GenericBlobInterface> result = factory();
             if (!result)
             {
-                log<level::ERR>("Unable to create handler",
-                                entry("HANDLER=%s", p.c_str()));
+                lg2::error("Unable to create handler {HANDLER}", "HANDLER", p);
                 continue;
             }
 
@@ -94,9 +92,9 @@ void loadLibraries(ManagerInterface* manager, const std::string& path,
         }
         catch (const std::exception& e)
         {
-            log<level::ERR>("Received exception loading handler",
-                            entry("HANDLER=%s", p.c_str()),
-                            entry("EXCEPTION=%s", e.what()));
+            lg2::error(
+                "Received exception loading handler {HANDLER}: {EXCEPTION}",
+                "HANDLER", p, "EXCEPTION", e.what());
         }
     }
 }
