@@ -87,11 +87,11 @@ TEST(BlobStatTest, RequestSucceedsNoMetadata)
 
     EXPECT_CALL(mgr, stat(Matcher<const std::string&>(StrEq(blobId)),
                           Matcher<BlobMeta*>(NotNull())))
-        .WillOnce(Invoke([&](const std::string&, BlobMeta* meta) {
+        .WillOnce([&](const std::string&, BlobMeta* meta) {
             meta->blobState = blobState;
             meta->size = size;
             return true;
-        }));
+        });
 
     auto result = validateReply(statBlob(&mgr, request));
 
@@ -130,10 +130,10 @@ TEST(BlobStatTest, RequestSucceedsWithMetadata)
 
     EXPECT_CALL(mgr, stat(Matcher<const std::string&>(StrEq(blobId)),
                           Matcher<BlobMeta*>(NotNull())))
-        .WillOnce(Invoke([&](const std::string&, BlobMeta* meta) {
+        .WillOnce([&](const std::string&, BlobMeta* meta) {
             (*meta) = lmeta;
             return true;
-        }));
+        });
 
     auto result = validateReply(statBlob(&mgr, request));
 
