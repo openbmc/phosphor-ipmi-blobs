@@ -16,11 +16,14 @@
 
 #include "manager.hpp"
 
+#include <phosphor-logging/lg2.hpp>
+
 #include <algorithm>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
+
+PHOSPHOR_LOG2_USING;
 
 namespace blobs
 {
@@ -308,8 +311,8 @@ void BlobManager::cleanUpStaleSessions(GenericBlobInterface* const handler)
 
     for (auto sessionId : expiredSet)
     {
-        std::cerr << "phosphor-ipmi-blobs: expiring stale session " << sessionId
-                  << std::endl;
+        lg2::warning("Expiring stale session {SESSION_ID}", "SESSION_ID",
+                     sessionId);
 
         /* We do a best case recovery by issuing an expire call. If it fails
          * don't erase sessions since the handler side might be still tracking
@@ -320,8 +323,8 @@ void BlobManager::cleanUpStaleSessions(GenericBlobInterface* const handler)
         }
         else
         {
-            std::cerr << "phosphor-ipmi-blobs: failed to expire session "
-                      << sessionId << std::endl;
+            lg2::error("Failed to expire session {SESSION_ID}", "SESSION_ID",
+                       sessionId);
         }
     }
 }
