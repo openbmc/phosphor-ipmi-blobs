@@ -1,9 +1,9 @@
 Checks: '-*,
+    bugprone-unchecked-optional-access,
     modernize-use-nullptr
     '
 
-FormatStyle: none
-
+ExcludeHeaderFilterRegex: (^|/)subprojects/
 HeaderFilterRegex: .*
 
 WarningsAsErrors: '*'

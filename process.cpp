@@ -132,9 +132,13 @@ Resp processBlobCommand(IpmiBlobHandler cmd, ManagerInterface* mgr,
         return result;
     }
 
-    std::vector<uint8_t>& response = std::get<0>(
-        // std::variant<std::vector<uint8_t>>
-        *std::get<1>(result));
+    auto& payload = std::get<1>(result);
+    if (!payload.has_value())
+    {
+        return result;
+    }
+
+    std::vector<uint8_t>& response = std::get<0>(*payload);
     size_t replyLength = response.size();
 
     /* The command, whatever it was, returned success. */
