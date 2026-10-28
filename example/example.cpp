@@ -1,7 +1,5 @@
 #include "example/example.hpp"
 
-#include <phosphor-logging/log.hpp>
-
 #include <algorithm>
 #include <cstring>
 #include <memory>
@@ -10,8 +8,6 @@
 
 namespace blobs
 {
-
-using namespace phosphor::logging;
 
 constexpr char ExampleBlobHandler::supportedPath[];
 

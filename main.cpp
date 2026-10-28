@@ -28,25 +28,26 @@
 #include <ipmid/iana.hpp>
 #include <ipmid/oemopenbmc.hpp>
 #include <ipmid/oemrouter.hpp>
-#include <phosphor-logging/log.hpp>
+#include <phosphor-logging/lg2.hpp>
 #include <user_channel/channel_layer.hpp>
 
-#include <cstdio>
+#include <cstdint>
+#include <exception>
 #include <memory>
 #include <span>
 
+PHOSPHOR_LOG2_USING;
+
 namespace blobs
 {
-
-using namespace phosphor::logging;
 
 void setupBlobGlobalHandler() __attribute__((constructor));
 
 void setupBlobGlobalHandler()
 {
-    std::fprintf(stderr,
-                 "Registering OEM:[%#08X], Cmd:[%#04X] for Blob Commands\n",
-                 oem::obmcOemNumber, oem::Cmd::blobTransferCmd);
+    lg2::info("Registering OEM:[{OEM}], Cmd:[{CMD}] for Blob Commands", "OEM",
+              lg2::hex, static_cast<uint32_t>(oem::obmcOemNumber), "CMD",
+              lg2::hex, static_cast<uint32_t>(oem::Cmd::blobTransferCmd));
 
     ipmi::registerOemHandler(
         ipmi::prioOemBase, oem::obmcOemNumber, oem::Cmd::blobTransferCmd,
@@ -66,8 +67,7 @@ void setupBlobGlobalHandler()
     }
     catch (const std::exception& e)
     {
-        log<level::ERR>("ERROR loading blob handlers",
-                        entry("ERROR=%s", e.what()));
+        lg2::error("Error loading blob handlers: {ERROR}", "ERROR", e.what());
     }
 }
 } // namespace blobs
