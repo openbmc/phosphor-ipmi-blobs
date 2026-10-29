@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29f89362_f1dd940f",
+        "filename": ".clang-tidy",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1001712
+      },
+      "writtenOn": "2026-10-29T14:53:58Z",
+      "side": 1,
+      "message": "i don\u0027t think this actually works.\n\nin my experiment below it does not detect the number -\u003e pointer conversion if we use the config from this commit.\n\n```\n[alexander@alexanderarchlinux phosphor-ipmi-blobs]$ clang-tidy test.cpp --config\u003d\"$(git show 1854f9da2f3b187d0e7c0792ee326b1657a4c6da^:.clang-tidy)\" -- -x c++ -std\u003dc++23\n1 warning generated.\n/home/alexander/upstreaming/phosphor-ipmi-blobs/test.hpp:3:42: error: use nullptr [modernize-use-nullptr,-warnings-as-errors]\n    3 | inline int* headerNullPointer() { return 0; }\n      |                                          ^\n      |                                          nullptr\n1 warning treated as error\n[alexander@alexanderarchlinux phosphor-ipmi-blobs]$ clang-tidy test.cpp --config\u003d\"$(git show 1854f9da2f3b187d0e7c0792ee326b1657a4c6da:.clang-tidy)\" -- -x c++ -std\u003dc++23\n1 warning generated.\nSuppressed 1 warnings (1 in non-user code).\nUse -header-filter\u003d.* or leave it as default to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.\n[alexander@alexanderarchlinux phosphor-ipmi-blobs]$ cat test.hpp \n#pragma once\n\ninline int* headerNullPointer() { return 0; }\n[alexander@alexanderarchlinux phosphor-ipmi-blobs]$ cat test.cpp \n#include \"test.hpp\"\n```",
+      "range": {
+        "startLine": 4,
+        "startChar": 5,
+        "endLine": 6,
+        "endChar": 37
+      },
+      "revId": "1854f9da2f3b187d0e7c0792ee326b1657a4c6da",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
