@@ -66,4 +66,16 @@ TEST(BlobDeleteTest, BlobDeleteReturnsOk)
     EXPECT_EQ(ipmi::responseSuccess(std::vector<uint8_t>{}),
               deleteBlob(&mgr, request));
 }
+
+TEST(BlobDeleteTest, DeleteRequestShorterThanHeaderRejected)
+{
+    // The dispatcher's minimum-length table rejects this today, but the
+    // handler must not depend on it: a request shorter than the fixed
+    // header would be read past its end.
+    ManagerMock mgr;
+    std::vector<uint8_t> request = {0x00}; /* 1 < sizeof(BmcBlobDeleteTx) */
+
+    EXPECT_EQ(ipmi::responseReqDataLenInvalid(), deleteBlob(&mgr, request));
+}
+
 } // namespace blobs

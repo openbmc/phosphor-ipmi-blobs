@@ -89,4 +89,16 @@ TEST(BlobOpenTest, BlobOpenReturnsOk)
     EXPECT_EQ(sizeof(rep), result.size());
     EXPECT_EQ(0, std::memcmp(result.data(), &rep, sizeof(rep)));
 }
+
+TEST(BlobOpenTest, OpenRequestShorterThanHeaderRejected)
+{
+    // The dispatcher's minimum-length table rejects this today, but the
+    // handler must not depend on it: a request shorter than the fixed
+    // header would be read past its end.
+    ManagerMock mgr;
+    std::vector<uint8_t> request = {0x00}; /* 1 < sizeof(BmcBlobOpenTx) */
+
+    EXPECT_EQ(ipmi::responseReqDataLenInvalid(), openBlob(&mgr, request));
+}
+
 } // namespace blobs

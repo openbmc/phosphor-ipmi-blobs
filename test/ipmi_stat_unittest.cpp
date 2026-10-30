@@ -142,4 +142,16 @@ TEST(BlobStatTest, RequestSucceedsWithMetadata)
     EXPECT_EQ(0, std::memcmp(result.data() + sizeof(rep), lmeta.metadata.data(),
                              lmeta.metadata.size()));
 }
+
+TEST(BlobStatTest, StatRequestShorterThanHeaderRejected)
+{
+    // The dispatcher's minimum-length table rejects this today, but the
+    // handler must not depend on it: a request shorter than the fixed
+    // header would be read past its end.
+    ManagerMock mgr;
+    std::vector<uint8_t> request = {0x00}; /* 1 < sizeof(BmcBlobStatTx) */
+
+    EXPECT_EQ(ipmi::responseReqDataLenInvalid(), statBlob(&mgr, request));
+}
+
 } // namespace blobs
