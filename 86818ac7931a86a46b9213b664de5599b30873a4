@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0bd3ba90_1d3fe0b8",
+        "filename": "process.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000388
+      },
+      "writtenOn": "2026-10-30T17:40:35Z",
+      "side": 1,
+      "message": "nit cleanup:\n\ninclude \u003coptional\u003e and \u003ctuple\u003e directly",
+      "revId": "86818ac7931a86a46b9213b664de5599b30873a4",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5441f85f_1233cd67",
+        "filename": "process.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1000388
+      },
+      "writtenOn": "2026-10-30T17:40:35Z",
+      "side": 1,
+      "message": "Nit (non-blocking): `ProcessBlobCommandTest.CommandReturnsOkWithNoPayload` in `test/process_unittest.cpp` currently tests `ipmi::responseSuccess(std::vector\u003cuint8_t\u003e())` (which hits `replyLength \u003d\u003d 0` below). Feel free to also test `ipmi::responseSuccess()` (`std::nullopt`) here or in a follow-up.",
+      "range": {
+        "startLine": 135,
+        "startChar": 40,
+        "endLine": 140,
+        "endChar": 0
+      },
+      "revId": "86818ac7931a86a46b9213b664de5599b30873a4",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
