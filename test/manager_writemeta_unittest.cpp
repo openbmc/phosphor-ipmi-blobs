@@ -44,7 +44,7 @@ TEST(ManagerWriteMetaTest, WriteMetaSessionFoundButHandlerReturnsFalse)
     EXPECT_FALSE(mgr.writeMeta(sess, ofs, data));
 }
 
-TEST(ManagerWriteMetaTest, WriteMetaSucceedsEvenIfFileOpenedReadOnly)
+TEST(ManagerWriteMetaTest, WriteMetaFailsBecauseFileOpenedReadOnly)
 {
     // The manager will not route a WriteMeta call to a file opened read-only.
 
@@ -62,9 +62,9 @@ TEST(ManagerWriteMetaTest, WriteMetaSucceedsEvenIfFileOpenedReadOnly)
     EXPECT_CALL(*m1ptr, open(_, flags, path)).WillOnce(Return(true));
     EXPECT_TRUE(mgr.open(flags, path, &sess));
 
-    EXPECT_CALL(*m1ptr, writeMeta(sess, ofs, data)).WillOnce(Return(true));
+    EXPECT_CALL(*m1ptr, writeMeta(_, _, _)).Times(0);
 
-    EXPECT_TRUE(mgr.writeMeta(sess, ofs, data));
+    EXPECT_FALSE(mgr.writeMeta(sess, ofs, data));
 }
 
 TEST(ManagerWriteMetaTest, WriteMetaMetaSessionFoundAndHandlerReturnsSuccess)

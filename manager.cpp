@@ -210,7 +210,7 @@ bool BlobManager::deleteBlob(const std::string& path)
 bool BlobManager::writeMeta(uint16_t session, uint32_t offset,
                             const std::vector<uint8_t>& data)
 {
-    if (auto handler = getActionHandler(session))
+    if (auto handler = getActionHandler(session, OpenFlags::write))
     {
         return handler->writeMeta(session, offset, data);
     }
