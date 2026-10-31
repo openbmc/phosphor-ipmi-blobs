@@ -24,6 +24,24 @@
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5781d28b_b01abeaf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1003113
+      },
+      "writtenOn": "2026-10-31T00:31:05Z",
+      "side": 1,
+      "message": "Agreed, I\u0027ll send that as its own phosphor-ipmi-blobs change: BlobManager::writeMeta will require OpenFlags::write the same way commit does here, so no handler, including the phosphor-ipmi-flash window setup, gets writeMeta on a read-only session, and WriteMetaSucceedsEvenIfFileOpenedReadOnly will be changed to expect failure, as its comment already says. I\u0027d like to keep this one to the length guards and the commit gate, and I\u0027ll link the follow-up here when it is up.",
+      "parentUuid": "cfbb5386_d5bccbf2",
+      "revId": "b1939996322cd3fa19444d6a6728b2244505161e",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b47e2687_7b52d145",
@@ -43,6 +61,24 @@
         "endLine": 102,
         "endChar": 76
       },
+      "revId": "b1939996322cd3fa19444d6a6728b2244505161e",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19095d5c_7ca0fcad",
+        "filename": "test/ipmi_commit_unittest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1003113
+      },
+      "writtenOn": "2026-10-31T00:31:05Z",
+      "side": 1,
+      "message": "Done in patch set 2 and still in the current patch set: enumerate, open, delete, stat and write each have a short-request test in their ipmi_*_unittest.cpp, alongside the commit one here.",
+      "parentUuid": "b47e2687_7b52d145",
       "revId": "b1939996322cd3fa19444d6a6728b2244505161e",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
