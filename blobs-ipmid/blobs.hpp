@@ -161,7 +161,7 @@ class GenericBlobInterface
      *
      * @param[in] session - the session id.
      * @param[in,out] meta - pointer to update with the BlobMeta.
-     * @return bool - wether it was successful.
+     * @return bool - whether it was successful.
      */
     virtual bool stat(uint16_t session, BlobMeta* meta) = 0;
 

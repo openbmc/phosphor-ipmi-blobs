@@ -63,7 +63,7 @@ TEST(BlobStatTest, RequestRejectedReturnsFailure)
 
 TEST(BlobStatTest, RequestSucceedsNoMetadata)
 {
-    // Stat request succeeeds but there were no metadata bytes.
+    // Stat request succeeds but there were no metadata bytes.
 
     ManagerMock mgr;
     std::vector<uint8_t> request;
